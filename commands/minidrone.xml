@@ -1,0 +1,1127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<project name="minidrone" id="2">
+	All MiniDrone-only commands
+	<myclass name="Piloting" id="0">
+		All commands related to piloting the MiniDrone
+		<cmd name="FlatTrim" id="0">
+			Do a flat trim
+		</cmd>
+		<cmd name="TakeOff" id="1">
+			Ask the drone to take off
+		</cmd>
+		<cmd name="PCMD" id="2" buffer="NON_ACK">
+			Ask the drone to move around.
+			<arg name="flag" type="u8">
+				Boolean flag to activate roll/pitch movement
+			</arg>
+			<arg name="roll" type="i8">
+				Roll consign for the MiniDrone [-100;100]
+			</arg>
+			<arg name="pitch" type="i8">
+				Pitch consign for the MiniDrone [-100;100]
+			</arg>
+			<arg name="yaw" type="i8">
+				Yaw consign for the MiniDrone [-100;100]
+			</arg>
+			<arg name="gaz" type="i8">
+				Gaz consign for the MiniDrone [-100;100]
+			</arg>
+			<arg name="timestamp" type="u32">
+				Timestamp in miliseconds. Not an absolute time. (Typically 0 = time of connexion).
+			</arg>
+		</cmd>
+		<cmd name="Landing" id="3">
+			Ask the MiniDrone to land
+		</cmd>
+		<cmd name="Emergency" id="4" buffer="HIGH_PRIO" timeout="RETRY">
+			Put drone in emergency state
+		</cmd>
+		<cmd name="AutoTakeOffMode" id="5">
+			Set MiniDrone automatic take off mode
+			<arg name="state" type="u8">
+				State of automatic take off mode
+			</arg>
+		</cmd>
+		<cmd name="FlyingMode" id="6">
+			Set drone FlyingMode. Only supported by WingX
+			<arg name="mode" type="u8">
+				Drone Flying Mode
+				<enum name="quadricopter">
+					Fly as a quadrictopter
+				</enum>
+				<enum name="plane_forward">
+					Fly as a plane in forward mode
+				</enum>
+				<enum name="plane_backward">
+					Fly as a plane in backward mode
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="PlaneGearBox" id="7">
+			Set Plane Gear Box. Only supported by WingX
+			<arg name="state" type="enum">
+				Plane Gear Box
+				<enum name="gear_1">
+					Gear 1. Low speed
+				</enum>
+				<enum name="gear_2">
+					Gear 2. Middle speed
+				</enum>
+				<enum name="gear_3">
+					Gear 3. High speed
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="TogglePilotingMode" id="8">
+			Command to toggle between "easy" piloting mode and "preferred" piloting mode.
+			This command only works while the drone is flying.
+		</cmd>
+	</myclass>
+	<myclass name="PilotingState" id="3">
+		Occasional information
+		<cmd name="FlatTrimChanged" id="0">
+			MiniDrone send flat trim was correctly processed
+		</cmd>
+		<cmd name="FlyingStateChanged" id="1">
+			Drone flying state changed
+			<arg name="state" type="enum">
+				Drone flying state
+				<enum name="landed">
+					Landed state
+				</enum>
+				<enum name="takingoff">
+					Taking off state
+				</enum>
+				<enum name="hovering">
+					Hovering state
+				</enum>
+				<enum name="flying">
+					Flying state
+				</enum>
+				<enum name="landing">
+					Landing state
+				</enum>
+				<enum name="emergency">
+					Emergency state
+				</enum>
+				<enum name="rolling">
+					Rolling state
+				</enum>
+				<enum name="init">
+					Initializing state (user should let the drone steady for a while)
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AlertStateChanged" id="2">
+			Drone alert state changed
+			<arg name="state" type="enum">
+				Drone alert state
+				<enum name="none">
+					No alert
+				</enum>
+				<enum name="user">
+					User emergency alert
+				</enum>
+				<enum name="cut_out">
+					Cut out alert
+				</enum>
+				<enum name="critical_battery">
+					Critical battery alert
+				</enum>
+				<enum name="low_battery">
+					Low battery alert
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AutoTakeOffModeChanged" id="3">
+			Set MiniDrone automatic take off mode
+			<arg name="state" type="u8">
+				State of automatic take off mode
+			</arg>
+		</cmd>
+		<cmd name="FlyingModeChanged" id="4">
+			FlyingMode changed. Only supported by WingX
+			<arg name="mode" type="u8">
+				Drone Flying Mode
+				<enum name="quadricopter">
+					Fly as a quadrictopter
+				</enum>
+				<enum name="plane_forward">
+					Fly as a plane in forward mode
+				</enum>
+				<enum name="plane_backward">
+					Fly as a plane in backward mode
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="PlaneGearBoxChanged" id="5">
+			Plane Gear Box changed. Only supported by WingX
+			<arg name="state" type="enum">
+				Plane Gear Box
+				<enum name="gear_1">
+					Gear 1. Low speed
+				</enum>
+				<enum name="gear_2">
+					Gear 2. Middle speed
+				</enum>
+				<enum name="gear_3">
+					Gear 3. High speed
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="PilotingModeChanged" id="6">
+			Event informing about the piloting mode.
+			<arg name="mode" type="enum">
+				<enum name="easy">
+					The flight envelope of Mambo FPV has been divided in three piloting modes.
+					The first one corresponds to the well-known flying mode currently used for
+					Mambo, which is based in an horizontal stabilisation (performed via the
+					vertical camera and the acceleration information) and a vertical acceleration
+					(by means of the ultrasound, the barometer and the vertical accelerometer) in
+					order for the drone to stay in fixed point position when no piloting commands
+					are sent by the user.
+				</enum>
+				<enum name="medium">
+					The second piloting mode consists of deactivating the horizontal stabilisation.
+					Thus, in this flying mode, when no piloting command is received, the drone will
+					try to stay at 0° tilt angle instead of responding to a 0 m/s horizontal speed
+					reference. This behaviour will result in a slight horizontal drift.
+				</enum>
+				<enum name="difficult">
+					The third piloting mode also adds the vertical stabilisation deactivation and,
+					therefore, a slight vertical drift. When flying in the third mode, a closed
+					loop height control is no longer performed in order for the drone to keep a
+					certain height and vertical speed. Instead, the vertical command coming from
+					the user will directly generate an open loop acceleration command.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Animations" id="4">
+		Animation commands
+		<cmd name="Flip" id="0">
+			Make a flip
+			<arg name="direction" type="enum">
+				Direction for the flip
+				<enum name="front">
+					Flip direction front
+				</enum>
+				<enum name="back">
+					Flip direction back
+				</enum>
+				<enum name="right">
+					Flip direction right
+				</enum>
+				<enum name="left">
+					Flip direction left
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="Cap" id="1">
+			Change the product cap
+			<arg name="offset" type="i16">
+				Change the cap with offset angle [-180;180]
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="MediaRecord" id="6">
+		Media recording management
+		<cmd name="Picture" id="0">
+			@deprecated
+			Take picture
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id to take picture
+			</arg>
+		</cmd>
+		<cmd name="PictureV2" id="1">
+			Take picture
+		</cmd>
+	</myclass>
+	<myclass name="MediaRecordState" id="7">
+		State of media recording
+		<cmd name="PictureStateChanged" id="0">
+			@deprecated
+			State of picture recording
+			<arg name="state" type="u8">
+				1 if picture has been taken, 0 otherwise
+			</arg>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id to record
+			</arg>
+		</cmd>
+		<cmd name="PictureStateChangedV2" id="1">
+			State of device picture recording changed
+			<arg name="state" type="enum">
+				State of device picture recording
+				<enum name="ready">
+					The picture recording is ready
+				</enum>
+				<enum name="busy">
+					The picture recording is busy
+				</enum>
+				<enum name="notAvailable">
+					The picture recording is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+				<enum name="camera_ko">
+					Picture camera is out of order
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional picture
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="MediaRecordEvent" id="2">
+		Events of media recording
+		<cmd name="PictureEventChanged" id="0" content="NOTIFICATION">
+			Event of picture recording
+			<arg name="event" type="enum">
+				Last event of picture recording
+				<enum name="taken">
+					Picture taken and saved
+				</enum>
+				<enum name="failed">
+					Picture failed
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the event
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error ; only when state is failed
+				</enum>
+				<enum name="busy">
+					Picture recording is busy ; only when state is failed
+				</enum>
+				<enum name="notAvailable">
+					Picture recording not available ; only when state is failed
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; only when state is failed
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to record.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="PilotingSettings" id="8">
+		Piloting Settings commands
+		<cmd name="MaxAltitude" id="0">
+			Set Max Altitude
+			<arg name="current" type="float">
+				Current altitude max in m
+			</arg>
+		</cmd>
+		<cmd name="MaxTilt" id="1">
+			Set Max Tilt
+			<arg name="current" type="float">
+				Current tilt max in degree
+			</arg>
+		</cmd>
+		<cmd name="BankedTurn" id="2">
+			<comment
+				title="Set banked turn mode"
+				desc="Set banked turn mode.\n
+				When banked turn mode is enabled, the drone will use yaw values from the piloting command to infer with roll and pitch on the drone when its horizontal speed is not null."
+				support="090b:3.0.6"
+				result="The banked turn mode is enabled or disabled.\n
+				Then, event [BankedTurnMode](#2-9-2) is triggered."/>
+			<arg name="value" type="u8">
+				1 to enable, 0 to disable
+			</arg>
+		</cmd>
+		<cmd name="MaxThrottle" id="3">
+			This setting represents the vertical acceleration command that will be sent to the drone when piloting in gaz mode.
+			In this case, closed loop height control is no longer performed; an open loop vertical acceleration command is generated instead.
+			This command results from multiplying the user command coming from the joystick (float value between 0 and 1) by the MaxThrottle setting (also a value between 0 and 1) and by the gravity constant.
+			Thus, we obtain the corresponding value in [m/s²] that will then be mixed with the attitude commands and translated into rotation speeds.
+			As an example, if the value of this setting is 0.5, the maximal acceleration command that can be generated when the user command equals 1 is :
+			acc_cmd_max = 1 * 0.5 * 9.81 m/s² = 4.905 m/s².
+			<arg name="max" type="float">
+				Max throttle, between 0 and 1.
+			</arg>
+		</cmd>
+		<cmd name="PreferredPilotingMode" id="4">
+			The flight envelope of Mambo FPV has been divided in three piloting modes.
+			<arg name="mode" type="enum">
+				Piloting modes.
+				<enum name="easy">
+					The flight envelope of Mambo FPV has been divided in three piloting modes.
+					The first one corresponds to the well-known flying mode currently used for
+					Mambo, which is based in an horizontal stabilisation (performed via the
+					vertical camera and the acceleration information) and a vertical acceleration
+					(by means of the ultrasound, the barometer and the vertical accelerometer) in
+					order for the drone to stay in fixed point position when no piloting commands
+					are sent by the user.
+				</enum>
+				<enum name="medium">
+					The second piloting mode consists of deactivating the horizontal stabilisation.
+					Thus, in this flying mode, when no piloting command is received, the drone will
+					try to stay at 0° tilt angle instead of responding to a 0 m/s horizontal speed
+					reference. This behaviour will result in a slight horizontal drift.
+				</enum>
+				<enum name="difficult">
+					The third piloting mode also adds the vertical stabilisation deactivation and,
+					therefore, a slight vertical drift. When flying in the third mode, a closed
+					loop height control is no longer performed in order for the drone to keep a
+					certain height and vertical speed. Instead, the vertical command coming from
+					the user will directly generate an open loop acceleration command.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="PilotingSettingsState" id="9">
+		Piloting Settings state from product
+		<cmd name="MaxAltitudeChanged" id="0">
+			Max Altitude sent by product
+			<arg name="current" type="float">
+				Current altitude max
+			</arg>
+			<arg name="min" type="float">
+				Range min of altitude
+			</arg>
+			<arg name="max" type="float">
+				Range max of altitude
+			</arg>
+		</cmd>
+		<cmd name="MaxTiltChanged" id="1">
+			Max tilt sent by product
+			<arg name="current" type="float">
+				Current max tilt
+			</arg>
+			<arg name="min" type="float">
+				Range min of tilt
+			</arg>
+			<arg name="max" type="float">
+				Range max of tilt
+			</arg>
+		</cmd>
+		<cmd name="BankedTurnChanged" id="2">
+			<comment
+				title="Banked Turn mode"
+				desc="Banked Turn mode.\n
+				If banked turn mode is enabled, the drone will use yaw values from the piloting command to infer with roll and pitch on the drone when its horizontal speed is not null."
+				support="090b:3.0.6"
+				triggered="by [SetBankedTurnMode](#2-8-2)."/>
+			<arg name="state" type="u8">
+				1 if enabled, 0 if disabled
+			</arg>
+		</cmd>
+		<cmd name="MaxThrottleChanged" id="3">
+			Event informing about the max throttle.
+			<arg name="max" type="float">
+				Max throttle, between 0 and 1.
+			</arg>
+		</cmd>
+		<cmd name="PreferredPilotingModeChanged" id="4">
+			Event informing about the preferred piloting mode.
+			<arg name="mode" type="enum">
+				<enum name="easy">
+					The flight envelope of Mambo FPV has been divided in three piloting modes.
+					The first one corresponds to the well-known flying mode currently used for
+					Mambo, which is based in an horizontal stabilisation (performed via the
+					vertical camera and the acceleration information) and a vertical acceleration
+					(by means of the ultrasound, the barometer and the vertical accelerometer) in
+					order for the drone to stay in fixed point position when no piloting commands
+					are sent by the user.
+				</enum>
+				<enum name="medium">
+					The second piloting mode consists of deactivating the horizontal stabilisation.
+					Thus, in this flying mode, when no piloting command is received, the drone will
+					try to stay at 0° tilt angle instead of responding to a 0 m/s horizontal speed
+					reference. This behaviour will result in a slight horizontal drift.
+				</enum>
+				<enum name="difficult">
+					The third piloting mode also adds the vertical stabilisation deactivation and,
+					therefore, a slight vertical drift. When flying in the third mode, a closed
+					loop height control is no longer performed in order for the drone to keep a
+					certain height and vertical speed. Instead, the vertical command coming from
+					the user will directly generate an open loop acceleration command.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="SpeedSettings" id="1">
+		Speed Settings commands
+		<cmd name="MaxVerticalSpeed" id="0">
+			Set Max Vertical speed
+			<arg name="current" type="float">
+				Current max vertical speed in m/s
+			</arg>
+		</cmd>
+		<cmd name="MaxRotationSpeed" id="1">
+			Set Max Rotation speed
+			<arg name="current" type="float">
+				Current max rotation speed in degree/s
+			</arg>
+		</cmd>
+		<cmd name="Wheels" id="2">
+			Presence of wheels
+			<arg name="present" type="u8">
+				1 if present, 0 if not present
+			</arg>
+		</cmd>
+		<cmd name="MaxHorizontalSpeed" id="3">
+			Set Max Horizontal speed (only used in case where PilotingSettings_MaxTilt is not used like in hydrofoil mode)
+			<arg name="current" type="float">
+				Current max Horizontal speed in m/s
+			</arg>
+		</cmd>
+		<cmd name="MaxPlaneModeRotationSpeed" id="4">
+			Set max plane mode rotation speed (only available for wing x)
+			<arg name="current" type="float">
+				Current max plane mode rotation speed in degree/s
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="SpeedSettingsState" id="5">
+		Speed Settings state from product
+		<cmd name="MaxVerticalSpeedChanged" id="0">
+			Max vertical speed sent by product
+			<arg name="current" type="float">
+				Current max vertical speed in m/s
+			</arg>
+			<arg name="min" type="float">
+				Range min of vertical speed
+			</arg>
+			<arg name="max" type="float">
+				Range max of vertical speed
+			</arg>
+		</cmd>
+		<cmd name="MaxRotationSpeedChanged" id="1">
+			Max rotation speed sent by product
+			<arg name="current" type="float">
+				Current max rotation speed in degree/s
+			</arg>
+			<arg name="min" type="float">
+				Range min of rotation speed
+			</arg>
+			<arg name="max" type="float">
+				Range max of rotation speed
+			</arg>
+		</cmd>
+		<cmd name="WheelsChanged" id="2">
+			Presence of wheels sent by product
+			<arg name="present" type="u8">
+				1 if present, 0 if not present
+			</arg>
+		</cmd>
+		<cmd name="MaxHorizontalSpeedChanged" id="3">
+			Max horizontal speed sent by product (only used in case where PilotingSettings_MaxTilt is not used like in hydrofoil mode)
+			<arg name="current" type="float">
+				Current max horizontal speed in m/s
+			</arg>
+			<arg name="min" type="float">
+				Range min of horizontal speed
+			</arg>
+			<arg name="max" type="float">
+				Range max of horizontal speed
+			</arg>
+		</cmd>
+		<cmd name="MaxPlaneModeRotationSpeedChanged" id="4">
+			Max plane rotation speed sent by product (only available for wing x)
+			<arg name="current" type="float">
+				Current max plane mode rotation speed in degree/s
+			</arg>
+			<arg name="min" type="float">
+				Range min of plane mode rotation speed
+			</arg>
+			<arg name="max" type="float">
+				Range max of plane mode rotation speed
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Settings" id="10">
+		Settings commands
+		<cmd name="CutOutMode" id="0">
+			Set MiniDrone cut out mode
+			<arg name="enable" type="u8">
+				Enable cut out mode (1 if is activate, 0 otherwise)
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="SettingsState" id="11">
+		Settings state from product
+		<cmd name="ProductMotorsVersionChanged" id="0">
+			@deprecated
+			Product Motors versions
+			<arg name="motor" type="u8">
+				Product Motor number [1 - 4]
+			</arg>
+			<arg name="type" type="string">
+				Product Motor type
+			</arg>
+			<arg name="software" type="string">
+				Product Motors software version
+			</arg>
+			<arg name="hardware" type="string">
+				Product Motors hardware version
+			</arg>
+		</cmd>
+		<cmd name="ProductInertialVersionChanged" id="1">
+			@deprecated
+			Product Inertial versions
+			<arg name="software" type="string">
+				Product Inertial software version
+			</arg>
+			<arg name="hardware" type="string">
+				Product Inertial hardware version
+			</arg>
+		</cmd>
+		<cmd name="CutOutModeChanged" id="2">
+			MiniDrone cut out mode
+			<arg name="enable" type="u8">
+				State of cut out mode (1 if is activate, 0 otherwise)
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="FloodControlState" id="12">
+		Settings state from product
+		<cmd name="FloodControlChanged" id="0">
+			@deprecated
+			Flood control regulation
+			<arg name="delay" type="u16">
+				Delay (in ms) between two PCMD
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="GPS" id="13">
+		GPS related commands
+		<cmd name="ControllerLatitudeForRun" id="0">
+			Set the controller latitude for a run.
+			<arg name="latitude" type="double">
+				Controller latitude in decimal degrees
+			</arg>
+		</cmd>
+		<cmd name="ControllerLongitudeForRun" id="1">
+			Set the controller longitude for a run.
+			<arg name="longitude" type="double">
+				Controller longitude in decimal degrees
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Configuration" id="14">
+		Configuration related commands
+		<cmd name="ControllerType" id="0">
+			Set the controller type.
+			<arg name="type" type="string">
+				Controller type like iOS or Android
+			</arg>
+		</cmd>
+		<cmd name="ControllerName" id="1">
+			Set the controller name.
+			<arg name="name" type="string">
+				Controller name like com.parrot.freeflight3
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="UsbAccessoryState" id="15">
+		USB Accessories state commands.
+		<cmd name="LightState" id="0" type="MAP_ITEM">
+			USB Light accessory state cmd.
+			<arg name="id" type="u8">
+				Usb accessory id
+			</arg>
+			<arg name="state" type="enum">
+				Usb Light state.
+				<enum name="FIXED">
+					Fixed state at given intensity.
+				</enum>
+				<enum name="BLINKED">
+					Blinked state.
+				</enum>
+				<enum name="OSCILLATED">
+					Oscillated state.
+				</enum>
+			</arg>
+			<arg name="intensity" type="u8">
+				Light intensity from 0 (OFF) to 100 (Max intensity).
+				Only used in FIXED state.
+			</arg>
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+		</cmd>
+		<cmd name="ClawState" id="1" type="MAP_ITEM">
+			USB Claw accessory state cmd.
+			<arg name="id" type="u8">
+				Usb accessory id
+			</arg>
+			<arg name="state" type="enum">
+				Usb Claw state.
+				<enum name="OPENED">
+					Claw is fully opened.
+				</enum>
+				<enum name="OPENING">
+					Claw open in progress.
+				</enum>
+				<enum name="CLOSED">
+					Claw is fully closed.
+				</enum>
+				<enum name="CLOSING">
+					Claw close in progress.
+				</enum>
+			</arg>
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+		</cmd>
+		<cmd name="GunState" id="2" type="MAP_ITEM">
+			USB Gun accessory state cmd.
+			<arg name="id" type="u8">
+				Usb accessory id.
+			</arg>
+			<arg name="state" type="enum">
+				USB Claw state.
+				<enum name="READY">
+					Gun is ready to fire.
+				</enum>
+				<enum name="BUSY">
+					Gun is busy (ie not ready to fire).
+				</enum>
+			</arg>
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="UsbAccessory" id="16">
+		USB Accessories control commands.
+		<cmd name="LightControl" id="0">
+			USB Light control cmd.
+			<arg name="id" type="u8">
+				Usb accessory id
+			</arg>
+			<arg name="mode" type="enum">
+				Usb Light mode.
+				<enum name="FIXED">
+					Turn light in fixed state at a given intensity.
+				</enum>
+				<enum name="BLINKED">
+					Turn light in blinked state.
+				</enum>
+				<enum name="OSCILLATED">
+					Turn light in oscillated state.
+				</enum>
+			</arg>
+			<arg name="intensity" type="u8">
+				Light intensity from 0 (OFF) to 100 (Max intensity).
+				Only used in FIXED mode.
+			</arg>
+		</cmd>
+		<cmd name="ClawControl" id="1">
+			USB Claw control cmd.
+			<arg name="id" type="u8">
+				Usb accessory id.
+			</arg>
+			<arg name="action" type="enum">
+				USB Claw action.
+				<enum name="OPEN">
+					Open Claw.
+				</enum>
+				<enum name="CLOSE">
+					Close Claw.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="GunControl" id="2">
+			USB Gun control cmd.
+			<arg name="id" type="u8">
+				Usb accessory id
+			</arg>
+			<arg name="action" type="enum">
+				USB Gun action.
+				<enum name="FIRE">
+					Fire.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="RemoteController" id="17">
+		Remote controller related commands.
+		<cmd name="SetPairedRemote" id="0">
+			Send the address of the remote controller on which the drone should be paired
+			This is used to pair a Tinos controller
+			Where mac address: MSB-MID-LSB.
+			<arg name="msb_mac" type="u16">
+				2 most significant bytes of mac address
+			</arg>
+			<arg name="mid_mac" type="u16">
+				2 middle bytes of mac address
+			</arg>
+			<arg name="lsb_mac" type="u16">
+				2 least significant bytes of mac address
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="NavigationDataState" id="18">
+		Navigation Data.
+		<cmd name="DronePosition" id="0">
+			Get the drone position from takeoff point (0, 0, 0, 0).
+			The orthonormal basis is fixed at this point. The axis are
+			oriented the following way :
+			* X : From the rear of the drone to its front.
+			* Y : From the right of the drone to its left.
+			* Z : Orthogonal to X and Y and oriented upward.
+			* Psi : From 180 to -180 in the clockwise direction,
+			<arg name="posx" type="float">
+				Position on X axis, relative to take off position (cm).
+			</arg>
+			<arg name="posy" type="float">
+				Position on Y axis, relative to take off position (cm).
+			</arg>
+			<arg name="posz" type="i16">
+				Position on Z axis, relative to take off position (cm).
+			</arg>
+			<arg name="psi" type="i16">
+				Psi angle [-180; 180], relative to take off orientation.
+			</arg>
+			<arg name="ts" type="i16">
+				Time elapsed since last data send (ms).
+			</arg>
+		</cmd>
+		<cmd name="DroneSpeed" id="1" buffer="NON_ACK">
+			Event informing about the estimated drone speed in horizontal frame.
+			It is similar to NED frame but with drone heading.
+			Down speed is positive when the drone is going down.
+			Speed is in m/s.
+			<arg name="speed_x" type="float">
+				Speed on the x axis (when drone moves forward, speed is > 0).
+			</arg>
+			<arg name="speed_y" type="float">
+				Speed on the y axis (when drone moves right, speed is > 0).
+			</arg>
+			<arg name="speed_z" type="float">
+				Speed on the z axis (when drone moves down, speed is > 0).
+			</arg>
+			<arg name="ts" type="u16">
+				Acquisition timestamp (ms).
+			</arg>
+		</cmd>
+		<cmd name="DroneAltitude" id="2" buffer="NON_ACK">
+			Event informing about the estimated altitude above takeoff level.
+			<arg name="altitude" type="float">
+				Altitude in meters.
+			</arg>
+			<arg name="ts" type="u16">
+				Acquisition timestamp (ms).
+			</arg>
+		</cmd>
+		<cmd name="DroneQuaternion" id="4" buffer="NON_ACK">
+			Event informing about the estimated quaternion.
+			They represent the rotation from the NED frame (determined at drone startup) to the estimated drone body frame.
+			Its elements are between -1 and 1.
+			<arg name="q_w" type="float">
+				Element w.
+			</arg>
+			<arg name="q_x" type="float">
+				Element x.
+			</arg>
+			<arg name="q_y" type="float">
+				Element y.
+			</arg>
+			<arg name="q_z" type="float">
+				Element z.
+			</arg>
+			<arg name="ts" type="u16">
+				Acquisition timestamp (ms).
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="MinicamState" id="19">
+		Minicam related events.
+		<cmd name="PowerModeChanged" id="0">
+			Event informing about the minicam power mode.
+			<arg name="power_mode" type="enum">
+				Power mode of the camera.
+				<enum name="low">
+					Low power: most hardware is powered off, wake up via USB resume.
+
+					Used when charging.
+				</enum>
+				<enum name="medium">
+					Medium power: video hardware is powered off.
+
+					Used when drone is not flying during more than 3 minutes.
+					Note that it can still stream the SD content.
+				</enum>
+				<enum name="normal">
+					Normal power: all features are available.
+
+					Used when flying.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="ProductSerialChanged" id="1">
+			Event informing about the minicam product serial number.
+			<arg name="serial_number" type="string">
+				Serial number.
+			</arg>
+		</cmd>
+		<cmd name="StateChanged" id="2">
+			Event informing about the state of the camera.
+			<arg name="state" type="enum">
+				State of the camera.
+				<enum name="unplugged">
+					Minicam is unplugged.
+				</enum>
+				<enum name="plugged">
+					Minicam is plugged, but not ready.
+				</enum>
+				<enum name="ready">
+					Minicam is ready.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VersionChanged" id="3">
+			Get the accessory Version.
+			<arg name="software" type="string">
+				Accessory software version.
+			</arg>
+			<arg name="hardware" type="string">
+				Accessory hardware version.
+			</arg>
+		</cmd>
+		<cmd name="PictureChanged" id="4">
+			Event informing that the picture has been taken.
+			<arg name="state" type="enum">
+				State of device picture recording.
+				<enum name="ready">
+					Picture recording is ready.
+				</enum>
+				<enum name="busy">
+					Picture recording is busy.
+				</enum>
+				<enum name="not_available">
+					Picture recording is not available.
+				</enum>
+			</arg>
+			<arg name="result" type="enum">
+				Result of device picture recording.
+				<enum name="success">
+					Success.
+				</enum>
+				<enum name="full_device">
+					Device is full.
+				</enum>
+				<enum name="continuous_shooting">
+					Continuous shooting is already running.
+				</enum>
+				<enum name="full_queue">
+					Over snapshot max queue size.
+				</enum>
+				<enum name="error">
+					Couldn't take picture.
+				</enum>
+				<enum name="no_sd">
+					SD card doesn't exist.
+				</enum>
+				<enum name="sd_bad_format">
+					SD card format error.
+				</enum>
+				<enum name="sd_formatting">
+					SD card is formatting.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoStateChanged" id="5">
+			Event informing about the video recording state.
+			<arg name="state" type="enum">
+				State of device video recording.
+				<enum name="stopped">
+					Video is stopped.
+				</enum>
+				<enum name="started">
+					Video is started.
+				</enum>
+				<enum name="notAvailable">
+					The video recording is not available.
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state.
+				<enum name="ok">
+					No Error.
+				</enum>
+				<enum name="unknown">
+					Unknown generic error.
+				</enum>
+				<enum name="camera_ko">
+					Video camera is out of order.
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional video.
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+				<enum name="no_sd">
+					SD card doesn't exist.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MassStorageFormatChanged" id="6" content="NOTIFICATION">
+			Event informing that the mass storage has been formatted.
+			<arg name="state" type="u8">
+				1 if Mass Storage has been formatted, 0 otherwise.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="VideoSettings" id="20">
+		Video settings.
+		<cmd name="Autorecord" id="0">
+			Set video automatic recording state.
+			<arg name="enable" type="u8">
+				0: disabled
+				1: enabled
+			</arg>
+		</cmd>
+		<cmd name="ElectricFrequency" id="1">
+			Set the electric frequency (Anti-flickering).
+			<arg name="frequency" type="enum">
+				Type of the electric frequency.
+				<enum name="fifty_hertz">
+					Electric frequency of the country is 50hz.
+				</enum>
+				<enum name="sixty_hertz">
+					Electric frequency of the country is 60hz.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoResolution" id="2">
+			Set video streaming and recording resolution.
+			<arg name="type" type="enum">
+				Video resolution type.
+				<enum name="vga">
+					16/9 VGA streaming (640 x 360).
+				</enum>
+				<enum name="hd">
+					HD streaming (1280 x 720).
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="VideoSettingsState" id="21">
+		Video settings state.
+		<cmd name="AutorecordChanged" id="0">
+			Event informing about the video automatic recording status.
+			<arg name="enabled" type="u8">
+				0: disabled
+				1: enabled
+			</arg>
+		</cmd>
+		<cmd name="ElectricFrequencyChanged" id="1">
+			Event informing about the electric frequency (Anti-flickering).
+			<arg name="frequency" type="enum">
+				Type of the electric frequency.
+				<enum name="fifty_hertz">
+					Electric frequency of the country is 50hz.
+				</enum>
+				<enum name="sixty_hertz">
+					Electric frequency of the country is 60hz.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoResolutionChanged" id="2">
+			Event informing about the streaming resolution.
+			<arg name="type" type="enum">
+				Video resolution type.
+				<enum name="vga">
+					16/9 VGA streaming (640 x 360).
+				</enum>
+				<enum name="hd">
+					HD streaming (1280 x 720).
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Minicam" id="24">
+		Minicam related commands.
+		<cmd name="Picture" id="0">
+			Take picture.
+		</cmd>
+		<cmd name="Video" id="1">
+			Start/Stop video recording.
+			<arg name="record" type="enum">
+				Command to record video
+				<enum name="stop">
+					Stop the video recording.
+				</enum>
+				<enum name="start">
+					Start the video recording.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MassStorageFormat" id="2">
+			Format mass storage.
+		</cmd>
+	</myclass>
+	<myclass name="RemoteControllerState" id="25">
+		State changes related to the remote controller.
+		<cmd name="ConnectionChanged" id="0">
+			State of the connection to the remote controller changed.
+			<arg name="state" type="u8">
+				New connection state.
+				0=disconnected
+				1=connected
+			</arg>
+		</cmd>
+	</myclass>
+</project>

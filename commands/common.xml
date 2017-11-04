@@ -1,0 +1,1605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<project name="common" id="0">
+	All common commands shared between all projects
+	<myclass name="Network" id="0">
+		Network related commands
+		<cmd name="Disconnect" id="0" deprecated="true">
+			<comment
+				title="Signals the remote that the host will disconnect"
+				desc="Signals the remote that the host will disconnect.\n"
+				support="none"
+				result="None"/>
+		</cmd>
+	</myclass>
+	<myclass name="NetworkEvent" id="1">
+		Network Event from product
+		<cmd name="Disconnection" id="0" content="NOTIFICATION">
+			<comment
+				title="Drone will disconnect"
+				desc="Drone will disconnect.\n
+				This event is mainly triggered when the user presses on the power button of the product.\n\n
+				**This event is a notification, you can't retrieve it in the cache of the device controller.**"
+				support="0901;090c"
+				triggered="mainly when the user presses the power button of the drone."/>
+			<arg name="cause" type="enum">
+				Cause of the disconnection of the product
+				<enum name="off_button">
+					The button off has been pressed
+				</enum>
+				<enum name="unknown">
+					Unknown generic cause
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Settings" id="2">
+		Settings commands
+		<cmd name="AllSettings" id="0" timeout="RETRY">
+			<comment
+				title="Ask for all settings"
+				desc="Ask for all settings.\n\n
+				**Please note that you should not send this command if you are using the\n
+				libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				result="The product will trigger all settings events (such as [CameraSettings](#0-15-0), or product specific settings as the [MaxAltitude](#1-6-0) for the Bebop).\n
+				Then, it will trigger [AllSettingsEnd](#0-3-0)."/>
+		</cmd>
+		<cmd name="Reset" id="1">
+			<comment
+				title="Reset all settings"
+				desc="Reset all settings."
+				support="drones"
+				result="It will trigger [ResetChanged](#0-3-1).\n
+				Then, the product will trigger all settings events (such as [CameraSettings](#0-15-0), or product specific settings as the [MaxAltitude](#1-6-0) for the Bebop) with factory values."/>
+		</cmd>
+		<cmd name="ProductName" id="2">
+			<comment
+				title="Set product name"
+				desc="Set the product name.\n
+				It also sets the name of the SSID for Wifi products and advertisement name for BLE products (changed after a reboot of the product)."
+				support="drones"
+				result="Name is changed.\n
+				Then, it will trigger [NameChanged](#0-3-2)."/>
+			<arg name="name" type="string">
+				Product name
+			</arg>
+		</cmd>
+		<cmd name="Country" id="3">
+			<comment
+				title="Set the country"
+				desc="Set the country for Wifi products.\n
+				This can modify Wifi band and/or channel.\n
+				**Please note that you might be disconnected from the product after changing the country as it changes Wifi parameters.**"
+				support="0901;0902;0905;0906;090c;090e"
+				result="The country is set.\n
+				Then, it will trigger [CountryChanged](#0-3-6)."/>
+			<arg name="code" type="string">
+				Country code with ISO 3166 format
+			</arg>
+		</cmd>
+		<cmd name="AutoCountry" id="4">
+			<comment
+				title="Enable auto-country"
+				desc="Enable auto-country.\n
+				If auto-country is set, the drone will guess its Wifi country by itself by checking other Wifi country around it.\n
+				**Please note that you might be disconnected from the product after changing the country as it changes Wifi parameters.**"
+				support="0901;0902;0905;0906;090c;090e"
+				result="The auto-country of the product is changed.\n
+				Then, it will trigger [AutoCountryChanged](#0-3-7) and [CountryChanged](#0-3-6)."/>
+			<arg name="automatic" type="u8">
+				Boolean : 0 : Manual / 1 : Auto
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="SettingsState" id="3">
+		Settings state from product
+		<cmd name="AllSettingsChanged" id="0" timeout="RETRY">
+			<comment
+				title="All settings have been sent"
+				desc="All settings have been sent.\n\n
+				**Please note that you should not care about this event if you are using the libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				triggered="when all settings values have been sent."/>
+		</cmd>
+		<cmd name="ResetChanged" id="1">
+			<comment
+				title="All settings have been reset"
+				desc="All settings have been reset."
+				support="drones"
+				triggered="by [ResetSettings](#0-2-1)."/>
+		</cmd>
+		<cmd name="ProductNameChanged" id="2">
+			<comment
+				title="Product name changed"
+				desc="Product name changed."
+				support="drones"
+				triggered="by [SetProductName](#0-2-2)."/>
+			<arg name="name" type="string">
+				Product name
+			</arg>
+		</cmd>
+		<cmd name="ProductVersionChanged" id="3">
+			<comment
+				title="Product version"
+				desc="Product version."
+				support="drones"
+				triggered="during the connection process."/>
+			<arg name="software" type="string">
+				Product software version
+			</arg>
+			<arg name="hardware" type="string">
+				Product hardware version
+			</arg>
+		</cmd>
+		<cmd name="ProductSerialHighChanged" id="4">
+			<comment
+				title="Product serial (1st part)"
+				desc="Product serial (1st part)."
+				support="drones"
+				triggered="during the connection process."/>
+			<arg name="high" type="string">
+				Serial high number (hexadecimal value)
+			</arg>
+		</cmd>
+		<cmd name="ProductSerialLowChanged" id="5">
+			<comment
+				title="Product serial (2nd part)"
+				desc="Product serial (2nd part)."
+				support="drones"
+				triggered="during the connection process."/>
+			<arg name="low" type="string">
+				Serial low number (hexadecimal value)
+			</arg>
+		</cmd>
+		<cmd name="CountryChanged" id="6" timeout="RETRY">
+			<comment
+				title="Country changed"
+				desc="Country changed."
+				support="drones"
+				triggered="by [SetCountry](#0-2-3)."/>
+			<arg name="code" type="string">
+				Country code with ISO 3166 format, empty string means unknown country.
+			</arg>
+		</cmd>
+		<cmd name="AutoCountryChanged" id="7">
+			<comment
+				title="Auto-country changed"
+				desc="Auto-country changed."
+				support="drones"
+				triggered="by [SetAutoCountry](#0-2-4)."/>
+			<arg name="automatic" type="u8">
+				Boolean : 0 : Manual / 1 : Auto
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Common" id="4">
+		Common commands
+		<cmd name="AllStates" id="0" timeout="RETRY">
+			<comment
+				title="Ask for all states"
+				desc="Ask for all states.\n\n
+				**Please note that you should not send this command if you are using the\n
+				libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				result="The product will trigger all states events (such as [FlyingState](#1-4-1) for the Bebop).\n
+				Then, it will trigger [AllStatesEnd](#0-5-0)."/>
+		</cmd>
+		<cmd name="CurrentDate" id="1">
+			<comment
+				title="Set the date"
+				desc="Set the date.\n
+				This date is taken by the drone as its own date.\n
+				So medias and other files will be dated from this date\n\n
+				**Please note that you should not send this command if you are using the\n
+				libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				result="The date of the product is set.\n
+				Then, it will trigger [DateChanged](#0-5-4)."/>
+			<arg name="date" type="string">
+				Date with ISO-8601 format
+			</arg>
+		</cmd>
+		<cmd name="CurrentTime" id="2">
+			<comment
+				title="Set the time"
+				desc="Set the time.\n
+				This time is taken by the drone as its own time.\n
+				So medias and other files will be dated from this time\n\n
+				**Please note that you should not send this command if you are using the\n
+				libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				result="The time of the product is set.\n
+				Then, it will trigger [TimeChanged](#0-5-5)."/>
+			<arg name="time" type="string">
+				Time with ISO-8601 format
+			</arg>
+		</cmd>
+		<cmd name="Reboot" id="3">
+			<comment
+				title="Reboot"
+				desc="Reboot the product.\n
+				The product will accept this command only if is not flying."
+				support="drones"
+				result="The product will reboot if it can."/>
+		</cmd>
+	</myclass>
+	<myclass name="CommonState" id="5">
+		Common state from product
+		<cmd name="AllStatesChanged" id="0" timeout="RETRY">
+			<comment
+				title="All states have been sent"
+				desc="All states have been sent.\n\n
+				**Please note that you should not care about this event if you are using the libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				triggered="when all states values have been sent."/>
+		</cmd>
+		<cmd name="BatteryStateChanged" id="1" buffer="NON_ACK">
+			<comment
+				title="Battery state"
+				desc="Battery state."
+				support="drones"
+				triggered="when the battery level changes."/>
+			<arg name="battery_percent" type="u8">
+				Battery percentage
+			</arg>
+		</cmd>
+		<cmd name="MassStorageStateListChanged" id="2" type="MAP_ITEM">
+			<comment
+				title="Mass storage state list"
+				desc="Mass storage state list."
+				support="drones"
+				triggered="when a mass storage is inserted or ejected."/>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id (unique)
+			</arg>
+			<arg name="name" type="string">
+				Mass storage name
+			</arg>
+		</cmd>
+		<cmd name="MassStorageInfoStateListChanged" id="3" type="MAP_ITEM">
+			<comment
+				title="Mass storage info state list"
+				desc="Mass storage info state list."
+				support="drones"
+				triggered="when a mass storage info changes."/>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage state id (unique)
+			</arg>
+			<arg name="size" type="u32">
+				Mass storage size in MBytes
+			</arg>
+			<arg name="used_size" type="u32">
+				Mass storage used size in MBytes
+			</arg>
+			<arg name="plugged" type="u8">
+				Mass storage plugged (1 if mass storage is plugged, otherwise 0)
+			</arg>
+			<arg name="full" type="u8">
+				Mass storage full information state (1 if mass storage full, 0 otherwise).
+			</arg>
+			<arg name="internal" type="u8">
+				Mass storage internal type state (1 if mass storage is internal, 0 otherwise)
+			</arg>
+		</cmd>
+		<cmd name="CurrentDateChanged" id="4">
+			<comment
+				title="Date changed"
+				desc="Date changed.\n
+				Corresponds to the latest date set on the drone.\n\n
+				**Please note that you should not care about this event if you are using the libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				triggered="by [SetDate](#0-4-1)."/>
+			<arg name="date" type="string">
+				Date with ISO-8601 format
+			</arg>
+		</cmd>
+		<cmd name="CurrentTimeChanged" id="5">
+			<comment
+				title="Time changed"
+				desc="Time changed.\n
+				Corresponds to the latest time set on the drone.\n\n
+				**Please note that you should not care about this event if you are using the libARController API as this library is handling the connection process for you.**"
+				support="drones"
+				triggered="by [SetTime](#0-4-2)."/>
+			<arg name="time" type="string">
+				Time with ISO-8601 format
+			</arg>
+		</cmd>
+		<cmd name="MassStorageInfoRemainingListChanged" id="6" type="LIST_ITEM" deprecated="true">
+			<comment
+				title="Mass storage remaining data list"
+				desc="Mass storage remaining data list."/>
+			<arg name="free_space" type="u32">
+				Mass storage free space in MBytes
+			</arg>
+			<arg name="rec_time" type="u16">
+				Mass storage record time reamining in minute
+			</arg>
+			<arg name="photo_remaining" type="u32">
+				Mass storage photo remaining
+			</arg>
+		</cmd>
+		<cmd name="WifiSignalChanged" id="7" buffer="NON_ACK">
+			<comment
+				title="Rssi changed"
+				desc="Rssi (Wifi Signal between controller and product) changed."
+				support="0901;0902;0905;0906;090c;090e"
+				triggered="regularly."/>
+			<arg name="rssi" type="i16">
+				RSSI of the signal between controller and the product (in dbm)
+			</arg>
+		</cmd>
+		<cmd name="SensorsStatesListChanged" id="8" type="MAP_ITEM">
+			<comment
+				title="Sensors state list"
+				desc="Sensors state list."
+				support="0901:2.0.3;0902;0905;0906;0907;0909;090a;090c;090e"
+				triggered="at connection and when a sensor state changes."/>
+			<arg name="sensorName" type="enum">
+				Sensor name
+				<enum name="IMU">
+					Inertial Measurement Unit sensor
+				</enum>
+				<enum name="barometer">
+					Barometer sensor
+				</enum>
+				<enum name="ultrasound">
+					Ultrasonic sensor
+				</enum>
+				<enum name="GPS">
+					GPS sensor
+				</enum>
+				<enum name="magnetometer">
+					Magnetometer sensor
+				</enum>
+				<enum name="vertical_camera">
+					Vertical Camera sensor
+				</enum>
+			</arg>
+			<arg name="sensorState" type="u8">
+				Sensor state (1 if the sensor is OK, 0 if the sensor is NOT OK)
+			</arg>
+		</cmd>
+		<cmd name="ProductModel" id="9">
+			<comment
+				title="Product sub-model"
+				desc="Product sub-model.\n
+				This can be used to customize the UI depending on the product."
+				support="0905;0906;0907;0909"
+				triggered="at connection."/>
+			<arg name="model" type="enum">
+				The Model of the product.
+				<enum name="RS_TRAVIS">
+					Travis (RS taxi) model.
+				</enum>
+				<enum name="RS_MARS">
+					Mars (RS space) model
+				</enum>
+				<enum name="RS_SWAT">
+					SWAT (RS SWAT) model
+				</enum>
+				<enum name="RS_MCLANE">
+					Mc Lane (RS police) model
+				</enum>
+				<enum name="RS_BLAZE">
+					Blaze (RS fire) model
+				</enum>
+				<enum name="RS_ORAK">
+					Orak (RS carbon hydrofoil) model
+				</enum>
+				<enum name="RS_NEWZ">
+					New Z (RS wooden hydrofoil) model
+				</enum>
+				<enum name="JS_MARSHALL">
+					Marshall (JS fire) model
+				</enum>
+				<enum name="JS_DIESEL">
+					Diesel (JS SWAT) model
+				</enum>
+				<enum name="JS_BUZZ">
+					Buzz (JS space) model
+				</enum>
+				<enum name="JS_MAX">
+					Max (JS F1) model
+				</enum>
+				<enum name="JS_JETT">
+					Jett (JS flames) model
+				</enum>
+				<enum name="JS_TUKTUK">
+					Tuk-Tuk (JS taxi) model
+				</enum>
+				<enum name="SW_BLACK">
+					Swing black model
+				</enum>
+				<enum name="SW_WHITE">
+					Swing white model
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="CountryListKnown" id="10" type="LIST_ITEM" deprecated="true">
+			<comment
+				title="Country list"
+				desc="List of countries known by the drone."/>
+			<arg name="listFlags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+			</arg>
+			<arg name="countryCodes" type="string">
+				Following of country code with ISO 3166 format, separated by ";". Be careful of the command size allowed by the network used. If necessary, split the list in several commands.
+			</arg>
+		</cmd>
+		<cmd name="DeprecatedMassStorageContentChanged" id="11" type="MAP_ITEM" deprecated="true">
+			<comment
+				title="Mass storage content changed"
+				desc="Mass storage content changed."/>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id (unique)
+			</arg>
+			<arg name="nbPhotos" type="u16">
+				Number of photos (does not include raw photos)
+			</arg>
+			<arg name="nbVideos" type="u16">
+				Number of videos
+			</arg>
+			<arg name="nbPuds" type="u16">
+				Number of puds
+			</arg>
+			<arg name="nbCrashLogs" type="u16">
+				Number of crash logs
+			</arg>
+		</cmd>
+		<cmd name="MassStorageContent" id="12" type="MAP_ITEM">
+			<comment
+				title="Mass storage content"
+				desc="Mass storage content."
+				support="090c:4.0.0;090e:4.0.0"
+				triggered="when the content of the mass storage changes."/>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id (unique)
+			</arg>
+			<arg name="nbPhotos" type="u16">
+				Number of photos (does not include raw photos)
+			</arg>
+			<arg name="nbVideos" type="u16">
+				Number of videos
+			</arg>
+			<arg name="nbPuds" type="u16">
+				Number of puds
+			</arg>
+			<arg name="nbCrashLogs" type="u16">
+				Number of crash logs
+			</arg>
+			<arg name="nbRawPhotos" type="u16">
+				Number of raw photos
+			</arg>
+		</cmd>
+		<cmd name="MassStorageContentForCurrentRun" id="13" type="MAP_ITEM">
+			<comment
+				title="Mass storage content for current run"
+				desc="Mass storage content for current run.\n
+				Only counts the files related to the current run (see [RunId](#0-30-0))"
+				support="090c:4.0.0;090e:4.0.0"
+				triggered="when the content of the mass storage changes and this content is related to the current run."/>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id (unique)
+			</arg>
+			<arg name="nbPhotos" type="u16">
+				Number of photos (does not include raw photos)
+			</arg>
+			<arg name="nbVideos" type="u16">
+				Number of videos
+			</arg>
+			<arg name="nbRawPhotos" type="u16">
+				Number of raw photos
+			</arg>
+		</cmd>
+		<cmd name="VideoRecordingTimestamp" id="14">
+			<comment
+				title="Video recording timestamp"
+				desc="Current or last video recording timestamp.\n
+				Timestamp in milliseconds since 00:00:00 UTC on 1 January 1970.\n
+				**Please note that values don't persist after drone reboot**"
+				triggered="on video recording start and video recording stop or \n
+				after that the date/time of the drone changed."/>
+			<arg name="startTimestamp" type="u64">
+				Timestamp in milliseconds since 00:00:00 UTC on 1 January 1970.
+			</arg>
+			<arg name="stopTimestamp" type="u64">
+				Timestamp in milliseconds since 00:00:00 UTC on 1 January 1970. 0 mean that video is still recording.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="OverHeat" id="6">
+		Over heat commands
+		<cmd name="SwitchOff" id="0" deprecated="true">
+			<comment
+				title="Switch off after an overheat"
+				desc="Switch off after an overheat."
+				support="none"
+				result="None"/>
+		</cmd>
+		<cmd name="Ventilate" id="1" deprecated="true">
+			<comment
+				title="Ventilate after an overheat"
+				desc="Ventilate after an overheat."
+				support="none"
+				result="None"/>
+		</cmd>
+	</myclass>
+	<myclass name="OverHeatState" id="7">
+		Overheat state from product
+		<cmd name="OverHeatChanged" id="0" deprecated="true">
+			<comment
+				title="Overheat"
+				desc="Overheat temperature reached."/>
+		</cmd>
+		<cmd name="OverHeatRegulationChanged" id="1">
+			<comment
+				title="Overheat regulation type"
+				desc="Overheat regulation type."/>
+			<arg name="regulationType" type="u8">
+				Type of overheat regulation : 0 for ventilation, 1 for switch off
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Controller" id="8">
+		Notify the device about the state of the controller application.
+		<cmd name="isPiloting" id="0">
+			<comment
+				title="Inform about hud entering"
+				desc="Inform about hud entering.\n
+				Tell the drone that the controller enters/leaves the piloting hud.\n
+				On a non-flying products it is used to know when a run begins."
+				support="drones"
+				result="If yes, the product will begin a new session (so it should send a new [runId](#0-30-0)).\n
+				Also, on the JumpingSumos, if the video is in autorecord mode, it will start recording."/>
+			<arg name="piloting" type="u8">
+				0 when the application is not in the piloting HUD, 1 when it enters the HUD.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="WifiSettings" id="9">
+		Wifi settings commands
+		<cmd name="OutdoorSetting" id="0">
+			<comment
+				title="Set wifi outdoor mode"
+				desc="Set wifi indoor/outdoor mode.\n
+				**Please note that you might be disconnected from the product after changing the indoor/outdoor setting as it changes Wifi parameters.**"
+				support="0901;0902;0905;0906;090c;090e"
+				result="The product change its indoor/outdoor wifi settings.\n
+				Then, it will trigger [WifiOutdoorMode](#0-10-0)."/>
+			<arg name="outdoor" type="u8">
+				1 if it should use outdoor wifi settings, 0 otherwise
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="WifiSettingsState" id="10">
+		Wifi settings state from product
+		<cmd name="outdoorSettingsChanged" id="0">
+			<comment
+				title="Wifi outdoor mode"
+				desc="Wifi outdoor mode."
+				support="0901;0902;0905;0906;090c;090e"
+				triggered="by [SetWifiOutdoorMode](#0-9-0)."/>
+			<arg name="outdoor" type="u8">
+				1 if it should use outdoor wifi settings, 0 otherwise
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Mavlink" id="11">
+		Mavlink flight plans commands
+		<cmd name="Start" id="0">
+			<comment
+				title="Start a FlightPlan"
+				desc="Start a FlightPlan based on a mavlink file existing on the drone.\n\n
+				Requirements are:\n
+				* Product is calibrated\n
+				* Product should be in outdoor mode\n
+				* Product has fixed its GPS\n"
+				support="0901:2.0.29;090c;090e"
+				result="If the FlightPlan has been started, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to *playing*.\n
+				Otherwise, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to stopped and event [MavlinkPlayErrorStateChanged](#0-12-1) is triggered with an explanation of the error."/>
+			<arg name="filepath" type="string">
+				 flight plan file path from the mavlink ftp root
+			</arg>
+			<arg name="type" type="enum">
+				type of the played mavlink file
+				<enum name="flightPlan">
+					Mavlink file for FlightPlan
+				</enum>
+				<enum name="mapMyHouse">
+					Mavlink file for MapMyHouse
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="Pause" id="1">
+			<comment
+				title="Pause a FlightPlan"
+				desc="Pause a FlightPlan that was playing.\n
+				To unpause a FlightPlan, see [StartFlightPlan](#0-11-0)\n"
+				support="0901:2.0.29;090c;090e"
+				result="The currently playing FlightPlan will be paused. Then, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to the current state of the FlightPlan (should be *paused* if everything went well)."/>
+		</cmd>
+		<cmd name="Stop" id="2">
+			<comment
+				title="Stop a FlightPlan"
+				desc="Stop a FlightPlan that was playing.\n"
+				support="0901:2.0.29;090c;090e"
+				result="The currently playing FlightPlan will be stopped. Then, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to the current state of the FlightPlan (should be *stopped* if everything went well)."/>
+		</cmd>
+	</myclass>
+	<myclass name="MavlinkState" id="12">
+		Mavlink flight plans states commands
+		<cmd name="MavlinkFilePlayingStateChanged" id="0">
+			<comment
+				title="Playing state of a FlightPlan"
+				desc="Playing state of a FlightPlan."
+				support="0901:2.0.29;090c;090e"
+				triggered="by [StartFlightPlan](#0-11-0), [PauseFlightPlan](#0-11-1) or [StopFlightPlan](#0-11-2)."/>
+			<arg name="state" type="enum">
+				State of the mavlink
+				<enum name="playing">
+					Mavlink file is playing
+				</enum>
+				<enum name="stopped">
+					Mavlink file is stopped (arg filepath and type are useless in this state)
+				</enum>
+				<enum name="paused">
+					Mavlink file is paused
+				</enum>
+				<enum name="loaded">
+					Mavlink file is loaded (it will be played at take-off)
+				</enum>
+			</arg>
+			<arg name="filepath" type="string">
+				 flight plan file path from the mavlink ftp root
+			</arg>
+			<arg name="type" type="enum">
+				type of the played mavlink file
+				<enum name="flightPlan">
+					Mavlink file for FlightPlan
+				</enum>
+				<enum name="mapMyHouse">
+					Mavlink file for MapMyHouse
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MavlinkPlayErrorStateChanged" id="1" deprecated="true">
+			<comment
+				title="FlightPlan error"
+				desc="FlightPlan error."
+				support="0901:2.0.29;090c;090e"
+				triggered="by [StartFlightPlan](#0-11-0) if an error occurs."/>
+			<arg name="error" type="enum">
+				State of play error
+				<enum name="none">
+					There is no error
+				</enum>
+				<enum name="notInOutDoorMode">
+					The drone is not in outdoor mode
+				</enum>
+				<enum name="gpsNotFixed">
+					The gps is not fixed
+				</enum>
+				<enum name="notCalibrated">
+					The magnetometer of the drone is not calibrated
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MissionItemExecuted" id="2" content="NOTIFICATION">
+			<comment
+				title="Mission item executed"
+				desc="Mission item has been executed."
+				support="090c:4.2.0;090e:1.4.0"
+				triggered="when a mission item has been executed during a flight plan."/>
+			<arg name="idx" type="u32">
+				Index of the mission item. This is the place of the mission item in the list of the items of the mission.
+				Begins at 0.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="FlightPlanSettings" id="32">
+		<cmd name="ReturnHomeOnDisconnect" id="0">
+			<comment
+				title="Set ReturnHome behavior during FlightPlan"
+				desc="Set ReturnHome behavior during FlightPlan\n
+				When set, drone will return home, after return home delay, if a disconnection occurs during execution of FlightPlan"
+				support="0901:4.1.0;090c:4.1.0;090e:1.4.0"
+				result="The return home mode is enabled or disabled.\n
+				Then, event [ReturnHomeOnDisconnectionChanged](#0-33-0) is triggered."/>
+			<arg name="value" type="u8">
+				1 to enable, 0 to disable
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="FlightPlanSettingsState" id="33">
+		<cmd name="ReturnHomeOnDisconnectChanged" id="0">
+			<comment
+				title="ReturnHome behavior during FlightPlan"
+				desc="Define behavior of drone when disconnection occurs during a flight plan"
+				support="0901:4.1.0;090c:4.1.0;090e:1.4.0"
+				triggered="by [setReturnHomeOnDisconnectMode](#0-32-0)."/>
+			<arg name="state" type="u8">
+				1 if enabled, 0 if disabled
+			</arg>
+			<arg name="isReadOnly" type="u8">
+				1 if readOnly, 0 if writable
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Calibration" id="13">
+		Calibration commands
+		<cmd name="MagnetoCalibration" id="0">
+			<comment
+				title="Start/Abort magnetometer calibration"
+				desc="Start or abort magnetometer calibration process.\n"
+				support="0901;090c;090e"
+				result="The magnetometer calibration process is started or aborted. Then, event [MagnetoCalibrationStartedChanged](#0-14-3) is triggered.\n
+				If started, event [MagnetoCalibrationStateChanged](#0-14-3) is triggered with the current calibration state: a list of all axis and their calibration states.\n
+				It will also trigger [MagnetoCalibrationAxisToCalibrateChanged](#0-14-2), that will inform the controller about the current axis to calibrate."/>
+			<arg name="calibrate" type="u8">
+				1 if the calibration should be started, 0 if it should be aborted
+			</arg>
+		</cmd>
+		<cmd name="PitotCalibration" id="1">
+			<comment
+				title="Start/Abort Pitot calibration"
+				desc="Start or abort Pitot tube calibration process.\n"
+				support="090e:1.1.0"
+				result="The pitot calibration process is started or aborted. Then, event [PitotCalibrationStateChanged](#0-14-4) is triggered with the current calibration state."/>
+			<arg name="calibrate" type="u8">
+				1 if the calibration should be started, 0 if it should be aborted
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="CalibrationState" id="14">
+		Status of the calibration
+		<cmd name="MagnetoCalibrationStateChanged" id="0">
+			<comment
+				title="Magneto calib process axis state"
+				desc="Magneto calib process axis state."
+				support="0901;090c;090e"
+				triggered="when the calibration process is started with [StartOrAbortMagnetoCalib](#0-13-0) and each time an axis calibration state changes."/>
+			<arg name="xAxisCalibration" type="u8">
+				State of the x axis (roll) calibration : 1 if calibration is done, 0 otherwise
+			</arg>
+			<arg name="yAxisCalibration" type="u8">
+				State of the y axis (pitch) calibration : 1 if calibration is done, 0 otherwise
+			</arg>
+			<arg name="zAxisCalibration" type="u8">
+				State of the z axis (yaw) calibration : 1 if calibration is done, 0 otherwise
+			</arg>
+			<arg name="calibrationFailed" type="u8">
+				1 if calibration has failed, 0 otherwise. If this arg is 1, consider all previous arg as 0
+			</arg>
+		</cmd>
+		<cmd name="MagnetoCalibrationRequiredState" id="1">
+			<comment
+				title="Calibration required"
+				desc="Calibration required."
+				support="0901;090c;090e"
+				triggered="when the calibration requirement changes."/>
+			<arg name="required" type="u8">
+				1 if calibration is required, 0 if current calibration is still valid
+			</arg>
+		</cmd>
+		<cmd name="MagnetoCalibrationAxisToCalibrateChanged" id="2">
+			<comment
+				title="Axis to calibrate during calibration process"
+				desc="Axis to calibrate during calibration process."
+				support="0901;090c;090e"
+				triggered="during the calibration process when the axis to calibrate changes."/>
+			<arg name="axis" type="enum">
+				The axis to calibrate
+				<enum name="xAxis">
+					If the current calibration axis should be the x axis
+				</enum>
+				<enum name="yAxis">
+					If the current calibration axis should be the y axis
+				</enum>
+				<enum name="zAxis">
+					If the current calibration axis should be the z axis
+				</enum>
+				<enum name="none">
+					If none of the axis should be calibrated
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MagnetoCalibrationStartedChanged" id="3">
+			<comment
+				title="Calibration process state"
+				desc="Calibration process state."
+				support="0901;090c;090e"
+				triggered="by [StartOrAbortMagnetoCalib](#0-13-0) or when the process ends because it succeeded."/>
+			Status of the calibration process
+			<arg name="started" type="u8">
+				1 if calibration has started, 0 otherwise
+			</arg>
+		</cmd>
+		<cmd name="PitotCalibrationStateChanged" id="4">
+			Sent when the state of the pitot calibration has changed
+			<arg name="state" type="enum">
+				State of pitot calibration
+				<enum name="done">
+					Calibration is ok
+				</enum>
+				<enum name="ready">
+					Calibration is started, waiting user action
+				</enum>
+				<enum name="in_progress">
+					Calibration is in progress
+				</enum>
+				<enum name="required">
+					Calibration is required
+				</enum>
+			</arg>
+			<arg name="lastError" type="u8">
+				lastError : 1 if an error occured and 0 if not
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="CameraSettingsState" id="15">
+		Status of the camera settings
+		<cmd name="CameraSettingsChanged" id="0">
+			<comment
+				title="Camera info"
+				desc="Camera info."
+				support="0901;090c;090e"
+				triggered="at connection."/>
+			<arg name="fov" type="float">
+				Value of the camera horizontal fov (in degree)
+			</arg>
+			<arg name="panMax" type="float">
+				Value of max pan (right pan) (in degree)
+			</arg>
+			<arg name="panMin" type="float">
+				Value of min pan (left pan) (in degree)
+			</arg>
+			<arg name="tiltMax" type="float">
+				Value of max tilt (top tilt) (in degree)
+			</arg>
+			<arg name="tiltMin" type="float">
+				Value of min tilt (bottom tilt) (in degree)
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="GPS" id="16">
+		GPS related commands
+		<cmd name="ControllerPositionForRun" id="0">
+			<comment
+				title="Set the position of a run"
+				desc="Set the position of a run.\n
+				This will let the product know the controller location for the flight/run. The location is typically used to geotag medias.\n
+				Only used on products that have no gps.\n
+				Watch out, this command is not used by BLE products."
+				support="0902;0905;0906"
+				result="The position is set."/>
+			<arg name="latitude" type="double">
+				Controller latitude in decimal degrees
+			</arg>
+			<arg name="longitude" type="double">
+				Controller longitude in decimal degrees
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="FlightPlanState" id="17">
+		FlightPlan state commands
+		<cmd name="AvailabilityStateChanged" id="0">
+			<comment
+				title="FlightPlan availability"
+				desc="FlightPlan availability.\n
+				Availability is linked to GPS fix, magnetometer calibration, sensor states..."
+				support="0901:2.0.29;090c;090e"
+				triggered="on change."/>
+			<arg name="AvailabilityState" type="u8">
+				Running a flightPlan file is available (1 running a flightPlan file is available, otherwise 0)
+			</arg>
+		</cmd>
+		<cmd name="ComponentStateListChanged" id="1" type="MAP_ITEM">
+			<comment
+				title="FlightPlan components state list"
+				desc="FlightPlan components state list."
+				support="0901:2.0.29;090c;090e"
+				triggered="when the state of required components changes. \n
+				GPS component is triggered when the availability of the GPS of the drone changes. \n
+				Calibration component is triggered when the calibration state of the drone sensors changes \n
+				Mavlink_File component is triggered when the command [StartFlightPlan](#0-11-0) is received. \n
+				Takeoff component is triggered when the drone needs to take-off to continue the FlightPlan. \n
+				WaypointsBeyondGeofence component is triggered when the command [StartFlightPlan](#0-11-0) is received."/>
+			<arg name="component" type="enum">
+				Drone FlightPlan component id (unique)
+				<enum name="GPS">
+					Drone GPS component.
+					State is 0 when the drone needs a GPS fix.
+				</enum>
+				<enum name="Calibration">
+					Drone Calibration component.
+					State is 0 when the sensors of the drone needs to be calibrated.
+				</enum>
+				<enum name="Mavlink_File">
+					Mavlink file component.
+					State is 0 when the mavlink file is missing or contains error.
+				</enum>
+				<enum name="TakeOff">
+					Drone Take off component.
+					State is 0 when the drone cannot take-off.
+				</enum>
+				<enum name="WaypointsBeyondGeofence">
+					Component for waypoints beyond the geofence.
+					State is 0 when one or more waypoints are beyond the geofence.
+				</enum>
+			</arg>
+			<arg name="State" type="u8">
+				State of the FlightPlan component (1 FlightPlan component OK, otherwise 0)
+			</arg>
+		</cmd>
+		<cmd name="LockStateChanged" id="2">
+			<comment
+				title="FlightPlan lock state"
+				desc="FlightPlan lock state.\n
+				Represents the fact that the controller is able or not to stop or pause a playing FlightPlan"
+				support="0901:2.0.29;090c;090e"
+				triggered="when the lock changes."/>
+			<arg name="LockState" type="u8">
+				1 if FlightPlan is locked: can't pause or stop FlightPlan.
+				0 if FlightPlan is unlocked: pause or stop available.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="FlightPlanEvent" id="19">
+		FlightPlan Event commands
+		<cmd name="StartingErrorEvent" id="0" content="NOTIFICATION">
+			<comment
+				title="FlightPlan start error"
+				desc="FlightPlan start error.\n\n
+				**This event is a notification, you can't retrieve it in the cache of the device controller.**"
+				support="0901:2.0.29;090c;090e"
+				triggered="on an error after a [StartFlightPlan](#0-11-0)."/>
+		</cmd>
+		<cmd name="SpeedBridleEvent" id="1" content="NOTIFICATION">
+			<comment
+				title="FlightPlan speed clamping"
+				desc="FlightPlan speed clamping.\n
+				Sent when a speed specified in the FlightPlan file is considered too high by the drone.\n\n
+				**This event is a notification, you can't retrieve it in the cache of the device controller.**"
+				support="none"
+				triggered="on an speed related clamping after a [StartFlightPlan](#0-11-0)."/>
+		</cmd>
+	</myclass>
+	<myclass name="ARLibsVersionsState" id="18">
+		ARlibs Versions Commands
+		<cmd name="ControllerLibARCommandsVersion" id="0">
+			Controller libARCommands version
+			<arg name="version" type="string">
+				version of libARCommands ("1.2.3.4" format)
+			</arg>
+		</cmd>
+		<cmd name="SkyControllerLibARCommandsVersion" id="1">
+			SkyController libARCommands version
+			<arg name="version" type="string">
+				version of libARCommands ("1.2.3.4" format)
+			</arg>
+		</cmd>
+		<cmd name="DeviceLibARCommandsVersion" id="2">
+			Device libARCommands version
+			<arg name="version" type="string">
+				version of libARCommands ("1.2.3.4" format)
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Audio" id="20">
+		Audio-related commands.
+		<cmd name="ControllerReadyForStreaming" id="0">
+			<comment
+				title="Set audio stream direction"
+				desc="Set audio stream direction."
+				support="0905;0906"
+				result="The audio stream direction is set.\n
+				Then, event [AudioStreamDirection](#0-21-0) is triggered."/>
+			<arg name="ready" type="u8">
+				Bit field for TX and RX ready.
+				bit 0 is 1 if controller is ready and wants to receive sound (Drone TX)
+				bit 1 is 1 if controller is ready and wants to send sound (Drone RX)
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="AudioState" id="21">
+		Audio-related state updates.
+		<cmd name="AudioStreamingRunning" id="0">
+			<comment
+				title="Audio stream direction"
+				desc="Audio stream direction."
+				support="0905;0906"
+				triggered="by [SetAudioStreamDirection](#0-20-0)."/>
+			<arg name="running" type="u8">
+				Bit field for TX and RX running
+				bit 0 is 1 if Drone TX is running
+				bit 1 is 1 if Drone RX is running
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Headlights" id="22">
+		Controls the headlight LEDs of the Evo variants.
+		<cmd name="intensity" id="0">
+			<comment
+				title="Set LEDs intensity"
+				desc="Set lighting LEDs intensity."
+				support="0905;0906;0907"
+				result="The intensity of the LEDs is changed.\n
+				Then, event [LedIntensity](#0-23-0) is triggered."/>
+			<arg name="left" type="u8">
+				Set the left LED intensity value (0 through 255).
+			</arg>
+			<arg name="right" type="u8">
+				Set the right LED intensity value (0 through 255).
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="HeadlightsState" id="23">
+		Get information about the state of the Evo variants' LEDs.
+		<cmd name="intensityChanged" id="0">
+			<comment
+				title="LEDs intensity"
+				desc="Lighting LEDs intensity."
+				support="0905;0906;0907"
+				triggered="by [SetLedsIntensity](#0-22-0)."/>
+			<arg name="left" type="u8">
+				The intensity value for the left LED (0 through 255).
+			</arg>
+			<arg name="right" type="u8">
+				The intensity value for the right LED (0 through 255).
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Animations" id="24">
+		Animations-related commands.
+		<cmd name="StartAnimation" id="0">
+			<comment
+				title="Start an animation"
+				desc="Start a paramaterless animation.\n
+				List of available animations can be retrieved from [AnimationsStateList](#0-25-0)."
+				support="0902;0905;0906;0907;0909"
+				result="If possible, the product starts the requested animation. Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+			<arg name="anim" type="enum">
+				Animation to start.
+				<enum name="HEADLIGHTS_FLASH">
+					Flash headlights.
+				</enum>
+				<enum name="HEADLIGHTS_BLINK">
+					Blink headlights.
+				</enum>
+				<enum name="HEADLIGHTS_OSCILLATION">
+					Oscillating headlights.
+				</enum>
+				<enum name="SPIN">
+					Spin animation.
+				</enum>
+				<enum name="TAP">
+					Tap animation.
+				</enum>
+				<enum name="SLOW_SHAKE">
+					Slow shake animation.
+				</enum>
+				<enum name="METRONOME">
+					Metronome animation.
+				</enum>
+				<enum name="ONDULATION">
+					Standing dance animation.
+				</enum>
+				<enum name="SPIN_JUMP">
+					Spin jump animation.
+				</enum>
+				<enum name="SPIN_TO_POSTURE">
+					Spin that end in standing posture, or in jumper if it was standing animation.
+				</enum>
+				<enum name="SPIRAL">
+					Spiral animation.
+				</enum>
+				<enum name="SLALOM">
+					Slalom animation.
+				</enum>
+				<enum name="BOOST">
+					Boost animation.
+				</enum>
+				<enum name="LOOPING">
+					Make a looping. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_RIGHT">
+					Make a barrel roll of 180 degree turning on right. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_LEFT">
+					Make a barrel roll of 180 degree turning on left. (Only for WingX)
+				</enum>
+				<enum name="BACKSWAP">
+					Put the drone upside down. (Only for WingX)
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="StopAnimation" id="1">
+			<comment
+				title="Stop an animation"
+				desc="Stop a paramaterless animation.\n
+				List of running animations can be retrieved from [AnimationsStateList](#0-25-0)."
+				support="0902;0905;0906;0907;0909"
+				result="If the requested animation was running, it will be stopped.\n
+				Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+			<arg name="anim" type="enum">
+				Animation to stop.
+				<enum name="HEADLIGHTS_FLASH">
+					Flash headlights.
+				</enum>
+				<enum name="HEADLIGHTS_BLINK">
+					Blink headlights.
+				</enum>
+				<enum name="HEADLIGHTS_OSCILLATION">
+					Oscillating headlights.
+				</enum>
+				<enum name="SPIN">
+					Spin animation.
+				</enum>
+				<enum name="TAP">
+					Tap animation.
+				</enum>
+				<enum name="SLOW_SHAKE">
+					Slow shake animation.
+				</enum>
+				<enum name="METRONOME">
+					Metronome animation.
+				</enum>
+				<enum name="ONDULATION">
+					Standing dance animation.
+				</enum>
+				<enum name="SPIN_JUMP">
+					Spin jump animation.
+				</enum>
+				<enum name="SPIN_TO_POSTURE">
+					Spin that end in standing posture, or in jumper if it was standing animation.
+				</enum>
+				<enum name="SPIRAL">
+					Spiral animation.
+				</enum>
+				<enum name="SLALOM">
+					Slalom animation.
+				</enum>
+				<enum name="BOOST">
+					Boost animation.
+				</enum>
+				<enum name="LOOPING">
+					Make a looping. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_RIGHT">
+					Make a barrel roll of 180 degree turning on right. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_LEFT">
+					Make a barrel roll of 180 degree turning on left. (Only for WingX)
+				</enum>
+				<enum name="BACKSWAP">
+					Put the drone upside down. (Only for WingX)
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="StopAllAnimations" id="2">
+			<comment
+				title="Stop all animations"
+				desc="Stop all running paramaterless animations.\n
+				List of running animations can be retrieved from [AnimationsStateList](#0-25-0)."
+				support="0902;0905;0906;0907;0909"
+				result="All running animations are stopped.\n
+				Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+		</cmd>
+	</myclass>
+	<myclass name="AnimationsState" id="25">
+		Animations-related notification/feedback commands.
+		<cmd name="List" type="MAP_ITEM" id="0">
+			<comment
+				title="Animation state list"
+				desc="Paramaterless animations state list."
+				support="0902;0905;0906;0907;0909"
+				triggered="when the list of available animations changes and also when an animation state changes (can be triggered by [StartAnim](#0-24-0), [StopAnim](#0-24-1) or [StopAllAnims](#0-24-2)."/>
+			<arg name="anim" type="enum">
+				Animation type.
+				<enum name="HEADLIGHTS_FLASH">
+					Flash headlights.
+				</enum>
+				<enum name="HEADLIGHTS_BLINK">
+					Blink headlights.
+				</enum>
+				<enum name="HEADLIGHTS_OSCILLATION">
+					Oscillating headlights.
+				</enum>
+				<enum name="SPIN">
+					Spin animation.
+				</enum>
+				<enum name="TAP">
+					Tap animation.
+				</enum>
+				<enum name="SLOW_SHAKE">
+					Slow shake animation.
+				</enum>
+				<enum name="METRONOME">
+					Metronome animation.
+				</enum>
+				<enum name="ONDULATION">
+					Standing dance animation.
+				</enum>
+				<enum name="SPIN_JUMP">
+					Spin jump animation.
+				</enum>
+				<enum name="SPIN_TO_POSTURE">
+					Spin that end in standing posture, or in jumper if it was standing animation.
+				</enum>
+				<enum name="SPIRAL">
+					Spiral animation.
+				</enum>
+				<enum name="SLALOM">
+					Slalom animation.
+				</enum>
+				<enum name="BOOST">
+					Boost animation.
+				</enum>
+				<enum name="LOOPING">
+					Make a looping. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_RIGHT">
+					Make a barrel roll of 180 degree turning on right. (Only for WingX)
+				</enum>
+				<enum name="BARREL_ROLL_180_LEFT">
+					Make a barrel roll of 180 degree turning on left. (Only for WingX)
+				</enum>
+				<enum name="BACKSWAP">
+					Put the drone upside down. (Only for WingX)
+				</enum>
+			</arg>
+			<arg name="state" type="enum">
+				State of the animation
+				<enum name="stopped">
+					animation is stopped
+				</enum>
+				<enum name="started">
+					animation is started
+				</enum>
+				<enum name="notAvailable">
+					The animation is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Accessory" id="26">
+		Accessories-related commands.
+		<cmd name="Config" id="0">
+			<comment
+				title="Declare an accessory"
+				desc="Declare an accessory.\n
+				You can choose the accessory between all accessible for this product.\n
+				You can get this list through event [SupportedAccessories](#0-27-0).\n\n
+				You can only set the accessory when the modification is enabled.\n
+				You can know if it possible with the event [AccessoryDeclarationAvailability](#0-27-2)."
+				support="0902;0905;0906;0907;0909;090a"
+				result="The product knows which accessory it is wearing.\n
+				Then, event [AccessoryConfigChanged](#0-27-1) is triggered."/>
+			<arg name="accessory" type="enum">
+				Accessory configuration to set.
+				<enum name="NO_ACCESSORY">
+					No accessory.
+				</enum>
+				<enum name="STD_WHEELS">
+					Standard wheels
+				</enum>
+				<enum name="TRUCK_WHEELS">
+					Truck wheels
+				</enum>
+				<enum name="HULL">
+					Hull
+				</enum>
+				<enum name="HYDROFOIL">
+					Hydrofoil
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="AccessoryState" id="27">
+		Accessories-related commands.
+		<cmd name="SupportedAccessoriesListChanged" id="0" type="MAP_ITEM">
+			<comment
+				title="Supported accessories list"
+				desc="Supported accessories list."
+				support="0902;0905;0906;0907;0909;090a"
+				triggered="at connection."/>
+			<arg name="accessory" type="enum">
+				Accessory configurations supported by the product.
+				<enum name="NO_ACCESSORY">
+					No accessory.
+				</enum>
+				<enum name="STD_WHEELS">
+					Standard wheels
+				</enum>
+				<enum name="TRUCK_WHEELS">
+					Truck wheels
+				</enum>
+				<enum name="HULL">
+					Hull
+				</enum>
+				<enum name="HYDROFOIL">
+					Hydrofoil
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AccessoryConfigChanged" id="1">
+			<comment
+				title="Accessory config"
+				desc="Accessory config."
+				support="0902;0905;0906;0907;0909;090a"
+				triggered="by [DeclareAccessory](#0-26-0)."/>
+			Accessory config response.
+			<arg name="newAccessory" type="enum">
+				Accessory configuration reported by firmware.
+				<enum name="UNCONFIGURED">
+					No accessory configuration set. Controller needs to set one.
+				</enum>
+				<enum name="NO_ACCESSORY">
+					No accessory.
+				</enum>
+				<enum name="STD_WHEELS">
+					Standard wheels
+				</enum>
+				<enum name="TRUCK_WHEELS">
+					Truck wheels
+				</enum>
+				<enum name="HULL">
+					Hull
+				</enum>
+				<enum name="HYDROFOIL">
+					Hydrofoil
+				</enum>
+				<enum name="IN_PROGRESS">
+					Configuration in progress.
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error code.
+				<enum name="OK">
+					No error. Accessory config change successful.
+				</enum>
+				<enum name="UNKNOWN">
+					Cannot change accessory configuration for some reason.
+				</enum>
+				<enum name="FLYING">
+					Cannot change accessory configuration while flying.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AccessoryConfigModificationEnabled" id="2">
+			<comment
+				title="Accessory declaration availability"
+				desc="Availability to declare or not an accessory."
+				support="0902;0905;0906;0907;0909;090a"
+				triggered="when the availability changes."/>
+			<arg name="enabled" type="u8">
+				1 if the modification of the accessory Config is enabled, 0 otherwise
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Charger" id="28">
+		Commands sent by the controller to set charger parameters.
+		<cmd name="SetMaxChargeRate" id="0" deprecated="true">
+			<comment
+				title="Set max charge rate"
+				desc="The product will inform itself the controller about its charging type (see [ChargingInfoChanged](#0-29-3))."
+				support="none"
+				result="None."/>
+			<arg name="rate" type="enum">
+				The new maximum charge rate.
+				<enum name="SLOW">
+					Fully charge the battery at a slow rate. Typically limit max charge current to 512 mA.
+				</enum>
+				<enum name="MODERATE">
+					Almost fully-charge the battery at moderate rate (> 512mA) but slower than the fastest rate.
+				</enum>
+				<enum name="FAST">
+					Almost fully-charge the battery at the highest possible rate supported by the charger.
+				</enum>
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="ChargerState" id="29">
+		Commands sent by the firmware to advertise the charger status.
+		<cmd name="MaxChargeRateChanged" id="0" deprecated="true">
+			<comment
+				title="Max charge rate"
+				desc="Max charge rate."/>
+			<arg name="rate" type="enum">
+				The current maximum charge rate.
+				<enum name="SLOW">
+					Fully charge the battery at a slow rate. Typically limit max charge current to 512 mA.
+				</enum>
+				<enum name="MODERATE">
+					Almost fully-charge the battery at moderate rate (> 512 mA) but slower than the fastest rate.
+				</enum>
+				<enum name="FAST">
+					Almost fully-charge the battery at the highest possible rate supported by the charger.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="CurrentChargeStateChanged" id="1" deprecated="true">
+			<comment
+				title="Current charge state"
+				desc="Current charge state."/>
+			<arg name="status" type="enum">
+				Charger status.
+				<enum name="DISCHARGING">
+					The battery is discharging.
+				</enum>
+				<enum name="CHARGING_SLOW">
+					The battery is charging at a slow rate about 512 mA.
+				</enum>
+				<enum name="CHARGING_MODERATE">
+					The battery is charging at a moderate rate (> 512 mA) but slower than the fastest rate.
+				</enum>
+				<enum name="CHARGING_FAST">
+					The battery is charging at a the fastest rate.
+				</enum>
+				<enum name="BATTERY_FULL">
+					The charger is plugged and the battery is fully charged.
+				</enum>
+			</arg>
+			<arg name="phase" type="enum">
+				The current charging phase.
+				<enum name="UNKNOWN">
+					The charge phase is unknown or irrelevant.
+				</enum>
+				<enum name="CONSTANT_CURRENT_1">
+					First phase of the charging process. The battery is charging with constant current.
+				</enum>
+				<enum name="CONSTANT_CURRENT_2">
+					Second phase of the charging process. The battery is charging with constant current, with a higher voltage than the first phase.
+				</enum>
+				<enum name="CONSTANT_VOLTAGE">
+					Last part of the charging process. The battery is charging with a constant voltage.
+				</enum>
+				<enum name="CHARGED">
+					The battery is fully charged.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="LastChargeRateChanged" id="2" deprecated="true">
+			<comment
+				title="Last charge rate"
+				desc="Last charge rate."/>
+			<arg name="rate" type="enum">
+				The charge rate recorded by the firmware for the last charge.
+				<enum name="UNKNOWN">
+					The last charge rate is not known.
+				</enum>
+				<enum name="SLOW">
+					Slow charge rate.
+				</enum>
+				<enum name="MODERATE">
+					Moderate charge rate.
+				</enum>
+				<enum name="FAST">
+					Fast charge rate.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="ChargingInfo" id="3">
+			<comment
+				title="Charging information"
+				desc="Charging information."
+				support="0905;0906;0907;0909;090a"
+				triggered="when the product is charging or when the charging state changes."/>
+			<arg name="phase" type="enum">
+				The current charging phase.
+				<enum name="UNKNOWN">
+					The charge phase is unknown or irrelevant.
+				</enum>
+				<enum name="CONSTANT_CURRENT_1">
+					First phase of the charging process. The battery is charging with constant current.
+				</enum>
+				<enum name="CONSTANT_CURRENT_2">
+					Second phase of the charging process. The battery is charging with constant current, with a higher voltage than the first phase.
+				</enum>
+				<enum name="CONSTANT_VOLTAGE">
+					Last part of the charging process. The battery is charging with a constant voltage.
+				</enum>
+				<enum name="CHARGED">
+					The battery is fully charged.
+				</enum>
+				<enum name="DISCHARGING">
+					The battery is discharging; Other arguments refers to the last charge.
+				</enum>
+			</arg>
+			<arg name="rate" type="enum">
+				The charge rate. If phase is DISCHARGING, refers to the last charge.
+				<enum name="UNKNOWN">
+					The charge rate is not known.
+				</enum>
+				<enum name="SLOW">
+					Slow charge rate.
+				</enum>
+				<enum name="MODERATE">
+					Moderate charge rate.
+				</enum>
+				<enum name="FAST">
+					Fast charge rate.
+				</enum>
+			</arg>
+			<arg name="intensity" type="u8">
+				The charging intensity, in dA. (12dA = 1,2A) ; If phase is DISCHARGING, refers to the last charge. Equals to 0 if not known.
+			</arg>
+			<arg name="fullChargingTime" type="u8">
+				The full charging time estimated, in minute. If phase is DISCHARGING, refers to the last charge. Equals to 0 if not known.
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="RunState" id="30">
+		Commands sent by the drone to inform about the run or flight state
+		<cmd name="RunIdChanged" id="0">
+			<comment
+				title="Current run id"
+				desc="Current run id.\n
+				A run id is uniquely identifying a run or a flight.\n
+				For each run is generated on the drone a file which can be used by Academy to sum up the run.\n
+				Also, each medias taken during a run has a filename containing the run id."
+				support="0901:3.0.1;090c;090e"
+				triggered="when the drone generates a new run id (generally right after a take off)."/>
+			<arg name="runId" type="string">
+				Id of the run
+			</arg>
+		</cmd>
+	</myclass>
+	<myclass name="Factory" id="31">
+		Factory reset commands
+		<cmd name="Reset" id="0">
+			<comment
+				title="Reset the product to its factory settings"
+				desc="This command will request a factory reset from the
+				prodcut. *The factory reset procedure implies an
+				automatic reboot*, which will be done immediately after
+				receiving this command."
+				result="The product will reboot, all settings will be
+				reset to their default values. All data on the product
+				will also be erased."/>
+		</cmd>
+	</myclass>
+</project>
