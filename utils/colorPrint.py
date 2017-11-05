@@ -23,6 +23,6 @@ def color_print(print_str, type="NONE"):
         # blue
         print('\033[38;5;33m' + print_str + '\033[0m')
 
-    else:
+    elif (type is "NONE" or type is "DEFAULT"):
         # black
         print('\033[38;5;33m' + print_str + '\033[0m')

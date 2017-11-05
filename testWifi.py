@@ -6,8 +6,9 @@ eagletAddr = "e0:14:d0:63:3d:d0"
 owletAddr = "e0:14:0c:74:3d:fe"
 
 # make my mambo object
-mambo = Mambo(pigAddr, use_wifi=True)
+mambo = Mambo(pigAddr, use_wifi=False)
 success = mambo.connect(num_retries=5)
+
 if (success):
     mambo.takeoff()
     mambo.smart_sleep(5)
