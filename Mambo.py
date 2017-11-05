@@ -27,7 +27,7 @@ class Mambo:
         if (use_wifi):
             self.drone_connection = WifiConnection(drone_type="Mambo")
         else:
-            self.drone_connection = BLEConnection()
+            self.drone_connection = BLEConnection(address)
 
         # intialize the command parser
         self.drone_commands = DroneCommands()
