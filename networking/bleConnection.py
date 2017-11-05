@@ -10,7 +10,7 @@ class MamboDelegate(DefaultDelegate):
         DefaultDelegate.__init__(self)
         self.handle_map = handle_map
         self.mambo = mambo
-        self.mambo._debug_print("initializing notification delegate", 10)
+        color_print("initializing notification delegate", "INFO")
 
     def handleNotification(self, cHandle, data):
         #print "handling notificiation from channel %d" % cHandle
@@ -24,19 +24,19 @@ class MamboDelegate(DefaultDelegate):
             self.mambo._update_sensors(data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
-            self.mambo._debug_print("drone data - no ack needed", 2)
+            color_print("drone data - no ack needed")
             self.mambo._update_sensors(data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
-            self.mambo._debug_print("Ack!  command received!", 2)
+            color_print("Ack!  command received!")
             self.mambo._set_command_received('SEND_WITH_ACK', True)
         elif channel == 'ACK_HIGH_PRIORITY':
             # ack 0c channel, SEND_HIGH_PRIORITY
-            self.mambo._debug_print("Ack!  high priority received", 2)
+            color_print("Ack!  high priority received")
             self.mambo._set_command_received('SEND_HIGH_PRIORITY', True)
         else:
-            self.mambo._debug_print("unknown channel %s sending data " % channel, 10)
-            self.mambo._debug_print(cHandle)
+            color_print("unknown channel %s sending data " % channel, "WARN")
+            color_print(cHandle)
 
 
 class BLEConnection:
@@ -331,7 +331,7 @@ class BLEConnection:
         my_hex_str = uuid_str[idx_start:idx_end]
         return my_hex_str
 
-    def _send_command_packet_ack(self, packet):
+    def send_command_packet_ack(self, packet):
         """
         Sends the actual packet on the ack channel.  Internal function only.
 
@@ -354,7 +354,7 @@ class BLEConnection:
 
 
 
-    def _send_noparam_command_packet_ack(self, command_tuple):
+    def send_noparam_command_packet_ack(self, command_tuple):
         """
         Send a command on the ack channel - where all commands except PCMD go, per
         http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
@@ -369,11 +369,11 @@ class BLEConnection:
         self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
         packet = struct.pack("<BBBBBB", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                              command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        return self._send_command_packet_ack(packet)
+        return self.send_command_packet_ack(packet)
 
 
 
-    def _send_enum_command_packet_ack(self, command_tuple, enum_value, usb_id=None):
+    def send_enum_command_packet_ack(self, command_tuple, enum_value, usb_id=None):
         """
         Send a command on the ack channel with enum parameters as well (most likely a flip).
         All commands except PCMD go on the ack channel per
@@ -396,4 +396,4 @@ class BLEConnection:
             packet = struct.pack("<BBBBBBBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  usb_id, enum_value)
-        return self._send_command_packet_ack(packet)
+        return self.send_command_packet_ack(packet)
