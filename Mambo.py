@@ -76,7 +76,6 @@ class Mambo:
         :return: True if the command was sent and False otherwise
         """
         command_tuple = self.drone_commands.get_command_tuple("Piloting", "Landing")
-        #print command_tuple
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def smart_sleep(self, timeout):

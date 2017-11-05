@@ -47,7 +47,8 @@ class WifiConnection:
             return
 
         self.drone_type = drone_type
-        self.udp_port = 43210
+        self.udp_send_port = 0 # defined during the handshake
+        self.udp_receive_port = 43210
         self.is_listening = True  # for the UDP listener
 
         if (drone_type == "Bebop"):
@@ -116,7 +117,6 @@ class WifiConnection:
             self.listener_thread = Thread(target=self._listen_socket)
             self.listener_thread.start()
 
-            print self.udp_sock
             color_print("Success in setting up the wifi network to the drone!", "SUCCESS")
             return True
         else:
@@ -130,16 +130,56 @@ class WifiConnection:
         """
 
         sleep_timer = 0.3
-        self.udp_sock.settimeout(sleep_timer)
+        self.udp_receive_sock.settimeout(sleep_timer)
+        self.udp_receive_sock2.settimeout(sleep_timer)
+        self.udp_receive_sock3.settimeout(sleep_timer)
 
         while (self.is_listening):
             try:
-                data = self.udp_sock.recv(4096)
+                data = self.udp_receive_sock.recv(1024)
                 if len(data) > 0:
                     self.handle_data(data)
+                    print "listening got data"
+                    print data
+
             except socket.timeout:
                 time.sleep(sleep_timer)
 
+            try:
+                data = self.udp_receive_sock2.recv(1024)
+                if len(data) > 0:
+                    self.handle_data(data)
+                    print "listening got data 2"
+                    print data
+
+                data = self.udp_receive_sock3.recv(1024)
+                if len(data) > 0:
+                    self.handle_data(data)
+                    print "listening got data 3"
+                    print data
+
+            except socket.timeout:
+                time.sleep(sleep_timer)
+
+            try:
+                data = self.udp_receive_sock3.recv(1024)
+                if len(data) > 0:
+                    self.handle_data(data)
+                    print "listening got data 3"
+                    print data
+
+            except socket.timeout:
+                time.sleep(sleep_timer)
+
+            try:
+                data = self.udp_send_sock.recv(1024)
+                if len(data) > 0:
+                    self.handle_data(data)
+                    print "listening got data 4"
+                    print data
+
+            except socket.timeout:
+                time.sleep(sleep_timer)
 
     def handle_data(self, data):
         print "Got some data we had better handle!"
@@ -162,7 +202,8 @@ class WifiConnection:
         tcp_sock.connect((self.drone_ip, self.connection_info.port))
 
         # send the handshake information
-        json_string = json.dumps({ "d2c_port":self.udp_port, "controller_type":"computer", "controller_name":"pyparrot" })
+        json_string = json.dumps({ "d2c_port":self.udp_receive_port, "controller_type":"computer", "controller_name":"pyparrot" })
+        print json_string
         tcp_sock.send(json_string)
 
         # wait for the response
@@ -173,6 +214,14 @@ class WifiConnection:
             if (len(data) > 0):
                 my_data = data[0:-1]
                 self.udp_data = json.loads(str(my_data))
+
+                # if the drone refuses the connection, return false
+                if (self.udp_data['status'] != 0):
+                    return False
+
+                print self.udp_data
+                self.udp_send_port = self.udp_data['c2d_port']
+                print "c2d_port is %d" % self.udp_send_port
                 finished = True
             else:
                 num_try += 1
@@ -187,8 +236,17 @@ class WifiConnection:
         """
         Create the UDP connection
         """
-        self.udp_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.udp_sock.connect((self.drone_ip, self.udp_data['c2d_port']))
+        self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
+
+        self.udp_receive_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
+
+        self.udp_receive_sock2 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.udp_receive_sock2.connect((self.drone_ip, self.udp_data['c2d_user_port']))
+
+        self.udp_receive_sock3 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.udp_receive_sock3.connect((self.drone_ip, self.udp_data['c2d_update_port']))
 
 
     def _connect_listener_called(self, connection_info):
@@ -207,7 +265,8 @@ class WifiConnection:
         Disconnect cleanly from the sockets
         """
         self.is_listening = False
-        self.udp_sock.close()
+        self.udp_send_sock.close()
+        self.udp_receive_sock.close()
 
 
     def send_noparam_command_packet_ack(self, command_tuple):
@@ -218,7 +277,7 @@ class WifiConnection:
         packet = struct.pack("<BBBBBBBBBBB", self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
                              self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
                              command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        self.udp_sock.send(packet)
+        self.udp_send_sock.send(packet)
 
     def smart_sleep(self, timeout):
         """
