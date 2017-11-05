@@ -397,3 +397,13 @@ class BLEConnection:
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  usb_id, enum_value)
         return self.send_command_packet_ack(packet)
+
+    def _set_command_received(self, channel, val):
+        """
+        Set the command received on the specified channel to the specified value (used for acks)
+
+        :param channel: channel
+        :param val: True or False
+        :return:
+        """
+        self.command_received[channel] = val
