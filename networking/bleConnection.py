@@ -341,14 +341,14 @@ class BLEConnection:
         try_num = 0
         self._set_command_received('SEND_WITH_ACK', False)
         while (try_num < self.max_packet_retries and not self.command_received['SEND_WITH_ACK']):
-            self._debug_print("sending command packet on try %d" % try_num, 2)
+            color_print("sending command packet on try %d" % try_num, 2)
             self._safe_ble_write(characteristic=self.send_characteristics['SEND_WITH_ACK'], packet=packet)
             #self.send_characteristics['SEND_WITH_ACK'].write(packet)
             try_num += 1
-            self._debug_print("sleeping for a notification", 2)
+            color_print("sleeping for a notification", 2)
             #notify = self.drone.waitForNotifications(1.0)
             self.smart_sleep(0.5)
-            #self._debug_print("awake %s " % notify, 2)
+            #color_print("awake %s " % notify, 2)
 
         return self.command_received['SEND_WITH_ACK']
 
@@ -391,7 +391,7 @@ class BLEConnection:
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  enum_value)
         else:
-            self._debug_print(self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
+            color_print(self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                               command_tuple[0], command_tuple[1], command_tuple[2], 0, usb_id, enum_value, 1)
             packet = struct.pack("<BBBBBBBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
