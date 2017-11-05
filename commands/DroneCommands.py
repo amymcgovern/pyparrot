@@ -7,8 +7,8 @@ class DroneCommands:
 
         # parse the command files from XML (so we don't have to store ids and can use names
         # for readability and portability!)
-        self.common_commands = untangle.parse('common.xml')
-        self.minidrone_commands = untangle.parse('minidrone.xml')
+        self.common_commands = untangle.parse('commands/common.xml')
+        self.minidrone_commands = untangle.parse('commands/minidrone.xml')
 
 
     def get_command_tuple(self, myclass, cmd):

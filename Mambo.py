@@ -10,6 +10,7 @@ from networking.bleConnection import BLEConnection
 from utils.colorPrint import color_print
 from commands.DroneCommands import DroneCommands
 
+
 class Mambo:
     def __init__(self, address, use_wifi=False):
         """
@@ -76,5 +77,13 @@ class Mambo:
         """
         command_tuple = self.drone_commands.get_command_tuple("Piloting", "Landing")
         #print command_tuple
-        return self.send_noparam_command_packet_ack(command_tuple)
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def smart_sleep(self, timeout):
+        """
+        Don't call time.sleep directly as it will mess up BLE and miss WIFI packets!  Use this
+        which handles packets received while sleeping
+
+        :param timeout: number of seconds to sleep
+        """
+        self.drone_connection.smart_sleep(timeout)

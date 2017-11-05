@@ -11,6 +11,7 @@ import ipaddress
 import json
 from utils.colorPrint import color_print
 import struct
+from threading import Thread
 
 class mDNSListener(object):
     """
@@ -30,6 +31,8 @@ class mDNSListener(object):
         print("Service %s added, service info: %s" % (name, info))
         self.wifi_connection._connect_listener_called(info)
 
+
+
 class WifiConnection:
 
     def __init__(self, drone_type="Bebop"):
@@ -45,6 +48,7 @@ class WifiConnection:
 
         self.drone_type = drone_type
         self.udp_port = 43210
+        self.is_listening = True  # for the UDP listener
 
         if (drone_type == "Bebop"):
             self.mdns_address = "_arsdk-090c._udp.local."
@@ -67,10 +71,10 @@ class WifiConnection:
         }
 
         self.send_buffer_ids = {
-            'SEND_NO_ACK': '10',           # not-ack commands (piloting and camera rotations)
-            'SEND_WITH_ACK': '11',         # ack commands (all piloting commands)
-            'SEND_HIGH_PRIORITY':'12',    # emergency commands
-            'VIDEO_ACK':'13'              # ack for video
+            'SEND_NO_ACK': 10,           # not-ack commands (piloting and camera rotations)
+            'SEND_WITH_ACK': 11,         # ack commands (all piloting commands)
+            'SEND_HIGH_PRIORITY': 12,    # emergency commands
+            'VIDEO_ACK': 13              # ack for video
         }
 
         self.receive_buffer_ids = {
@@ -102,19 +106,44 @@ class WifiConnection:
 
         # if we didn't hear the listener, return False
         if (not self.is_connected):
-            color_print("connection failed: did you remember to connect your machine to the Bebop's wifi network?", "ERROR")
+            color_print("connection failed: did you remember to connect your machine to the Drone's wifi network?", "ERROR")
             return False
 
         # perform the handshake and get the UDP info
         handshake = self._handshake(num_retries)
         if (handshake):
             self._create_udp_connection()
+            self.listener_thread = Thread(target=self._listen_socket)
+            self.listener_thread.start()
+
+            print self.udp_sock
             color_print("Success in setting up the wifi network to the drone!", "SUCCESS")
             return True
         else:
             color_print("Error: TCP handshake failed.", "ERROR")
             return False
 
+    def _listen_socket(self):
+        """
+        Listens to the socket and sleeps in between receives.
+        Runs forever (until disconnect is called)
+        """
+
+        sleep_timer = 0.3
+        self.udp_sock.settimeout(sleep_timer)
+
+        while (self.is_listening):
+            try:
+                data = self.udp_sock.recv(4096)
+                if len(data) > 0:
+                    self.handle_data(data)
+            except socket.timeout:
+                time.sleep(sleep_timer)
+
+
+    def handle_data(self, data):
+        print "Got some data we had better handle!"
+        print data
 
     def _handshake(self, num_retries):
         """
@@ -177,13 +206,31 @@ class WifiConnection:
         """
         Disconnect cleanly from the sockets
         """
-        self.udp_sock.shutdown()
+        self.is_listening = False
+        self.udp_sock.close()
 
 
     def send_noparam_command_packet_ack(self, command_tuple):
-        self.frame_number = self.frame_number % 256
-        packet = struct.pack("<BBBBBBBBBBB", self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
+        self.frame_counter['SEND_WITH_ACK'] = (self.frame_counter['SEND_WITH_ACK'] + 1) % 256
+        print (self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
                              self.frame_counter['SEND_WITH_ACK'], 0, 0, 0, 11,
+                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        packet = struct.pack("<BBBBBBBBBBB", self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
+                             self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
                              command_tuple[0], command_tuple[1], command_tuple[2], 0)
         self.udp_sock.send(packet)
 
+    def smart_sleep(self, timeout):
+        """
+        Sleeps the requested number of seconds but wakes up for notifications
+
+        Note: NEVER use regular time.sleep!  It is a blocking sleep and it will likely
+        cause the WIFI to disconnect due to dropped notifications.  Always use smart_sleep instead!
+
+        :param timeout: number of seconds to sleep
+        :return:
+        """
+
+        start_time = time.time()
+        while (time.time() - start_time < timeout):
+            time.sleep(0.1)
