@@ -1,6 +1,7 @@
 from bluepy.btle import Peripheral, UUID, DefaultDelegate, BTLEException
 from utils.colorPrint import color_print
 import struct
+import time
 
 class MamboDelegate(DefaultDelegate):
     """
@@ -425,4 +426,23 @@ class BLEConnection:
                 success = True
             except BTLEException:
                 color_print("reconnecting to send packet", "WARN")
+                self._reconnect(3)
+
+    def smart_sleep(self, timeout):
+        """
+        Sleeps the requested number of seconds but wakes up for notifications
+
+        Note: NEVER use regular time.sleep!  It is a blocking sleep and it will likely
+        cause the BLE to disconnect due to dropped notifications.  Always use smart_sleep instead!
+
+        :param timeout: number of seconds to sleep
+        :return:
+        """
+
+        start_time = time.time()
+        while (time.time() - start_time < timeout):
+            try:
+                notify = self.drone.waitForNotifications(0.1)
+            except:
+                color_print("reconnecting to wait", "WARN")
                 self._reconnect(3)
