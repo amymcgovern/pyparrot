@@ -407,3 +407,22 @@ class BLEConnection:
         :return:
         """
         self.command_received[channel] = val
+
+    def _safe_ble_write(self, characteristic, packet):
+        """
+        Write to the specified BLE characteristic but first ensure the connection is valid
+
+        :param characteristic:
+        :param packet:
+        :return:
+        """
+
+        success = False
+
+        while (not success):
+            try:
+                characteristic.write(packet)
+                success = True
+            except BTLEException:
+                color_print("reconnecting to send packet", "WARN")
+                self._reconnect(3)
