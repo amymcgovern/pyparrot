@@ -7,10 +7,11 @@ class MamboDelegate(DefaultDelegate):
     """
     Handle BLE notififications
     """
-    def __init__(self, handle_map, mambo):
+    def __init__(self, handle_map, mambo, ble_connection):
         DefaultDelegate.__init__(self)
         self.handle_map = handle_map
         self.mambo = mambo
+        self.ble_connection = ble_connection
         color_print("initializing notification delegate", "INFO")
 
     def handleNotification(self, cHandle, data):
@@ -26,15 +27,15 @@ class MamboDelegate(DefaultDelegate):
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
             color_print("drone data - no ack needed")
-            self.mambo._update_sensors(data, ack=False)
+            self.mambo.update_sensors(data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
             color_print("Ack!  command received!")
-            self.mambo._set_command_received('SEND_WITH_ACK', True)
+            self._set_command_received('SEND_WITH_ACK', True)
         elif channel == 'ACK_HIGH_PRIORITY':
             # ack 0c channel, SEND_HIGH_PRIORITY
             color_print("Ack!  high priority received")
-            self.mambo._set_command_received('SEND_HIGH_PRIORITY', True)
+            self._set_command_received('SEND_HIGH_PRIORITY', True)
         else:
             color_print("unknown channel %s sending data " % channel, "WARN")
             color_print(cHandle)
@@ -286,7 +287,7 @@ class BLEConnection:
         self._perform_handshake()
 
         # initialize the delegate to handle notifications
-        self.drone_connection.setDelegate(MamboDelegate(handle_map, self.mambo))
+        self.drone_connection.setDelegate(MamboDelegate(handle_map, self.mambo, self))
 
     def _perform_handshake(self):
         """
