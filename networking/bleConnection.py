@@ -334,6 +334,43 @@ class BLEConnection:
         my_hex_str = uuid_str[idx_start:idx_end]
         return my_hex_str
 
+
+    def send_turn_command(self, command_tuple, degrees):
+        """
+        Build the packet for turning and send it
+
+        :param command_tuple: command tuple from the parser
+        :param degrees: how many degrees to turn
+        :return: True if the command was sent and False otherwise
+        """
+        self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
+
+        packet = struct.pack("<BBBBBBh", self.data_types['DATA_WITH_ACK'],
+                             self.characteristic_send_counter['SEND_WITH_ACK'],
+                             command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                             degrees)
+
+        return self.send_command_packet_ack(packet)
+
+    def send_auto_takeoff_command(self, command_tuple):
+        """
+        Build the packet for auto takeoff and send it
+
+        :param command_tuple: command tuple from the parser
+        :return: True if the command was sent and False otherwise
+        """
+        # print command_tuple
+        self.characteristic_send_counter['SEND_WITH_ACK'] = (
+                                                                self.characteristic_send_counter[
+                                                                    'SEND_WITH_ACK'] + 1) % 256
+        packet = struct.pack("<BBBBBBB", self.data_types['DATA_WITH_ACK'],
+                             self.characteristic_send_counter['SEND_WITH_ACK'],
+                             command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                             1)
+
+        return self.send_command_packet_ack(packet)
+
+
     def send_command_packet_ack(self, packet):
         """
         Sends the actual packet on the ack channel.  Internal function only.
@@ -355,7 +392,30 @@ class BLEConnection:
 
         return self.command_received['SEND_WITH_ACK']
 
+    def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
+        """
+        Send the PCMD command with the specified roll, pitch, and yaw
 
+        :param command_tuple: command tuple per the parser
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        :param duration:
+        """
+        start_time = time.time()
+        while (time.time() - start_time < duration):
+
+            self.characteristic_send_counter['SEND_NO_ACK'] = (
+                                                              self.characteristic_send_counter['SEND_NO_ACK'] + 1) % 256
+            packet = struct.pack("<BBBBBBBbbbbI", self.data_types['DATA_NO_ACK'],
+                                 self.characteristic_send_counter['SEND_NO_ACK'],
+                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 1, roll, pitch, yaw, vertical_movement, 0)
+
+            self._safe_ble_write(characteristic=self.send_characteristics['SEND_NO_ACK'], packet=packet)
+            # self.send_characteristics['SEND_NO_ACK'].write(packet)
+            notify = self.drone_connection.waitForNotifications(0.1)
 
     def send_noparam_command_packet_ack(self, command_tuple):
         """
@@ -437,12 +497,12 @@ class BLEConnection:
         :param packet_id: the packet id to ack
         :return: nothing
         """
-        self._debug_print("ack last packet on the ACK_COMMAND channel", 1)
+        color_print("ack last packet on the ACK_COMMAND channel", "INFO")
         self.characteristic_send_counter['ACK_COMMAND'] = (self.characteristic_send_counter['ACK_COMMAND'] + 1) % 256
         packet = struct.pack("<BBB", self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
                              packet_id)
-        self._debug_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
-                                           packet_id), 1)
+        color_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+                                           packet_id), "INFO")
 
         self._safe_ble_write(characteristic=self.send_characteristics['ACK_COMMAND'], packet=packet)
         #self.send_characteristics['ACK_COMMAND'].write(packet)

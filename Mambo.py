@@ -198,6 +198,24 @@ class Mambo:
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
 
+    def safe_takeoff(self, timeout):
+        """
+        Sends commands to takeoff until the mambo reports it is taking off
+
+        :param timeout: quit trying to takeoff if it takes more than timeout seconds
+        """
+
+        start_time = time.time()
+        # take off until it really listens
+        while (self.sensors.flying_state != "takingoff" and (time.time() - start_time < timeout)):
+            self.smart_sleep(1)
+            success = self.takeoff()
+
+        # now wait until it finishes takeoff before returning
+        while ((self.sensors.flying_state != "flying" or self.sensors.flying_state != "hovering") and
+                   (time.time() - start_time < timeout)):
+            self.smart_sleep(1)
+
     def land(self):
         """
         Sends the land command to the mambo.  Gets the codes for it from the xml files.  Ensures the
@@ -208,6 +226,16 @@ class Mambo:
         command_tuple = self.command_parser.get_command_tuple("Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def safe_land(self):
+        """
+        Ensure the mambo lands by sending the command until it shows landed on sensors
+        """
+
+        while (self.sensors.flying_state != "landed"):
+            color_print("trying to land", "INFO")
+            self.smart_sleep(1)
+            success = self.land()
+
     def smart_sleep(self, timeout):
         """
         Don't call time.sleep directly as it will mess up BLE and miss WIFI packets!  Use this
@@ -216,4 +244,152 @@ class Mambo:
         :param timeout: number of seconds to sleep
         """
         self.drone_connection.smart_sleep(timeout)
+
+    def hover(self):
+        """
+        Sends the command execute a flat trim to the mambo.  This is basically a hover command.
+        Gets the codes for it from the xml files. Ensures the
+        packet was received or sends it again up to a maximum number of times.
+
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("Piloting", "FlatTrim")
+        # print command_tuple
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+    def flip(self, direction):
+        """
+        Sends the flip command to the mambo.  Gets the codes for it from the xml files. Ensures the
+        packet was received or sends it again up to a maximum number of times.
+        Valid directions to flip are: front, back, right, left
+
+        :return: True if the command was sent and False otherwise
+        """
+        if (direction not in ("front", "back", "right", "left")):
+            print "Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left"
+            print "Ignoring command and returning"
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("Animations", "Flip", direction)
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def turn_degrees(self, degrees):
+        """
+        Turn the mambo the specified number of degrees (-180, 180)
+
+        This is called cap in the xml but it means degrees per
+        http://forum.developer.parrot.com/t/what-does-cap-stand-for/6213/2
+
+        :param degrees: degrees to turn (-180 to 180)
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("Animations", "Cap")
+        return self.drone_connection.send_turn_command(command_tuple, degrees)
+
+    def turn_on_auto_takeoff(self):
+        """
+        Turn on the auto take off (throw mode)
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("Piloting", "AutoTakeOffMode")
+
+        return self.drone_connection.send_auto_takeoff_command(command_tuple)
+
+
+    def take_picture(self):
+        """
+        Ask the drone to take a picture
+
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("MediaRecord", "PictureV2")
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+    def ask_for_state_update(self):
+        """
+        Ask for a full state update (likely this should never be used but it can be called if you want to see
+        everything the mambo is storing)
+
+        :return: nothing but it will eventually fill the MamboSensors with all of the state variables as they arrive
+        """
+        command_tuple = self.command_parser.get_command_tuple("Common", "AllStates")
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+    def _ensure_fly_command_in_range(self, value):
+        """
+        Ensure the fly direct commands are in range
+
+        :param value: the value sent by the user
+        :return: a value in the range -100 to 100
+        """
+        if (value < -100):
+            return -100
+        elif (value > 100):
+            return 100
+        else:
+            return value
+
+    def fly_direct(self, roll, pitch, yaw, vertical_movement, duration):
+        """
+        Direct fly commands using PCMD.  Each argument ranges from -100 to 100.  Numbers outside that are clipped
+        to that range.
+
+        Note that the xml refers to gaz, which is apparently french for vertical movements:
+        http://forum.developer.parrot.com/t/terminology-of-gaz/3146
+
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        :return:
+        """
+
+        my_roll = self._ensure_fly_command_in_range(roll)
+        my_pitch = self._ensure_fly_command_in_range(pitch)
+        my_yaw = self._ensure_fly_command_in_range(yaw)
+        my_vertical = self._ensure_fly_command_in_range(vertical_movement)
+        command_tuple = self.command_parser.get_command_tuple("Piloting", "PCMD")
+
+        self.drone_connection.send_pcmd_command(my_roll, my_pitch, my_yaw, my_vertical, duration)
+
+
+    def open_claw(self):
+        """
+        Open the claw
+        :return: nothing
+        """
+        # print "open claw"
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "ClawControl", "OPEN")
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.claw_id)
+
+    def close_claw(self):
+        """
+        Open the claw
+        :return: nothing
+        """
+        # print "close claw"
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "ClawControl", "CLOSE")
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.claw_id)
+
+    def fire_gun(self):
+        """
+        Fire the gun (assumes it is attached)
+
+        :return: nothing
+        """
+        # print "firing gun"
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "GunControl", "FIRE")
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.gun_id)
 
