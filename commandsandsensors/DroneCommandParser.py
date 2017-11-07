@@ -1,14 +1,14 @@
 import untangle
 
-class DroneCommands:
+class DroneCommandParser:
     def __init__(self):
-        # store the commands as they are called so you don't have to parse each time
+        # store the commandsandsensors as they are called so you don't have to parse each time
         self.command_tuple_cache = dict()
 
         # parse the command files from XML (so we don't have to store ids and can use names
         # for readability and portability!)
-        self.common_commands = untangle.parse('commands/common.xml')
-        self.minidrone_commands = untangle.parse('commands/minidrone.xml')
+        self.common_commands = untangle.parse('commandsandsensors/common.xml')
+        self.minidrone_commands = untangle.parse('commandsandsensors/minidrone.xml')
 
 
     def get_command_tuple(self, myclass, cmd):

@@ -22,7 +22,7 @@ class MamboDelegate(DefaultDelegate):
         channel = self.mambo.characteristic_receive_uuids[self.handle_map[cHandle]]
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
-            self.mambo._update_sensors(data, ack=True)
+            self.mambo.update_sensors(data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
             color_print("drone data - no ack needed")
@@ -41,15 +41,17 @@ class MamboDelegate(DefaultDelegate):
 
 
 class BLEConnection:
-    def __init__(self, address):
+    def __init__(self, address, mambo):
         """
              Initialize with its BLE address - if you don't know the address, call findMambo
              and that will discover it for you.
 
              :param address: unique address for this mambo
+             :param mambo: the Mambo object for this mambo (needed for callbacks for sensors)
              """
         self.address = address
-        self.drone = Peripheral()
+        self.drone_connection = Peripheral()
+        self.mambo = mambo
 
         # the following UUID segments come from the Mambo and from the documenation at
         # http://forum.developer.parrot.com/t/minidrone-characteristics-uuid/4686/3
@@ -70,9 +72,9 @@ class BLEConnection:
         # the usage of the channels are also documented here
         # http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
         self.characteristic_send_uuids = {
-            '0a': 'SEND_NO_ACK',  # not-ack commands (PCMD only)
-            '0b': 'SEND_WITH_ACK',  # ack commands (all piloting commands)
-            '0c': 'SEND_HIGH_PRIORITY',  # emergency commands
+            '0a': 'SEND_NO_ACK',  # not-ack commandsandsensors (PCMD only)
+            '0b': 'SEND_WITH_ACK',  # ack commandsandsensors (all piloting commandsandsensors)
+            '0c': 'SEND_HIGH_PRIORITY',  # emergency commandsandsensors
             '1e': 'ACK_COMMAND'  # ack for data sent on 0e
         }
 
@@ -88,7 +90,7 @@ class BLEConnection:
         # the following characteristic UUID segments come from the documentation at
         # http://forum.developer.parrot.com/t/minidrone-characteristics-uuid/4686/3
         # the 4th bytes are used to identify the characteristic
-        # the types of commands and data coming back are also documented here
+        # the types of commandsandsensors and data coming back are also documented here
         # http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
         self.characteristic_receive_uuids = {
             '0e': 'ACK_DRONE_DATA',  # drone data that needs an ack (needs to be ack on 1e)
@@ -98,7 +100,7 @@ class BLEConnection:
         }
 
         # these are the FTP incoming and outcoming channels
-        # the handling characteristic seems to be the one to send commands to (per the SDK)
+        # the handling characteristic seems to be the one to send commandsandsensors to (per the SDK)
         # information gained from reading ARUTILS_BLEFtp.m in the SDK
         self.characteristic_ftp_uuids = {
             '22': 'NORMAL_FTP_TRANSFERRING',
@@ -109,7 +111,7 @@ class BLEConnection:
             '54': 'UPDATE_FTP_HANDLING',
         }
 
-        # FTP commands (obtained via ARUTILS_BLEFtp.m in the SDK)
+        # FTP commandsandsensors (obtained via ARUTILS_BLEFtp.m in the SDK)
         self.ftp_commands = {
             "list": "LIS",
             "get": "GET"
@@ -179,7 +181,7 @@ class BLEConnection:
         while (try_num < num_retries and not success):
             try:
                 color_print("trying to re-connect to the mambo at address %s" % self.address, "WARN")
-                self.drone.connect(self.address, "random")
+                self.drone_connection.connect(self.address, "random")
                 color_print("connected!  Asking for services and characteristics", "SUCCESS")
                 success = True
             except BTLEException:
@@ -200,7 +202,7 @@ class BLEConnection:
         :return: throws an error if the drone connection failed.  Returns void if nothing failed.
         """
         color_print("trying to connect to the mambo at address %s" % self.address, "INFO")
-        self.drone.connect(self.address, "random")
+        self.drone_connection.connect(self.address, "random")
         color_print("connected!  Asking for services and characteristics", "SUCCESS")
 
         # re-try until all services have been found
@@ -211,7 +213,7 @@ class BLEConnection:
 
         while not allServicesFound:
             # get the services
-            self.services = self.drone.getServices()
+            self.services = self.drone_connection.getServices()
 
             # loop through the services
             for s in self.services:
@@ -284,24 +286,24 @@ class BLEConnection:
         self._perform_handshake()
 
         # initialize the delegate to handle notifications
-        self.drone.setDelegate(MamboDelegate(handle_map, self))
+        self.drone_connection.setDelegate(MamboDelegate(handle_map, self.mambo))
 
     def _perform_handshake(self):
         """
         Magic handshake
         Need to register for notifications and write 0100 to the right handles
         This is sort of magic (not in the docs!) but it shows up on the forum here
-        http://forum.developer.parrot.com/t/minimal-ble-commands-to-send-for-take-off/1686/2
+        http://forum.developer.parrot.com/t/minimal-ble-commandsandsensors-to-send-for-take-off/1686/2
 
         :return: nothing
         """
-        color_print("magic handshake to make the drone listen to our commands")
+        color_print("magic handshake to make the drone listen to our commandsandsensors")
 
         # Note this code snippet below more or less came from the python example posted to that forum (I adapted it to my interface)
         for c in self.handshake_characteristics.itervalues():
             # for some reason bluepy characteristic handle is two lower than what I need...
             # Need to write 0x0100 to the characteristics value handle (which is 2 higher)
-            self.drone.writeCharacteristic(c.handle + 2, struct.pack("<BB", 1, 0))
+            self.drone_connection.writeCharacteristic(c.handle + 2, struct.pack("<BB", 1, 0))
 
     def disconnect(self):
         """
@@ -310,7 +312,7 @@ class BLEConnection:
 
         :return: void
         """
-        self.drone.disconnect()
+        self.drone_connection.disconnect()
 
     def _get_byte_str_from_uuid(self, uuid, byte_start, byte_end):
         """
@@ -357,7 +359,7 @@ class BLEConnection:
 
     def send_noparam_command_packet_ack(self, command_tuple):
         """
-        Send a command on the ack channel - where all commands except PCMD go, per
+        Send a command on the ack channel - where all commandsandsensors except PCMD go, per
         http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
 
         the id of the last command sent (for use in ack) is the send counter (which is incremented before sending)
@@ -377,7 +379,7 @@ class BLEConnection:
     def send_enum_command_packet_ack(self, command_tuple, enum_value, usb_id=None):
         """
         Send a command on the ack channel with enum parameters as well (most likely a flip).
-        All commands except PCMD go on the ack channel per
+        All commandsandsensors except PCMD go on the ack channel per
         http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
 
         the id of the last command sent (for use in ack) is the send counter (which is incremented before sending)
@@ -428,6 +430,24 @@ class BLEConnection:
                 color_print("reconnecting to send packet", "WARN")
                 self._reconnect(3)
 
+    def _ack_packet(self, packet_id):
+        """
+        Ack the packet id specified by the argument on the ACK_COMMAND channel
+
+        :param packet_id: the packet id to ack
+        :return: nothing
+        """
+        self._debug_print("ack last packet on the ACK_COMMAND channel", 1)
+        self.characteristic_send_counter['ACK_COMMAND'] = (self.characteristic_send_counter['ACK_COMMAND'] + 1) % 256
+        packet = struct.pack("<BBB", self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+                             packet_id)
+        self._debug_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+                                           packet_id), 1)
+
+        self._safe_ble_write(characteristic=self.send_characteristics['ACK_COMMAND'], packet=packet)
+        #self.send_characteristics['ACK_COMMAND'].write(packet)
+
+
     def smart_sleep(self, timeout):
         """
         Sleeps the requested number of seconds but wakes up for notifications
@@ -442,7 +462,7 @@ class BLEConnection:
         start_time = time.time()
         while (time.time() - start_time < timeout):
             try:
-                notify = self.drone.waitForNotifications(0.1)
+                notify = self.drone_connection.waitForNotifications(0.1)
             except:
                 color_print("reconnecting to wait", "WARN")
                 self._reconnect(3)

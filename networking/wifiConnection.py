@@ -72,9 +72,9 @@ class WifiConnection:
         }
 
         self.send_buffer_ids = {
-            'SEND_NO_ACK': 10,           # not-ack commands (piloting and camera rotations)
-            'SEND_WITH_ACK': 11,         # ack commands (all piloting commands)
-            'SEND_HIGH_PRIORITY': 12,    # emergency commands
+            'SEND_NO_ACK': 10,           # not-ack commandsandsensors (piloting and camera rotations)
+            'SEND_WITH_ACK': 11,         # ack commandsandsensors (all piloting commandsandsensors)
+            'SEND_HIGH_PRIORITY': 12,    # emergency commandsandsensors
             'VIDEO_ACK': 13              # ack for video
         }
 
