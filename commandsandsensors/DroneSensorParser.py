@@ -93,11 +93,11 @@ class DroneSensorParser:
         if (project_id, myclass_id, cmd_id, extra_id) in self.sensor_tuple_cache:
             return self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)]
 
-        self._debug_print("looking for project id %d in minidrone" % project_id, 1)
+        color_print("looking for project id %d in minidrone" % project_id)
         if (project_id == int(self.minidrone_sensors.project['id'])):
-            self._debug_print("looking for myclass_id %d" % myclass_id, 1)
+            color_print("looking for myclass_id %d" % myclass_id)
             for c in self.minidrone_sensors.project.myclass:
-                self._debug_print("looking for cmd_id %d" % cmd_id, 1)
+                color_print("looking for cmd_id %d" % cmd_id)
                 if int(c['id']) == myclass_id:
                     for cmd_child in c.cmd:
                         if int(cmd_child['id']) == cmd_id:
@@ -114,10 +114,10 @@ class DroneSensorParser:
                                     if (data_size == 'enum'):
                                         enum_names = list()
                                         for eitem in arg_child.enum:
-                                            self._debug_print(eitem, 1)
+                                            color_print(eitem)
                                             enum_names.append(eitem['name'])
                                         self.sensor_tuple_cache[sensor_name, "enum"] = enum_names
-                                        self._debug_print("added to sensor cache %s" % enum_names, 1)
+                                        color_print("added to sensor cache %s" % enum_names)
 
                                     # save the name and sizes to a list
                                     sensor_names.append(sensor_name)
@@ -134,11 +134,11 @@ class DroneSensorParser:
                             return (sensor_names, data_sizes)
 
         # need to look in the common.xml file instead
-        self._debug_print("looking for project id %d in common" % project_id, 1)
+        color_print("looking for project id %d in common" % project_id)
         if (project_id == int(self.common_sensors.project['id'])):
-            self._debug_print("looking for myclass_id %d" % myclass_id, 1)
+            color_print("looking for myclass_id %d" % myclass_id)
             for c in self.common_sensors.project.myclass:
-                self._debug_print("looking for cmd_id %d" % cmd_id, 1)
+                color_print("looking for cmd_id %d" % cmd_id)
                 if int(c['id']) == myclass_id:
                     for cmd_child in c.cmd:
                         if int(cmd_child['id']) == cmd_id:
@@ -155,10 +155,10 @@ class DroneSensorParser:
                                     if (data_size == 'enum'):
                                         enum_names = list()
                                         for eitem in arg_child.enum:
-                                            self._debug_print(eitem, 1)
+                                            color_print(eitem)
                                             enum_names.append(eitem['name'])
                                         self.sensor_tuple_cache[sensor_name, "enum"] = enum_names
-                                        self._debug_print("added to sensor cache %s" % enum_names, 1)
+                                        color_print("added to sensor cache %s" % enum_names, 1)
 
                                     # save the name and sizes to a list
                                     sensor_names.append(sensor_name)
