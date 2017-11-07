@@ -20,7 +20,7 @@ class MamboDelegate(DefaultDelegate):
         #print "channel map is %s " % self.mambo.characteristic_receive_uuids[self.handle_map[cHandle]]
         #print "data is %s " % data
 
-        channel = self.mambo.characteristic_receive_uuids[self.handle_map[cHandle]]
+        channel = self.ble_connection.characteristic_receive_uuids[self.handle_map[cHandle]]
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
             self.mambo.update_sensors(data, ack=True)
