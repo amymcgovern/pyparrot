@@ -25,4 +25,4 @@ def color_print(print_str, type="NONE"):
 
     elif (type is "NONE" or type is "DEFAULT"):
         # black
-        print('\033[38;5;33m %s \033[0m' % print_str)
+        print('\033[0m %s \033[0m' % print_str)

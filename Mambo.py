@@ -165,6 +165,10 @@ class Mambo:
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(data)
+        print sensor_name
+        print sensor_value
+        print sensor_enum
+        print header_tuple
 
         if (ack):
             self.drone_connection.ack_packet(header_tuple[1])
