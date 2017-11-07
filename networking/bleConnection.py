@@ -454,8 +454,8 @@ class BLEConnection:
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  enum_value)
         else:
-            color_print(self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
-                              command_tuple[0], command_tuple[1], command_tuple[2], 0, usb_id, enum_value, 1)
+            color_print((self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
+                         command_tuple[0], command_tuple[1], command_tuple[2], 0, usb_id, enum_value), 1)
             packet = struct.pack("<BBBBBBBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  usb_id, enum_value)

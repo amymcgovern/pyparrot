@@ -130,13 +130,10 @@ class WifiConnection:
         """
 
         sleep_timer = 0.3
-        self.udp_receive_sock.settimeout(sleep_timer)
-        self.udp_receive_sock2.settimeout(sleep_timer)
-        self.udp_receive_sock3.settimeout(sleep_timer)
 
         while (self.is_listening):
             try:
-                data = self.udp_receive_sock.recv(1024)
+                data = self.udp_receive_sock.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
                     print "listening got data"
@@ -146,13 +143,13 @@ class WifiConnection:
                 time.sleep(sleep_timer)
 
             try:
-                data = self.udp_receive_sock2.recv(1024)
+                data = self.udp_receive_sock2.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
                     print "listening got data 2"
                     print data
 
-                data = self.udp_receive_sock3.recv(1024)
+                data = self.udp_receive_sock3.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
                     print "listening got data 3"
@@ -162,7 +159,7 @@ class WifiConnection:
                 time.sleep(sleep_timer)
 
             try:
-                data = self.udp_receive_sock3.recv(1024)
+                data = self.udp_receive_sock3.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
                     print "listening got data 3"
@@ -172,7 +169,7 @@ class WifiConnection:
                 time.sleep(sleep_timer)
 
             try:
-                data = self.udp_send_sock.recv(1024)
+                data = self.udp_send_sock.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
                     print "listening got data 4"
@@ -241,6 +238,8 @@ class WifiConnection:
 
         self.udp_receive_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
+        self.udp_receive_sock.settimeout(5.0)
+        self.udp_receive_sock.bind(('0.0.0.0', self.udp_receive_port))
 
         self.udp_receive_sock2 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.udp_receive_sock2.connect((self.drone_ip, self.udp_data['c2d_user_port']))
