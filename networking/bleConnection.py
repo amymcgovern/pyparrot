@@ -527,3 +527,20 @@ class BLEConnection:
             except:
                 color_print("reconnecting to wait", "WARN")
                 self._reconnect(3)
+
+    def _ack_packet(self, packet_id):
+        """
+        Ack the packet id specified by the argument on the ACK_COMMAND channel
+
+        :param packet_id: the packet id to ack
+        :return: nothing
+        """
+        color_print("ack last packet on the ACK_COMMAND channel", "INFO")
+        self.characteristic_send_counter['ACK_COMMAND'] = (self.characteristic_send_counter['ACK_COMMAND'] + 1) % 256
+        packet = struct.pack("<BBB", self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+                             packet_id)
+        color_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+                                           packet_id), "INFO")
+
+        self._safe_ble_write(characteristic=self.send_characteristics['ACK_COMMAND'], packet=packet)
+        #self.send_characteristics['ACK_COMMAND'].write(packet)
