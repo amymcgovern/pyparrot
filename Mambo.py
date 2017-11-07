@@ -6,7 +6,11 @@ Author: Amy McGovern, dramymcgovern@gmail.com
 """
 import time
 from networking.wifiConnection import WifiConnection
-from networking.bleConnection import BLEConnection
+try:
+    from networking.bleConnection import BLEConnection
+    BLEAvailable = True
+except:
+    BLEAvailable = False
 from utils.colorPrint import color_print
 from commandsandsensors.DroneCommandParser import DroneCommandParser
 from commandsandsensors.DroneSensorParser import DroneSensorParser
@@ -138,7 +142,12 @@ class Mambo:
         if (use_wifi):
             self.drone_connection = WifiConnection(drone_type="Mambo")
         else:
-            self.drone_connection = BLEConnection(address, self)
+            if (BLEAvailable):
+                self.drone_connection = BLEConnection(address, self)
+            else:
+                self.drone_connection = None
+                color_print("ERROR: you are trying to use a BLE connection on a system that doesn't have BLE installed.", "ERROR")
+                return
 
         # intialize the command parser
         self.command_parser = DroneCommandParser()
@@ -172,6 +181,10 @@ class Mambo:
 
         :return: True if it succeeds and False otherwise
         """
+
+        # special case for when the user tries to do BLE when it isn't available
+        if (self.drone_connection is None):
+            return False
 
         connected = self.drone_connection.connect(num_retries)
         return connected

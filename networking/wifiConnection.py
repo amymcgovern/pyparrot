@@ -237,9 +237,9 @@ class WifiConnection:
         self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
 
         self.udp_receive_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
+        #self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
         self.udp_receive_sock.settimeout(5.0)
-        self.udp_receive_sock.bind(('0.0.0.0', self.udp_receive_port))
+        self.udp_receive_sock.bind(('0.0.0.0', int(self.udp_receive_port)))
 
         self.udp_receive_sock2 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.udp_receive_sock2.connect((self.drone_ip, self.udp_data['c2d_user_port']))
