@@ -117,9 +117,10 @@ class MamboSensors:
         my_str = "mambo state: battery %d, " % self.battery
         my_str += "flying state is %s, " % self.flying_state
         my_str += "speed (x, y, z) and ts is (%f, %f, %f) at %f " % (self.speed_x, self.speed_y, self.speed_z, self.speed_ts)
-        my_str += "altitude (m) %f and ts is %f " % (self.altitude, self.altitude_ts)
-        my_str += "quaternion (w, x, y, z) and ts is (%f, %f, %f, %f) at %f " % (
-            self.quaternion_w, self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_ts)
+        if (self.altitude is not None):
+            my_str += "altitude (m) %f and ts is %f " % (self.altitude, self.altitude_ts)
+            my_str += "quaternion (w, x, y, z) and ts is (%f, %f, %f, %f) at %f " % (
+                self.quaternion_w, self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_ts)
         my_str += "gun id: %d, state %s, " % (self.gun_id, self.gun_state)
         my_str += "claw id: %d, state %s, " % (self.claw_id, self.claw_state)
         my_str += "unknown sensors: %s," % self.unknown_sensors
@@ -140,7 +141,7 @@ class Mambo:
         """
         self.address = address
         if (use_wifi):
-            self.drone_connection = WifiConnection(drone_type="Mambo")
+            self.drone_connection = WifiConnection(self, drone_type="Mambo")
         else:
             if (BLEAvailable):
                 self.drone_connection = BLEConnection(address, self)

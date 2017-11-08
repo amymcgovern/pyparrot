@@ -9,8 +9,11 @@ owletAddr = "e0:14:0c:74:3d:fe"
 mambo = Mambo(eagletAddr, use_wifi=True)
 success = mambo.connect(num_retries=5)
 
-mambo.ask_for_state_update()
-mambo.smart_sleep(2)
+if (success):
+    mambo.ask_for_state_update()
+    print mambo.sensors
+    mambo.smart_sleep(5)
+    print mambo.sensors
 
 if (success and False):
     mambo.takeoff()
@@ -21,4 +24,5 @@ if (success and False):
     mambo.smart_sleep(3)
     mambo.disconnect()
 
+mambo.disconnect()
 print "DONE"

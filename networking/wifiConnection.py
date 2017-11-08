@@ -35,7 +35,7 @@ class mDNSListener(object):
 
 class WifiConnection:
 
-    def __init__(self, drone_type="Bebop"):
+    def __init__(self, drone, drone_type="Bebop"):
         """
         Can be a connection to a Bebop or a Mambo right now
 
@@ -45,6 +45,8 @@ class WifiConnection:
         if (drone_type not in ("Bebop", "Mambo")):
             color_print("Error: only type Bebop and Mambo are currently supported", "ERROR")
             return
+
+        self.drone = drone
 
         self.drone_type = drone_type
         self.udp_send_port = 0 # defined during the handshake
@@ -76,21 +78,20 @@ class WifiConnection:
             'SEND_NO_ACK': 0,
             'SEND_WITH_ACK': 0,
             'SEND_HIGH_PRIORITY': 0,
-            'ACK_COMMAND': 0,
-            'RECEIVE_WITH_ACK': 0
+            'VIDEO_ACK': 0,
+            'ACK_DRONE_DATA': 0,
+            'NO_ACK_DRONE_DATA': 0,
+            'VIDEO_DATA': 0,
         }
 
-        self.send_buffer_ids = {
+        self.buffer_ids = {
             'SEND_NO_ACK': 10,           # not-ack commandsandsensors (piloting and camera rotations)
             'SEND_WITH_ACK': 11,         # ack commandsandsensors (all piloting commandsandsensors)
             'SEND_HIGH_PRIORITY': 12,    # emergency commandsandsensors
-            'VIDEO_ACK': 13              # ack for video
-        }
-
-        self.receive_buffer_ids = {
-            '127' : 'ACK_DRONE_DATA',        # drone data that needs an ack
-            '126' : 'NO_ACK_DRONE_DATA',     # data from drone (including battery and others), no ack
-            '125' : 'VIDEO_DATA',            # video data
+            'VIDEO_ACK': 13,               # ack for video
+            'ACK_DRONE_DATA' : 127,        # drone data that needs an ack
+            'NO_ACK_DRONE_DATA' : 126,     # data from drone (including battery and others), no ack
+            'VIDEO_DATA' : 125,            # video data
             }
 
 
@@ -111,13 +112,15 @@ class WifiConnection:
         # basically have to sleep until the info comes through on the listener
         num_tries = 0
         while (num_tries < num_retries and not self.is_connected):
-            time.sleep(0.5)
+            time.sleep(1)
             num_tries += 1
 
         # if we didn't hear the listener, return False
         if (not self.is_connected):
             color_print("connection failed: did you remember to connect your machine to the Drone's wifi network?", "ERROR")
             return False
+        else:
+            browser.cancel()
 
         # perform the handshake and get the UDP info
         handshake = self._handshake(num_retries)
@@ -181,7 +184,7 @@ class WifiConnection:
         elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
             pass
         elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
-            self.mambo.update_sensors(data, ack=True)
+            self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=True)
 
 
 
@@ -272,16 +275,29 @@ class WifiConnection:
         self.udp_send_sock.close()
         self.udp_receive_sock.close()
 
+    def safe_send(self, packet):
+
+        packet_sent = False
+
+        while (not packet_sent):
+            try:
+                self.udp_send_sock.send(packet)
+                packet_sent = True
+            except:
+                self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+                self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
+
+
 
     def send_noparam_command_packet_ack(self, command_tuple):
         self.frame_counter['SEND_WITH_ACK'] = (self.frame_counter['SEND_WITH_ACK'] + 1) % 256
-        print (self.data_types_by_name['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
-               self.frame_counter['SEND_WITH_ACK'], 0, 0, 0, 11,
-               command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        packet = struct.pack("<BBBBBBBBBBB", self.data_types_by_name['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
+        packet = struct.pack("<BBBBBBBBBBB", self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
                              self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
                              command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        self.udp_send_sock.send(packet)
+        print (self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
+                             self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
+                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        self.safe_send(packet)
 
     def smart_sleep(self, timeout):
         """
@@ -297,3 +313,21 @@ class WifiConnection:
         start_time = time.time()
         while (time.time() - start_time < timeout):
             time.sleep(0.1)
+
+    def ack_packet(self, packet_id):
+        """
+        Ack the packet id specified by the argument on the ACK_COMMAND channel
+
+        :param packet_id: the packet id to ack
+        :return: nothing
+        """
+        color_print("ack last packet on the ACK_COMMAND channel", "INFO")
+        self.frame_counter['ACK_DRONE_DATA'] = (self.frame_counter['ACK_DRONE_DATA'] + 1) % 256
+        packet = struct.pack("<BBBBBBBB", self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
+                             self.frame_counter['ACK_DRONE_DATA'], 8, 0, 0, 0,
+                             packet_id)
+        print (self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
+                             self.frame_counter['ACK_DRONE_DATA'], 8, 0, 0, 0,
+                             packet_id)
+
+        self.safe_send(packet)
