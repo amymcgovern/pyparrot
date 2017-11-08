@@ -25,7 +25,7 @@ print "shoot the gun"
 mambo.fire_gun()
 
 # sleep to ensure it does the firing
-mambo.smart_sleep(5)
+mambo.smart_sleep(15)
 
 print "disconnect"
 mambo.disconnect()
