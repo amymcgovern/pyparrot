@@ -18,9 +18,9 @@ class DroneSensorParser:
         :param data: BLE packet of sensor data
         :return: a tuple of (sensor name, sensor value, sensor enum, header_tuple)
         """
-        #print "updating sensors with "
+        print "updating sensors with "
         header_tuple = struct.unpack_from("<BBBB", data)
-        #print header_tuple
+        print header_tuple
         (names, data_sizes) = self._parse_sensor_tuple(header_tuple)
         #print "name of sensor is %s" % names
         #print "data size is %s" % data_sizes
@@ -31,39 +31,39 @@ class DroneSensorParser:
 
                 if (data_size == "u8" or data_size == "enum"):
                     # unsigned 8 bit, single byte
-                    sensor_data = struct.unpack_from("<B", data, offset=6)
+                    sensor_data = struct.unpack_from("<B", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "i8"):
                     # signed 8 bit, single byte
-                    sensor_data = struct.unpack_from("<b", data, offset=6)
+                    sensor_data = struct.unpack_from("<b", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "u16"):
-                    sensor_data = struct.unpack_from("<H", data, offset=6)
+                    sensor_data = struct.unpack_from("<H", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "i16"):
-                    sensor_data = struct.unpack_from("<h", data, offset=6)
+                    sensor_data = struct.unpack_from("<h", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "u32"):
-                    sensor_data = struct.unpack_from("<I", data, offset=6)
+                    sensor_data = struct.unpack_from("<I", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "i32"):
-                    sensor_data = struct.unpack_from("<i", data, offset=6)
+                    sensor_data = struct.unpack_from("<i", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "u64"):
-                    sensor_data = struct.unpack_from("<Q", data, offset=6)
+                    sensor_data = struct.unpack_from("<Q", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "i64"):
-                    sensor_data = struct.unpack_from("<q", data, offset=6)
+                    sensor_data = struct.unpack_from("<q", data, offset=4)
                     sensor_data = int(sensor_data[0])
                 elif (data_size == "float"):
-                    sensor_data = struct.unpack_from("<f", data, offset=6)
+                    sensor_data = struct.unpack_from("<f", data, offset=4)
                     sensor_data = float(sensor_data[0])
                 elif (data_size == "double"):
-                    sensor_data = struct.unpack_from("<d", data, offset=6)
+                    sensor_data = struct.unpack_from("<d", data, offset=4)
                     sensor_data = float(sensor_data[0])
                 elif (data_size == "string"):
                     # string
-                    sensor_data = struct.unpack_from("<s", data, offset=6)
+                    sensor_data = struct.unpack_from("<s", data, offset=4)
                     sensor_data = sensor_data[0]
                 else:
                     sensor_data = None
@@ -74,8 +74,7 @@ class DroneSensorParser:
                 return (name, sensor_data, self.sensor_tuple_cache, header_tuple)
         else:
             color_print("Error parsing sensor information!", "ERROR")
-            color_print(header_tuple, "ERROR")
-
+            print header_tuple
 
 
     def _parse_sensor_tuple(self, sensor_tuple):

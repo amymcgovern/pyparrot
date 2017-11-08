@@ -23,7 +23,7 @@ class MamboDelegate(DefaultDelegate):
         channel = self.ble_connection.characteristic_receive_uuids[self.handle_map[cHandle]]
 
         (packet_type, packet_seq_num) = struct.unpack('<BB', data[0:2])
-        raw_data = data[3:]
+        raw_data = data[2:]
 
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
