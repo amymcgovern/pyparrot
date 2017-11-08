@@ -19,7 +19,7 @@ class DroneSensorParser:
         :return: a tuple of (sensor name, sensor value, sensor enum, header_tuple)
         """
         #print "updating sensors with "
-        header_tuple = struct.unpack_from("<BBBBBB", data)
+        header_tuple = struct.unpack_from("<BBBB", data)
         #print header_tuple
         (names, data_sizes) = self._parse_sensor_tuple(header_tuple)
         #print "name of sensor is %s" % names
@@ -87,7 +87,7 @@ class DroneSensorParser:
         :return: a tuple with (name of the sensor, data size to be used for grabbing the rest of the data)
         """
         # grab the individual values
-        (ack_id, packet_id, project_id, myclass_id, cmd_id, extra_id) = sensor_tuple
+        (project_id, myclass_id, cmd_id, extra_id) = sensor_tuple
 
         # return the cache if it is there
         if (project_id, myclass_id, cmd_id, extra_id) in self.sensor_tuple_cache:

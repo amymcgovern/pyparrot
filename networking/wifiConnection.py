@@ -56,11 +56,20 @@ class WifiConnection:
         elif (drone_type == "Mambo"):
             self.mdns_address = "_arsdk-090b._udp.local."
 
-        self.data_types = {
+        # map of the data types by name (for outgoing packets)
+        self.data_types_by_name = {
             'ACK' : 1,
             'DATA_NO_ACK': 2,
             'LOW_LATENCY_DATA': 3,
             'DATA_WITH_ACK' : 4
+        }
+
+        # map of the incoming data types by number (to figure out if we need to ack etc)
+        self.data_types_by_number = {
+            1 : 'ACK',
+            2 : 'DATA_NO_ACK',
+            3 : 'LOW_LATENCY_DATA',
+            4 : 'DATA_WITH_ACK'
         }
 
         self.frame_counter = {
@@ -130,57 +139,56 @@ class WifiConnection:
         """
 
         sleep_timer = 0.3
-
         while (self.is_listening):
             try:
                 data = self.udp_receive_sock.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
-                    print "listening got data"
-                    print data
-
-            except socket.timeout:
-                time.sleep(sleep_timer)
-
-            try:
-                data = self.udp_receive_sock2.recv(66000)
-                if len(data) > 0:
-                    self.handle_data(data)
-                    print "listening got data 2"
-                    print data
-
-                data = self.udp_receive_sock3.recv(66000)
-                if len(data) > 0:
-                    self.handle_data(data)
-                    print "listening got data 3"
-                    print data
-
-            except socket.timeout:
-                time.sleep(sleep_timer)
-
-            try:
-                data = self.udp_receive_sock3.recv(66000)
-                if len(data) > 0:
-                    self.handle_data(data)
-                    print "listening got data 3"
-                    print data
-
-            except socket.timeout:
-                time.sleep(sleep_timer)
-
-            try:
-                data = self.udp_send_sock.recv(66000)
-                if len(data) > 0:
-                    self.handle_data(data)
-                    print "listening got data 4"
-                    print data
+                    #print "listening got data"
+                    #print data
 
             except socket.timeout:
                 time.sleep(sleep_timer)
 
     def handle_data(self, data):
-        print "Got some data we had better handle!"
-        print data
+        """
+        Handles the data as it comes in
+
+        :param data: raw data packet
+        :return:
+        """
+        # got the idea to of how to handle this data nicely (handling the perhaps extra data in the packets)
+        # and unpacking the critical info first (id, size etc) from
+        # https://github.com/N-Bz/bybop/blob/8d4c569c8e66bd1f0fdd768851409ca4b86c4ecd/src/Bybop_NetworkAL.py
+
+        my_data = data
+
+        while (my_data):
+            print "inside loop to handle data "
+            (packet_type, packet_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
+            recv_data = data[7:packet_size]
+
+            self.handle_frame(packet_type, packet_id, packet_seq_id, recv_data)
+
+            # loop in case there is more data
+            my_data = my_data[packet_size:]
+
+    def handle_frame(self, packet_type, packet_id, packet_seq_id, recv_data):
+        if (self.data_types_by_number[packet_type] == 'ACK'):
+            pass
+        elif (self.data_types_by_number[packet_type] == 'DATA_NO_ACK'):
+            pass
+        elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
+            pass
+        elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
+            self.mambo.update_sensors(data, ack=True)
+
+
+
+        print "got a packet type of of %d " % packet_type
+        print "got a packet id of of %d " % packet_id
+        print "got a packet seq id of of %d " % packet_seq_id
+
 
     def _handshake(self, num_retries):
         """
@@ -237,15 +245,12 @@ class WifiConnection:
         self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
 
         self.udp_receive_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        # don't use the connect, use bind instead
+        # learned from bybop code
+        # https://github.com/N-Bz/bybop/blob/8d4c569c8e66bd1f0fdd768851409ca4b86c4ecd/src/Bybop_NetworkAL.py
         #self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
         self.udp_receive_sock.settimeout(5.0)
         self.udp_receive_sock.bind(('0.0.0.0', int(self.udp_receive_port)))
-
-        self.udp_receive_sock2 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.udp_receive_sock2.connect((self.drone_ip, self.udp_data['c2d_user_port']))
-
-        self.udp_receive_sock3 = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.udp_receive_sock3.connect((self.drone_ip, self.udp_data['c2d_update_port']))
 
 
     def _connect_listener_called(self, connection_info):
@@ -270,10 +275,10 @@ class WifiConnection:
 
     def send_noparam_command_packet_ack(self, command_tuple):
         self.frame_counter['SEND_WITH_ACK'] = (self.frame_counter['SEND_WITH_ACK'] + 1) % 256
-        print (self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
-                             self.frame_counter['SEND_WITH_ACK'], 0, 0, 0, 11,
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        packet = struct.pack("<BBBBBBBBBBB", self.data_types['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
+        print (self.data_types_by_name['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
+               self.frame_counter['SEND_WITH_ACK'], 0, 0, 0, 11,
+               command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        packet = struct.pack("<BBBBBBBBBBB", self.data_types_by_name['DATA_WITH_ACK'], self.send_buffer_ids['SEND_WITH_ACK'],
                              self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
                              command_tuple[0], command_tuple[1], command_tuple[2], 0)
         self.udp_send_sock.send(packet)

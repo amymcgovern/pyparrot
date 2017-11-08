@@ -21,14 +21,18 @@ class MamboDelegate(DefaultDelegate):
         #print "data is %s " % data
 
         channel = self.ble_connection.characteristic_receive_uuids[self.handle_map[cHandle]]
+
+        (packet_type, packet_seq_num) = struct.unpack('<BB', data[0:2])
+        raw_data = data[3:]
+
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
             color_print("calling update sensors ack true", "WARN")
-            self.mambo.update_sensors(data, ack=True)
+            self.mambo.update_sensors(packet_type, packet_seq_num, raw_data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
             color_print("drone data - no ack needed")
-            self.mambo.update_sensors(data, ack=False)
+            self.mambo.update_sensors(packet_type, packet_seq_num, raw_data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
             color_print("Ack!  command received!")

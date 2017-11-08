@@ -157,18 +157,18 @@ class Mambo:
         self.sensor_parser = DroneSensorParser()
 
 
-    def update_sensors(self, data, ack):
+    def update_sensors(self, data_type, sequence_number, raw_data, ack):
         """
         Update the sensors (called via the wifi or ble connection)
 
         :param data: raw data packet that needs to be parsed
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
-        (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(data)
+        (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         self.sensors.update(sensor_name, sensor_value, sensor_enum)
 
         if (ack):
-            self.drone_connection.ack_packet(header_tuple[1])
+            self.drone_connection.ack_packet(sequence_number)
 
 
     def connect(self, num_retries):
