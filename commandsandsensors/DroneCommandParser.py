@@ -9,9 +9,10 @@ class DroneCommandParser:
         # for readability and portability!)
         self.common_commands = untangle.parse('commandsandsensors/common.xml')
         self.minidrone_commands = untangle.parse('commandsandsensors/minidrone.xml')
+        self.ardrone3_commands = untangle.parse('commandsandsensors/ardrone3.xml')
 
 
-    def get_command_tuple(self, myclass, cmd):
+    def get_command_tuple(self, project, myclass, cmd):
         """
         Parses the command XML for the specified class name and command name
 
@@ -23,28 +24,18 @@ class DroneCommandParser:
         if (myclass, cmd) in self.command_tuple_cache:
             return self.command_tuple_cache[(myclass, cmd)]
 
+        # pick the right command file to draw from
+        if (project == "ardrone3"):
+            my_file = self.ardrone3_commands
+        elif (project == "minidrone"):
+            my_file = self.minidrone_commands
+        else:
+            my_file = self.common_commands
+
         # run the search first in minidrone xml and then hit common if that failed
-        project_id = int(self.minidrone_commands.project['id'])
+        project_id = int(my_file.project['id'])
 
-        for child in self.minidrone_commands.project.myclass:
-            if child['name'] == myclass:
-                class_id = int(child['id'])
-                #print child['name']
-
-                for subchild in child.cmd:
-                    #print subchild
-                    if subchild['name'] == cmd:
-                        #print subchild['name']
-                        cmd_id = int(subchild['id'])
-
-                        # cache the result
-                        self.command_tuple_cache[(myclass, cmd)] = (project_id, class_id, cmd_id)
-                        return (project_id, class_id, cmd_id)
-
-        # do the search in common since minidrone failed
-        project_id = int(self.common_commands.project['id'])
-
-        for child in self.common_commands.project.myclass:
+        for child in my_file.project.myclass:
             if child['name'] == myclass:
                 class_id = int(child['id'])
                 #print child['name']
@@ -60,7 +51,8 @@ class DroneCommandParser:
                         return (project_id, class_id, cmd_id)
 
 
-    def get_command_tuple_with_enum(self, myclass, cmd, enum_name):
+
+    def get_command_tuple_with_enum(self, project, myclass, cmd, enum_name):
         """
         Parses the command XML for the specified class name and command name and checks for enum_name
 
@@ -75,10 +67,18 @@ class DroneCommandParser:
             print self.command_tuple_cache[(myclass, cmd, enum_name)]
             return self.command_tuple_cache[(myclass, cmd, enum_name)]
 
-        # run the search first in minidrone xml and then hit common if that failed
-        project_id = int(self.minidrone_commands.project['id'])
+        # pick the right command file to draw from
+        if (project == "ardrone3"):
+            my_file = self.ardrone3_commands
+        elif (project == "minidrone"):
+            my_file = self.minidrone_commands
+        else:
+            my_file = self.common_commands
 
-        for child in self.minidrone_commands.project.myclass:
+        # run the search first in minidrone xml and then hit common if that failed
+        project_id = int(my_file.project['id'])
+
+        for child in my_file.project.myclass:
             if child['name'] == myclass:
                 class_id = int(child['id'])
                 #print child['name']
@@ -99,31 +99,5 @@ class DroneCommandParser:
                                         self.command_tuple_cache[(myclass, cmd, enum_name)] = ((project_id, class_id, cmd_id), enum_id)
 
                                         print  ((project_id, class_id, cmd_id), enum_id)
-                                        return ((project_id, class_id, cmd_id), enum_id)
-
-        # common
-        project_id = int(self.common_commands.project['id'])
-
-        for child in self.common_commands.project.myclass:
-            if child['name'] == myclass:
-                class_id = int(child['id'])
-                #print child['name']
-
-                for subchild in child.cmd:
-                    #print subchild
-                    if subchild['name'] == cmd:
-                        #print subchild['name']
-                        cmd_id = int(subchild['id'])
-
-                        for arg_child in subchild.arg:
-                            if arg_child['type'] == "enum":
-                                for e_idx, echild in enumerate(arg_child.enum):
-                                    if echild['name'] == enum_name:
-                                        enum_id = e_idx
-
-                                        # cache the result
-                                        self.command_tuple_cache[(myclass, cmd, enum_name)] = ((project_id, class_id, cmd_id), enum_id)
-
-                                        print ((project_id, class_id, cmd_id), enum_id)
                                         return ((project_id, class_id, cmd_id), enum_id)
 

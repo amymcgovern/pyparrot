@@ -31,7 +31,7 @@
 -->
 <project name="ardrone3" id="1">
 	All ARDrone3-only commands
-	<my_class name="Piloting" id="0">
+	<myclass name="Piloting" id="0">
 		All commands related to piloting the drone
 		<cmd name="FlatTrim" id="0">
 			<comment
@@ -308,8 +308,8 @@
 				support="090c:4.3.0"
 				result="Event [PilotedPOI](#1-4-14) is triggered with state AVAILABLE."/>
 		</cmd>
-	</my_class>
-	<my_class name="Animations" id="5">
+	</myclass>
+	<myclass name="Animations" id="5">
 		Animation commands
 		<cmd name="Flip" id="0">
 			<comment
@@ -333,8 +333,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="Camera" id="1">
+	</myclass>
+	<myclass name="Camera" id="1">
 		Ask the drone to move camera
 		<cmd name="Orientation" id="0" buffer="NON_ACK" deprecated="true">
 			<comment
@@ -393,8 +393,8 @@
 				Positive pan velocity move camera to right
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="MediaRecord" id="7">
+	</myclass>
+	<myclass name="MediaRecord" id="7">
 		Media recording management
 		<cmd name="Picture" id="0" deprecated="true">
 			<comment
@@ -456,8 +456,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="MediaRecordState" id="8">
+	</myclass>
+	<myclass name="MediaRecordState" id="8">
 		State of media recording
 		<cmd name="PictureStateChanged" id="0" deprecated="true">
 			<comment
@@ -606,8 +606,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="MediaRecordEvent" id="3">
+	</myclass>
+	<myclass name="MediaRecordEvent" id="3">
 		Events of media recording
 		<cmd name="PictureEventChanged" id="0" content="NOTIFICATION">
 			<comment
@@ -691,8 +691,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PilotingState" id="4">
+	</myclass>
+	<myclass name="PilotingState" id="4">
 		State from drone
 		<cmd name="FlatTrimChanged" id="0">
 			<comment
@@ -1075,8 +1075,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PilotingEvent" id="34">
+	</myclass>
+	<myclass name="PilotingEvent" id="34">
 		Events of Piloting
 		<cmd name="moveByEnd" id="0" content="NOTIFICATION">
 			<comment
@@ -1117,8 +1117,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="Network" id="13">
+	</myclass>
+	<myclass name="Network" id="13">
 		Network related commands
 		<cmd name="WifiScan" id="0">
 			<comment
@@ -1148,8 +1148,8 @@
 				support="0901;090c;090e"
 				result="Event [AvailableWifiChannels](#1-14-2) is triggered with all available channels. When all channels have been sent, event [AvailableWifiChannelsCompleted](#1-14-3) is triggered."/>
 		</cmd>
-	</my_class>
-	<my_class name="NetworkState" id="14">
+	</myclass>
+	<myclass name="NetworkState" id="14">
 		Network state from Product
 		<cmd name="WifiScanListChanged" id="0" type="MAP_ITEM">
 			<comment
@@ -1216,8 +1216,8 @@
 				support="0901;090c;090e"
 				triggered="after the last [AvailableWifiChannel](#1-14-2) has been sent."/>
 		</cmd>
-	</my_class>
-	<my_class name="PilotingSettings" id="2">
+	</myclass>
+	<myclass name="PilotingSettings" id="2">
 		Piloting Settings commands
 		<cmd name="MaxAltitude" id="0">
 			<comment
@@ -1445,8 +1445,8 @@
 				1 to enable the motion detection, 0 to disable it.
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PilotingSettingsState" id="6">
+	</myclass>
+	<myclass name="PilotingSettingsState" id="6">
 		Piloting Settings state from product
 		<cmd name="MaxAltitudeChanged" id="0">
 			<comment
@@ -1676,8 +1676,8 @@
 				1 if motion detection is enabled, 0 otherwise.
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="SpeedSettings" id="11">
+	</myclass>
+	<myclass name="SpeedSettings" id="11">
 		Speed Settings commands
 		<cmd name="MaxVerticalSpeed" id="0">
 			<comment
@@ -1731,8 +1731,8 @@
 				Current max pitch/roll rotation speed in degree/s
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="SpeedSettingsState" id="12">
+	</myclass>
+	<myclass name="SpeedSettingsState" id="12">
 		Speed Settings state from product
 		<cmd name="MaxVerticalSpeedChanged" id="0">
 			<comment
@@ -1800,8 +1800,8 @@
 				Range max of pitch/roll rotation speed
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="NetworkSettings" id="9">
+	</myclass>
+	<myclass name="NetworkSettings" id="9">
 		Network settings commands
 		<cmd name="WifiSelection" id="0">
 			<comment
@@ -1862,8 +1862,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="NetworkSettingsState" id="10">
+	</myclass>
+	<myclass name="NetworkSettingsState" id="10">
 		Network settings state from product
 		<cmd name="WifiSelectionChanged" id="0">
 			<comment
@@ -1941,8 +1941,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="SettingsState" id="16">
+	</myclass>
+	<myclass name="SettingsState" id="16">
 		Settings state from product
 		<cmd name="ProductMotorVersionListChanged" id="0" type="MAP_ITEM" deprecated="true">
 			<comment
@@ -2125,8 +2125,8 @@
 				Product main cpu id
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PictureSettings" id="19">
+	</myclass>
+	<myclass name="PictureSettings" id="19">
 		Photo settings chosen by the user
 		<cmd name="PictureFormatSelection" id="0">
 			<comment
@@ -2309,8 +2309,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PictureSettingsState" id="20">
+	</myclass>
+	<myclass name="PictureSettingsState" id="20">
 		Photo settings state from product
 		<cmd name="PictureFormatChanged" id="0">
 			<comment
@@ -2497,8 +2497,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="MediaStreaming" id="21">
+	</myclass>
+	<myclass name="MediaStreaming" id="21">
 		Control media streaming behavior.
 		<cmd name="VideoEnable" id="0">
 			<comment
@@ -2531,8 +2531,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="MediaStreamingState" id="22">
+	</myclass>
+	<myclass name="MediaStreamingState" id="22">
 		Media streaming status.
 		<cmd name="VideoEnableChanged" id="0">
 			<comment
@@ -2568,8 +2568,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="GPSSettings" id="23">
+	</myclass>
+	<myclass name="GPSSettings" id="23">
 		GPS settings
 		<cmd name="SetHome" id="0" deprecated="true">
 			<comment
@@ -2650,8 +2650,8 @@
 				Delay in second
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="GPSSettingsState" id="24">
+	</myclass>
+	<myclass name="GPSSettingsState" id="24">
 		GPS settings state
 		<cmd name="HomeChanged" id="0">
 			<comment
@@ -2761,8 +2761,8 @@
 				GPS longitude in decimal degrees
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="CameraState" id="25">
+	</myclass>
+	<myclass name="CameraState" id="25">
 		Camera state
 		<cmd name="Orientation" id="0" buffer="NON_ACK" deprecated="true">
 			<comment
@@ -2831,8 +2831,8 @@
 				Absolute max pan velocity [deg/s]
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="Antiflickering" id="29">
+	</myclass>
+	<myclass name="Antiflickering" id="29">
 		Anti-flickering related commands
 		<cmd name="electricFrequency" id="0">
 			<comment
@@ -2875,8 +2875,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="AntiflickeringState" id="30">
+	</myclass>
+	<myclass name="AntiflickeringState" id="30">
 		Anti-flickering related states
 		<cmd name="electricFrequencyChanged" id="0">
 			<comment
@@ -2914,8 +2914,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="GPSState" id="31">
+	</myclass>
+	<myclass name="GPSState" id="31">
 		GPS related States
 		<cmd name="NumberOfSatelliteChanged" id="0">
 			<comment
@@ -2980,8 +2980,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="PROState" id="32">
+	</myclass>
+	<myclass name="PROState" id="32">
 		Pro features enabled on the Bebop
 		<cmd name="Features" id="0" deprecated="true">
 			<comment
@@ -2991,8 +2991,8 @@
 				Bitfield representing enabled features.
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="AccessoryState" id="33">
+	</myclass>
+	<myclass name="AccessoryState" id="33">
 		Information about the connected accessories
 		<cmd name="ConnectedAccessories" id="0" type="MAP_ITEM">
 			<comment
@@ -3048,8 +3048,8 @@
 				0x08: Remove: This value should be removed from the existing list.
 			</arg>
 		</cmd>
-	</my_class>
-	<my_class name="Sound" id="35">
+	</myclass>
+	<myclass name="Sound" id="35">
 		Sounds related commands
 		<cmd name="StartAlertSound" id="0">
 			<comment
@@ -3068,8 +3068,8 @@
 				result="The drone stops its alert sound
 				and send back [AlertSoundState](#1-36-0) with state stopped."/>
 		</cmd>
-	</my_class>
-	<my_class name="SoundState" id="36">
+	</myclass>
+	<myclass name="SoundState" id="36">
 		Sounds related events
 		<cmd name="AlertSound" id="0">
 			<comment
@@ -3088,5 +3088,5 @@
 				</enum>
 			</arg>
 		</cmd>
-	</my_class>
+	</myclass>
 </project>

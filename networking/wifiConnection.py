@@ -103,7 +103,7 @@ class WifiConnection:
         }
 
         # maximum number of times to try a packet before assuming it failed
-        self.max_packet_retries = 3
+        self.max_packet_retries = 1
 
 
     def connect(self, num_retries):
@@ -188,6 +188,10 @@ class WifiConnection:
             my_data = my_data[packet_size:]
 
     def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
+        print "got a packet type of of %d " % packet_type
+        print "got a buffer id of of %d " % buffer_id
+        print "got a packet seq id of of %d " % packet_seq_id
+
         if (self.data_types_by_number[packet_type] == 'ACK'):
             print "setting command received to true"
             ack_seq = int(struct.unpack("<B", recv_data)[0])
@@ -204,9 +208,6 @@ class WifiConnection:
             print "got a different type of data - help"
 
 
-        print "got a packet type of of %d " % packet_type
-        print "got a buffer id of of %d " % buffer_id
-        print "got a packet seq id of of %d " % packet_seq_id
 
     def _set_command_received(self, channel, val, seq_id):
         """
@@ -217,6 +218,16 @@ class WifiConnection:
         :return:
         """
         self.command_received[(channel, seq_id)] = val
+
+    def _is_command_received(self, channel, seq_id):
+        """
+        Is the command received?
+
+        :param channel: channel it was sent on
+        :param seq_id: sequence id of the command
+        :return:
+        """
+        return self.command_received[(channel, seq_id)]
 
     def _handshake(self, num_retries):
         """
@@ -303,6 +314,7 @@ class WifiConnection:
     def safe_send(self, packet):
 
         packet_sent = False
+        print "inside safe send"
 
         while (not packet_sent):
             try:
@@ -323,13 +335,13 @@ class WifiConnection:
         """
         try_num = 0
         self._set_command_received('SEND_WITH_ACK', False, seq_id)
-        while (try_num < self.max_packet_retries and not self.command_received['SEND_WITH_ACK']):
+        while (try_num < self.max_packet_retries and not self._is_command_received('SEND_WITH_ACK', seq_id)):
             color_print("sending packet on try %d", try_num)
             self.safe_send(packet)
             try_num += 1
             self.smart_sleep(0.5)
 
-        return self.command_received['SEND_WITH_ACK']
+        return self._is_command_received('SEND_WITH_ACK', seq_id)
 
     def send_noparam_command_packet_ack(self, command_tuple):
         self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
@@ -338,6 +350,7 @@ class WifiConnection:
                              self.buffer_ids['SEND_WITH_ACK'],
                              self.sequence_counter['SEND_WITH_ACK'], 10,
                              command_tuple[0], command_tuple[1], command_tuple[2])
+
         print (self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
                self.sequence_counter['SEND_WITH_ACK'], 11,
                command_tuple[0], command_tuple[1], command_tuple[2], 0)

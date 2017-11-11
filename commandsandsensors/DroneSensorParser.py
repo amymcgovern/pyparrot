@@ -7,9 +7,14 @@ import untangle
 from utils.colorPrint import color_print
 
 class DroneSensorParser:
-    def __init__(self):
+    def __init__(self, drone_type):
         self.common_sensors = untangle.parse('commandsandsensors/common.xml')
-        self.minidrone_sensors = untangle.parse('commandsandsensors/minidrone.xml')
+
+        if (drone_type == "Mambo"):
+            self.drone_sensors = untangle.parse('commandsandsensors/minidrone.xml')
+        else:
+            self.drone_sensors = untangle.parse('commandsandsensors/ardrone3.xml')
+
         self.sensor_tuple_cache = dict()
 
     def extract_sensor_values(self, data):
@@ -75,6 +80,7 @@ class DroneSensorParser:
         else:
             color_print("Error parsing sensor information!", "ERROR")
             print header_tuple
+            return (None, None, None, None)
 
 
     def _parse_sensor_tuple(self, sensor_tuple):
@@ -93,9 +99,9 @@ class DroneSensorParser:
             return self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)]
 
         #color_print("looking for project id %d in minidrone" % project_id)
-        if (project_id == int(self.minidrone_sensors.project['id'])):
+        if (project_id == int(self.drone_sensors.project['id'])):
             #color_print("looking for myclass_id %d" % myclass_id)
-            for c in self.minidrone_sensors.project.myclass:
+            for c in self.drone_sensors.project.myclass:
                 #color_print("looking for cmd_id %d" % cmd_id)
                 if int(c['id']) == myclass_id:
                     for cmd_child in c.cmd:

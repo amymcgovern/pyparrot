@@ -158,7 +158,7 @@ class Mambo:
 
         # initialize the sensors and the parser
         self.sensors = MamboSensors()
-        self.sensor_parser = DroneSensorParser()
+        self.sensor_parser = DroneSensorParser(drone_type="Mambo")
 
 
     def update_sensors(self, data_type, sequence_number, raw_data, ack):
@@ -211,7 +211,7 @@ class Mambo:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("Piloting", "TakeOff")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "TakeOff")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
 
@@ -240,7 +240,7 @@ class Mambo:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("Piloting", "Landing")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def safe_land(self):
@@ -270,7 +270,7 @@ class Mambo:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("Piloting", "FlatTrim")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
         # print command_tuple
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
@@ -287,7 +287,7 @@ class Mambo:
             print "Ignoring command and returning"
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("Animations", "Flip", direction)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Animations", "Flip", direction)
         # print command_tuple
         # print enum_tuple
 
@@ -303,7 +303,7 @@ class Mambo:
         :param degrees: degrees to turn (-180 to 180)
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("Animations", "Cap")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Animations", "Cap")
         return self.drone_connection.send_turn_command(command_tuple, degrees)
 
     def turn_on_auto_takeoff(self):
@@ -311,7 +311,7 @@ class Mambo:
         Turn on the auto take off (throw mode)
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("Piloting", "AutoTakeOffMode")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "AutoTakeOffMode")
 
         return self.drone_connection.send_auto_takeoff_command(command_tuple)
 
@@ -322,7 +322,7 @@ class Mambo:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("MediaRecord", "PictureV2")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "MediaRecord", "PictureV2")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def ask_for_state_update(self):
@@ -332,7 +332,7 @@ class Mambo:
 
         :return: nothing but it will eventually fill the MamboSensors with all of the state variables as they arrive
         """
-        command_tuple = self.command_parser.get_command_tuple("Common", "AllStates")
+        command_tuple = self.command_parser.get_command_tuple("common", "Common", "AllStates")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def _ensure_fly_command_in_range(self, value):
@@ -368,7 +368,7 @@ class Mambo:
         my_pitch = self._ensure_fly_command_in_range(pitch)
         my_yaw = self._ensure_fly_command_in_range(yaw)
         my_vertical = self._ensure_fly_command_in_range(vertical_movement)
-        command_tuple = self.command_parser.get_command_tuple("Piloting", "PCMD")
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PCMD")
 
         self.drone_connection.send_pcmd_command(my_roll, my_pitch, my_yaw, my_vertical, duration)
 
@@ -379,7 +379,7 @@ class Mambo:
         :return: nothing
         """
         # print "open claw"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "ClawControl", "OPEN")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "OPEN")
         # print command_tuple
         # print enum_tuple
 
@@ -391,7 +391,7 @@ class Mambo:
         :return: nothing
         """
         # print "close claw"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "ClawControl", "CLOSE")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "CLOSE")
         # print command_tuple
         # print enum_tuple
 
@@ -404,7 +404,7 @@ class Mambo:
         :return: nothing
         """
         # print "firing gun"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("UsbAccessory", "GunControl", "FIRE")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "GunControl", "FIRE")
         # print command_tuple
         # print enum_tuple
 
