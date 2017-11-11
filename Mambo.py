@@ -370,7 +370,7 @@ class Mambo:
         my_vertical = self._ensure_fly_command_in_range(vertical_movement)
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PCMD")
 
-        self.drone_connection.send_pcmd_command(my_roll, my_pitch, my_yaw, my_vertical, duration)
+        self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
 
 
     def open_claw(self):
