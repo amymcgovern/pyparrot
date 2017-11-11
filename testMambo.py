@@ -10,19 +10,14 @@ mambo = Mambo(eagletAddr, use_wifi=True)
 success = mambo.connect(num_retries=5)
 
 if (success):
-    mambo.ask_for_state_update()
-    print mambo.sensors
-    mambo.smart_sleep(5)
-    print mambo.sensors
-
-if (success and False):
-    mambo.takeoff()
+    mambo.safe_takeoff(5)
+    print "done taking off - sleeping for 5"
     mambo.smart_sleep(5)
     mambo.land()
     mambo.smart_sleep(3)
-    mambo.land()
-    mambo.smart_sleep(3)
-    mambo.disconnect()
+    #mambo.land()
+    #mambo.smart_sleep(3)
+    #mambo.disconnect()
 
 mambo.disconnect()
 print "DONE"

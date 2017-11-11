@@ -74,7 +74,7 @@ class WifiConnection:
             4 : 'DATA_WITH_ACK'
         }
 
-        self.frame_counter = {
+        self.sequence_counter = {
             'SEND_NO_ACK': 0,
             'SEND_WITH_ACK': 0,
             'SEND_HIGH_PRIORITY': 0,
@@ -92,7 +92,18 @@ class WifiConnection:
             'ACK_DRONE_DATA' : 127,        # drone data that needs an ack
             'NO_ACK_DRONE_DATA' : 126,     # data from drone (including battery and others), no ack
             'VIDEO_DATA' : 125,            # video data
+            'ACK_FROM_SEND_WITH_ACK': 139  # 128 + buffer id for 'SEND_WITH_ACK' is 139
             }
+
+        # store whether a command was acked
+        self.command_received = {
+            'SEND_WITH_ACK': False,
+            'SEND_HIGH_PRIORITY': False,
+            'ACK_COMMAND': False
+        }
+
+        # maximum number of times to try a packet before assuming it failed
+        self.max_packet_retries = 3
 
 
     def connect(self, num_retries):
@@ -168,30 +179,44 @@ class WifiConnection:
 
         while (my_data):
             print "inside loop to handle data "
-            (packet_type, packet_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
+            (packet_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
             recv_data = data[7:packet_size]
 
-            self.handle_frame(packet_type, packet_id, packet_seq_id, recv_data)
+            self.handle_frame(packet_type, buffer_id, packet_seq_id, recv_data)
 
             # loop in case there is more data
             my_data = my_data[packet_size:]
 
-    def handle_frame(self, packet_type, packet_id, packet_seq_id, recv_data):
+    def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
         if (self.data_types_by_number[packet_type] == 'ACK'):
-            pass
+            print "setting command received to true"
+            ack_seq = int(struct.unpack("<B", recv_data)[0])
+            self._set_command_received('SEND_WITH_ACK', True, ack_seq)
+            self.ack_packet(ack_seq)
         elif (self.data_types_by_number[packet_type] == 'DATA_NO_ACK'):
-            pass
+            self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=False)
         elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
-            pass
+            print "Need to handle Low latency data"
         elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
             self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=True)
-
+        else:
+            color_print("HELP ME", "ERROR")
+            print "got a different type of data - help"
 
 
         print "got a packet type of of %d " % packet_type
-        print "got a packet id of of %d " % packet_id
+        print "got a buffer id of of %d " % buffer_id
         print "got a packet seq id of of %d " % packet_seq_id
 
+    def _set_command_received(self, channel, val, seq_id):
+        """
+        Set the command received on the specified channel to the specified value (used for acks)
+
+        :param channel: channel
+        :param val: True or False
+        :return:
+        """
+        self.command_received[(channel, seq_id)] = val
 
     def _handshake(self, num_retries):
         """
@@ -245,7 +270,7 @@ class WifiConnection:
         Create the UDP connection
         """
         self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
+        #self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
 
         self.udp_receive_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         # don't use the connect, use bind instead
@@ -281,23 +306,44 @@ class WifiConnection:
 
         while (not packet_sent):
             try:
-                self.udp_send_sock.send(packet)
+                self.udp_send_sock.sendto(packet, (self.drone_ip, self.udp_send_port))
                 packet_sent = True
             except:
+                print "resetting connection"
                 self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
                 self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
 
 
+    def send_command_packet_ack(self, packet, seq_id):
+        """
+        Sends the actual packet on the ack channel.  Internal function only.
+
+        :param packet: packet constructed according to the command rules (variable size, constructed elsewhere)
+        :return: True if the command was sent and False otherwise
+        """
+        try_num = 0
+        self._set_command_received('SEND_WITH_ACK', False, seq_id)
+        while (try_num < self.max_packet_retries and not self.command_received['SEND_WITH_ACK']):
+            color_print("sending packet on try %d", try_num)
+            self.safe_send(packet)
+            try_num += 1
+            self.smart_sleep(0.5)
+
+        return self.command_received['SEND_WITH_ACK']
 
     def send_noparam_command_packet_ack(self, command_tuple):
-        self.frame_counter['SEND_WITH_ACK'] = (self.frame_counter['SEND_WITH_ACK'] + 1) % 256
-        packet = struct.pack("<BBBBBBBBBBB", self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
-                             self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
+
+        packet = struct.pack("<BBBIBBH", self.data_types_by_name['DATA_WITH_ACK'],
+                             self.buffer_ids['SEND_WITH_ACK'],
+                             self.sequence_counter['SEND_WITH_ACK'], 10,
+                             command_tuple[0], command_tuple[1], command_tuple[2])
         print (self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
-                             self.frame_counter['SEND_WITH_ACK'], 11, 0, 0, 0,
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
-        self.safe_send(packet)
+               self.sequence_counter['SEND_WITH_ACK'], 11,
+               command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+
+        #self.safe_send(packet)
 
     def smart_sleep(self, timeout):
         """
@@ -322,12 +368,12 @@ class WifiConnection:
         :return: nothing
         """
         color_print("ack last packet on the ACK_COMMAND channel", "INFO")
-        self.frame_counter['ACK_DRONE_DATA'] = (self.frame_counter['ACK_DRONE_DATA'] + 1) % 256
-        packet = struct.pack("<BBBBBBBB", self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
-                             self.frame_counter['ACK_DRONE_DATA'], 8, 0, 0, 0,
+        self.sequence_counter['ACK_DRONE_DATA'] = (self.sequence_counter['ACK_DRONE_DATA'] + 1) % 256
+        packet = struct.pack("<BBBIB", self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
+                             self.sequence_counter['ACK_DRONE_DATA'], 8,
                              packet_id)
         print (self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
-                             self.frame_counter['ACK_DRONE_DATA'], 8, 0, 0, 0,
-                             packet_id)
+               self.sequence_counter['ACK_DRONE_DATA'], 8,
+               packet_id)
 
         self.safe_send(packet)

@@ -61,6 +61,9 @@ class MamboSensors:
         :param sensor_enum: enum list for the sensors that use enums so that we can translate from numbers to strings
         :return:
         """
+        print "updating sensor %s" % name
+        print value
+
         if (name, "enum") in sensor_enum:
             # grab the string value
             if (value > len(sensor_enum[(name, "enum")])):
@@ -167,6 +170,7 @@ class Mambo:
         """
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         self.sensors.update(sensor_name, sensor_value, sensor_enum)
+        print self.sensors
 
         if (ack):
             self.drone_connection.ack_packet(sequence_number)
