@@ -163,7 +163,7 @@ class Mambo:
         self.sensor_parser = DroneSensorParser(drone_type="Mambo")
 
 
-    def update_sensors(self, data_type, sequence_number, raw_data, ack):
+    def update_sensors(self, data_type, buffer_id, sequence_number, raw_data, ack):
         """
         Update the sensors (called via the wifi or ble connection)
 
@@ -175,7 +175,7 @@ class Mambo:
         print(self.sensors)
 
         if (ack):
-            self.drone_connection.ack_packet(sequence_number)
+            self.drone_connection.ack_packet(buffer_id, sequence_number)
 
 
     def connect(self, num_retries):
@@ -289,12 +289,14 @@ class Mambo:
 
         :return: True if the command was sent and False otherwise
         """
-        if (direction not in ("front", "back", "right", "left")):
+        fixed_direction = direction.lower()
+        if (fixed_direction not in ("front", "back", "right", "left")):
             print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Animations", "Flip", direction)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone",
+                                                                                      "Animations", "Flip", fixed_direction)
         # print command_tuple
         # print enum_tuple
 

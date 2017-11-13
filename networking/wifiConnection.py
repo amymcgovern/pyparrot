@@ -218,13 +218,13 @@ class WifiConnection:
             print("setting command received to true")
             ack_seq = int(struct.unpack("<B", recv_data)[0])
             self._set_command_received('SEND_WITH_ACK', True, ack_seq)
-            self.ack_packet(ack_seq)
+            self.ack_packet(buffer_id, ack_seq)
         elif (self.data_types_by_number[packet_type] == 'DATA_NO_ACK'):
-            self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=False)
+            self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=False)
         elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
             print("Need to handle Low latency data")
         elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
-            self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=True)
+            self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=True)
         else:
             color_print("HELP ME", "ERROR")
             print("got a different type of data - help")
@@ -416,11 +416,40 @@ class WifiConnection:
 
             packet = struct.pack("<BBBIBBBHbbbbbI", self.data_types_by_name['DATA_NO_ACK'],
                                  self.buffer_ids['SEND_NO_ACK'],
-                                 self.sequence_counter['SEND_NO_ACK'], 18,
+                                 self.sequence_counter['SEND_NO_ACK'], 21,
                                  command_tuple[0], command_tuple[1], command_tuple[2], 0,
                                  1, roll, pitch, yaw, vertical_movement, 0)
 
             self.safe_send(packet)
+            self.smart_sleep(0.1)
+
+    def send_enum_command_packet_ack(self, command_tuple, enum_value, usb_id=None):
+        """
+        Send a command on the ack channel with enum parameters as well (most likely a flip).
+        All commandsandsensors except PCMD go on the ack channel per
+        http://forum.developer.parrot.com/t/ble-characteristics-of-minidrones/5912/2
+
+        the id of the last command sent (for use in ack) is the send counter (which is incremented before sending)
+
+        :param command_tuple: 3 tuple of the command bytes.  0 padded for 4th byte
+        :param enum_value: the enum index
+        :return: nothing
+        """
+        self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
+
+        if (usb_id is None):
+            packet = struct.pack("<BBBIBBBBI", self.data_types_by_name['DATA_WITH_ACK'],
+                                 self.buffer_ids['SEND_WITH_ACK'],
+                                 self.sequence_counter['SEND_WITH_ACK'], 15,
+                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 enum_value)
+        else:
+            packet = struct.pack("<BBBIBBBBBI", self.data_types_by_name['DATA_WITH_ACK'],
+                                 self.buffer_ids['SEND_WITH_ACK'],
+                                 self.sequence_counter['SEND_WITH_ACK'], 16,
+                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 usb_id, enum_value)
+        return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 
     def smart_sleep(self, timeout):
         """
@@ -434,24 +463,26 @@ class WifiConnection:
         """
 
         start_time = time.time()
-        #event = threading.Event()
         while (time.time() - start_time < timeout):
             time.sleep(0.1)
 
-    def ack_packet(self, packet_id):
+    def ack_packet(self, buffer_id, packet_id):
         """
         Ack the packet id specified by the argument on the ACK_COMMAND channel
 
         :param packet_id: the packet id to ack
         :return: nothing
         """
-        color_print("ack last packet on the ACK_COMMAND channel", "INFO")
-        self.sequence_counter['ACK_DRONE_DATA'] = (self.sequence_counter['ACK_DRONE_DATA'] + 1) % 256
-        packet = struct.pack("<BBBIB", self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
-                             self.sequence_counter['ACK_DRONE_DATA'], 8,
+        color_print("ack: buffer id of %d and packet id of %d" % (buffer_id, packet_id))
+        new_buf_id = (buffer_id + 128) % 256
+
+        if (new_buf_id not in self.sequence_counter):
+            self.sequence_counter[new_buf_id] = 0
+        else:
+            self.sequence_counter[new_buf_id] = (self.sequence_counter[new_buf_id] + 1) % 256
+
+        packet = struct.pack("<BBBIB", self.data_types_by_name['ACK'], new_buf_id,
+                             self.sequence_counter[new_buf_id], 8,
                              packet_id)
-        print (self.data_types_by_name['ACK'], self.buffer_ids['ACK_DRONE_DATA'],
-               self.sequence_counter['ACK_DRONE_DATA'], 8,
-               packet_id)
 
         self.safe_send(packet)

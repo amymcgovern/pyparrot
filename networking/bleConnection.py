@@ -28,11 +28,11 @@ class MamboDelegate(DefaultDelegate):
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
             color_print("calling update sensors ack true", "WARN")
-            self.mambo.update_sensors(packet_type, packet_seq_num, raw_data, ack=True)
+            self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
             color_print("drone data - no ack needed")
-            self.mambo.update_sensors(packet_type, packet_seq_num, raw_data, ack=False)
+            self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
             color_print("Ack!  command received!")
