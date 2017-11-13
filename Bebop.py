@@ -12,13 +12,38 @@ from commandsandsensors.DroneSensorParser import DroneSensorParser
 
 class BebopSensors:
     def __init__(self):
-        print "Need to implement this"
+        self.latitude = None
+        self.longitude = None
+        self.speed_x = None
+        self.speed_y = None
+        self.speed_z = None
+        self.altitude = None
+        self.roll = None
+        self.tilt = None
+
 
     def update(self, sensor_name, sensor_value, sensor_enum):
-        print "got a sensor of "
-        print sensor_name
-        print "and a new value of "
-        print sensor_value
+        if (sensor_name == "PositionChanged_latitude"):
+            self.latitude = sensor_value
+        elif (sensor_name == "PositionChanged_longitude"):
+            self.longitude = sensor_value
+        elif (sensor_name == "SpeedChanged_speedX"):
+            self.speed_x = sensor_value
+        elif (sensor_name == "SpeedChanged_speedY"):
+            self.speed_y = sensor_value
+        elif (sensor_name == "SpeedChanged_speedZ"):
+            self.speed_z = sensor_value
+        elif (sensor_name == "AltitudeChanged_altitude"):
+            self.altitude = sensor_value
+        elif (sensor_name == "AttitudeChanged_roll"):
+            self.roll = sensor_value
+        elif (sensor_name == "Orientation_tilt"):
+            self.tilt = sensor_value
+        else:
+            print("got a new sensor of ")
+            print(sensor_name)
+            print("and a new value of ")
+            print(sensor_value)
 
 class Bebop:
     def __init__(self):
@@ -46,9 +71,9 @@ class Bebop:
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         if (sensor_name is not None):
             self.sensors.update(sensor_name, sensor_value, sensor_enum)
-            print self.sensors
+            print(self.sensors)
         else:
-            print "Need to figure out why this sensor is missing"
+            print("Need to figure out why this sensor is missing")
 
 
         if (ack):

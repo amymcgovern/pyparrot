@@ -2,15 +2,16 @@ from Bebop import Bebop
 
 bebop = Bebop()
 
-print "connecting"
+print("connecting")
 success = bebop.connect(10)
-print success
+print(success)
 
-print "sleeping"
+print("sleeping")
 bebop.smart_sleep(5)
 
 bebop.takeoff()
 bebop.smart_sleep(5)
 bebop.land()
 
+print("DONE - disconnecting")
 bebop.disconnect()

@@ -44,7 +44,7 @@ class MamboSensors:
 
         # these are only available on wifi
         self.altitude = None
-        self.altitude_ts = None
+        self.altitude_ts = 0
 
         self.quaternion_w = None
         self.quaternion_x = None
@@ -61,8 +61,8 @@ class MamboSensors:
         :param sensor_enum: enum list for the sensors that use enums so that we can translate from numbers to strings
         :return:
         """
-        print "updating sensor %s" % name
-        print value
+        print("updating sensor %s" % name)
+        print(value)
 
         if (name, "enum") in sensor_enum:
             # grab the string value
@@ -122,6 +122,8 @@ class MamboSensors:
         my_str += "speed (x, y, z) and ts is (%f, %f, %f) at %f " % (self.speed_x, self.speed_y, self.speed_z, self.speed_ts)
         if (self.altitude is not None):
             my_str += "altitude (m) %f and ts is %f " % (self.altitude, self.altitude_ts)
+
+        if (self.quaternion_x is not None):
             my_str += "quaternion (w, x, y, z) and ts is (%f, %f, %f, %f) at %f " % (
                 self.quaternion_w, self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_ts)
         my_str += "gun id: %d, state %s, " % (self.gun_id, self.gun_state)
@@ -170,7 +172,7 @@ class Mambo:
         """
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         self.sensors.update(sensor_name, sensor_value, sensor_enum)
-        print self.sensors
+        print(self.sensors)
 
         if (ack):
             self.drone_connection.ack_packet(sequence_number)
@@ -225,8 +227,8 @@ class Mambo:
         start_time = time.time()
         # take off until it really listens
         while (self.sensors.flying_state != "takingoff" and (time.time() - start_time < timeout)):
-            self.smart_sleep(1)
             success = self.takeoff()
+            self.smart_sleep(1)
 
         # now wait until it finishes takeoff before returning
         while ((self.sensors.flying_state != "flying" or self.sensors.flying_state != "hovering") and
@@ -243,15 +245,20 @@ class Mambo:
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
-    def safe_land(self):
+    def safe_land(self, timeout):
         """
         Ensure the mambo lands by sending the command until it shows landed on sensors
         """
+        start_time = time.time()
 
-        while (self.sensors.flying_state != "landed"):
+        while (self.sensors.flying_state != "landing" and (time.time() - start_time < timeout)):
             color_print("trying to land", "INFO")
-            self.smart_sleep(1)
             success = self.land()
+            self.smart_sleep(1)
+
+        while (self.sensors.flying_state != "landed" and (time.time() - start_time < timeout)):
+            self.smart_sleep(1)
+
 
     def smart_sleep(self, timeout):
         """
@@ -283,8 +290,8 @@ class Mambo:
         :return: True if the command was sent and False otherwise
         """
         if (direction not in ("front", "back", "right", "left")):
-            print "Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left"
-            print "Ignoring command and returning"
+            print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
+            print("Ignoring command and returning")
             return
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Animations", "Flip", direction)

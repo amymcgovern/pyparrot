@@ -11,7 +11,8 @@ import ipaddress
 import json
 from utils.colorPrint import color_print
 import struct
-from threading import Thread
+import threading
+import sys
 
 class mDNSListener(object):
     """
@@ -75,6 +76,7 @@ class WifiConnection:
         }
 
         self.sequence_counter = {
+            'PONG': 0,
             'SEND_NO_ACK': 0,
             'SEND_WITH_ACK': 0,
             'SEND_HIGH_PRIORITY': 0,
@@ -85,6 +87,8 @@ class WifiConnection:
         }
 
         self.buffer_ids = {
+            'PING': 1,                  # pings from device
+            'PONG': 1,                  # respond to pings
             'SEND_NO_ACK': 10,           # not-ack commandsandsensors (piloting and camera rotations)
             'SEND_WITH_ACK': 11,         # ack commandsandsensors (all piloting commandsandsensors)
             'SEND_HIGH_PRIORITY': 12,    # emergency commandsandsensors
@@ -104,6 +108,9 @@ class WifiConnection:
 
         # maximum number of times to try a packet before assuming it failed
         self.max_packet_retries = 1
+
+        # threading lock for waiting
+        self._lock = threading.Lock()
 
 
     def connect(self, num_retries):
@@ -137,7 +144,7 @@ class WifiConnection:
         handshake = self._handshake(num_retries)
         if (handshake):
             self._create_udp_connection()
-            self.listener_thread = Thread(target=self._listen_socket)
+            self.listener_thread = threading.Thread(target=self._listen_socket)
             self.listener_thread.start()
 
             color_print("Success in setting up the wifi network to the drone!", "SUCCESS")
@@ -152,17 +159,27 @@ class WifiConnection:
         Runs forever (until disconnect is called)
         """
 
-        sleep_timer = 0.3
+        print("starting listening at ")
+        lasttime = time.time()
+
         while (self.is_listening):
+            lasttime = time.time()
             try:
                 data = self.udp_receive_sock.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
-                    #print "listening got data"
+                    color_print("listening got data", "INFO")
                     #print data
 
             except socket.timeout:
-                time.sleep(sleep_timer)
+                print("timeout - trying again")
+
+        print("difference in time is")
+        print(lasttime)
+        print(time.time())
+        color_print("Listening thread broke out of the listener - figure out why!", "ERROR")
+        print("disconnecting")
+        self.disconnect()
 
     def handle_data(self, data):
         """
@@ -178,7 +195,7 @@ class WifiConnection:
         my_data = data
 
         while (my_data):
-            print "inside loop to handle data "
+            print("inside loop to handle data ")
             (packet_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
             recv_data = data[7:packet_size]
 
@@ -188,24 +205,39 @@ class WifiConnection:
             my_data = my_data[packet_size:]
 
     def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
-        print "got a packet type of of %d " % packet_type
-        print "got a buffer id of of %d " % buffer_id
-        print "got a packet seq id of of %d " % packet_seq_id
+        print("got a packet type of of %d " % packet_type)
+        print("got a buffer id of of %d " % buffer_id)
+        print("got a packet seq id of of %d " % packet_seq_id)
+
+        if (buffer_id == self.buffer_ids['PING']):
+            color_print("this is a ping!  need to pong", "INFO")
+            self._send_pong(recv_data)
+
 
         if (self.data_types_by_number[packet_type] == 'ACK'):
-            print "setting command received to true"
+            print("setting command received to true")
             ack_seq = int(struct.unpack("<B", recv_data)[0])
             self._set_command_received('SEND_WITH_ACK', True, ack_seq)
             self.ack_packet(ack_seq)
         elif (self.data_types_by_number[packet_type] == 'DATA_NO_ACK'):
             self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=False)
         elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
-            print "Need to handle Low latency data"
+            print("Need to handle Low latency data")
         elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
             self.drone.update_sensors(packet_type, packet_seq_id, recv_data, ack=True)
         else:
             color_print("HELP ME", "ERROR")
-            print "got a different type of data - help"
+            print("got a different type of data - help")
+
+    def _send_pong(self, data):
+
+        size = len(data)
+
+        self.sequence_counter['PONG'] = (self.sequence_counter['PONG'] + 1) % 256
+
+        packet = struct.pack("<BBBI", self.data_types_by_name['DATA_NO_ACK'], self.buffer_ids['PONG'],
+                             size + 7, data)
+        self.safe_send(packet)
 
 
 
@@ -246,15 +278,16 @@ class WifiConnection:
         tcp_sock.connect((self.drone_ip, self.connection_info.port))
 
         # send the handshake information
-        json_string = json.dumps({ "d2c_port":self.udp_receive_port, "controller_type":"computer", "controller_name":"pyparrot" })
-        print json_string
-        tcp_sock.send(json_string)
+        json_string = json.dumps({"d2c_port":self.udp_receive_port, "controller_type":"computer", "controller_name":"pyparrot" })
+        json_obj = json.loads(json_string)
+        print(json_string)
+        tcp_sock.send(bytes(json_string, 'utf-8'))
 
         # wait for the response
         finished = False
         num_try = 0
         while (not finished and num_try < num_retries):
-            data = tcp_sock.recv(4096)
+            data = tcp_sock.recv(4096).decode('utf-8')
             if (len(data) > 0):
                 my_data = data[0:-1]
                 self.udp_data = json.loads(str(my_data))
@@ -263,9 +296,9 @@ class WifiConnection:
                 if (self.udp_data['status'] != 0):
                     return False
 
-                print self.udp_data
+                print(self.udp_data)
                 self.udp_send_port = self.udp_data['c2d_port']
-                print "c2d_port is %d" % self.udp_send_port
+                print("c2d_port is %d" % self.udp_send_port)
                 finished = True
             else:
                 num_try += 1
@@ -314,16 +347,19 @@ class WifiConnection:
     def safe_send(self, packet):
 
         packet_sent = False
-        print "inside safe send"
+        #print "inside safe send"
 
-        while (not packet_sent):
+        try_num = 0
+
+        while (not packet_sent and try_num < self.max_packet_retries):
             try:
                 self.udp_send_sock.sendto(packet, (self.drone_ip, self.udp_send_port))
                 packet_sent = True
             except:
-                print "resetting connection"
+                #print "resetting connection"
                 self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
                 self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
+                try_num += 1
 
 
     def send_command_packet_ack(self, packet, seq_id):
@@ -344,12 +380,17 @@ class WifiConnection:
         return self._is_command_received('SEND_WITH_ACK', seq_id)
 
     def send_noparam_command_packet_ack(self, command_tuple):
+        """
+        Send a no parameter command packet on the ack channel
+        :param command_tuple:
+        :return:
+        """
         self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
 
-        packet = struct.pack("<BBBIBBH", self.data_types_by_name['DATA_WITH_ACK'],
+        packet = struct.pack("<BBBIBBBH", self.data_types_by_name['DATA_WITH_ACK'],
                              self.buffer_ids['SEND_WITH_ACK'],
-                             self.sequence_counter['SEND_WITH_ACK'], 10,
-                             command_tuple[0], command_tuple[1], command_tuple[2])
+                             self.sequence_counter['SEND_WITH_ACK'], 11,
+                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
 
         print (self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
                self.sequence_counter['SEND_WITH_ACK'], 11,
@@ -357,6 +398,29 @@ class WifiConnection:
         self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 
         #self.safe_send(packet)
+
+    def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
+        """
+        Send the PCMD command with the specified roll, pitch, and yaw
+
+        :param command_tuple: command tuple per the parser
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        :param duration:
+        """
+        start_time = time.time()
+        while (time.time() - start_time < duration):
+            self.sequence_counter['SEND_NO_ACK'] = (self.sequence_counter['SEND_NO_ACK'] + 1) % 256
+
+            packet = struct.pack("<BBBIBBBHbbbbbI", self.data_types_by_name['DATA_NO_ACK'],
+                                 self.buffer_ids['SEND_NO_ACK'],
+                                 self.sequence_counter['SEND_NO_ACK'], 18,
+                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 1, roll, pitch, yaw, vertical_movement, 0)
+
+            self.safe_send(packet)
 
     def smart_sleep(self, timeout):
         """
@@ -370,6 +434,7 @@ class WifiConnection:
         """
 
         start_time = time.time()
+        #event = threading.Event()
         while (time.time() - start_time < timeout):
             time.sleep(0.1)
 

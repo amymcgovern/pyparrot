@@ -23,9 +23,9 @@ class DroneSensorParser:
         :param data: BLE packet of sensor data
         :return: a tuple of (sensor name, sensor value, sensor enum, header_tuple)
         """
-        print "updating sensors with "
+        print("updating sensors with ")
         header_tuple = struct.unpack_from("<BBBB", data)
-        print header_tuple
+        print(header_tuple)
         (names, data_sizes) = self._parse_sensor_tuple(header_tuple)
         #print "name of sensor is %s" % names
         #print "data size is %s" % data_sizes
@@ -79,7 +79,7 @@ class DroneSensorParser:
                 return (name, sensor_data, self.sensor_tuple_cache, header_tuple)
         else:
             color_print("Error parsing sensor information!", "ERROR")
-            print header_tuple
+            print(header_tuple)
             return (None, None, None, None)
 
 
