@@ -61,8 +61,13 @@ class MamboSensors:
         :param sensor_enum: enum list for the sensors that use enums so that we can translate from numbers to strings
         :return:
         """
-        print("updating sensor %s" % name)
-        print(value)
+        #print("updating sensor %s" % name)
+        #print(value)
+
+        if (name is None):
+            print("Error empty sensor")
+            return
+
 
         if (name, "enum") in sensor_enum:
             # grab the string value
@@ -145,6 +150,7 @@ class Mambo:
         :param use_wifi: set to True to connect with wifi as well as the BLE
         """
         self.address = address
+        self.use_wifi = use_wifi
         if (use_wifi):
             self.drone_connection = WifiConnection(self, drone_type="Mambo")
         else:
@@ -172,7 +178,7 @@ class Mambo:
         """
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         self.sensors.update(sensor_name, sensor_value, sensor_enum)
-        print(self.sensors)
+        #print(self.sensors)
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
@@ -377,6 +383,8 @@ class Mambo:
         my_pitch = self._ensure_fly_command_in_range(pitch)
         my_yaw = self._ensure_fly_command_in_range(yaw)
         my_vertical = self._ensure_fly_command_in_range(vertical_movement)
+
+        print("roll is %d pitch is %d yaw is %d vertical is %d" % (my_roll, my_pitch, my_yaw, my_vertical))
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PCMD")
 
         self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
@@ -384,9 +392,14 @@ class Mambo:
 
     def open_claw(self):
         """
-        Open the claw
-        :return: nothing
+        Open the claw - note not supposed under wifi since the camera takes the place of the claw
+
+        :return: True if the command was sent and False otherwise (can include errors or asking to do this using wifi)
         """
+        # not supposed under wifi since the camera takes the place of the claw
+        if (self.use_wifi):
+            return False
+
         # print "open claw"
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "OPEN")
         # print command_tuple
@@ -396,9 +409,15 @@ class Mambo:
 
     def close_claw(self):
         """
-        Open the claw
-        :return: nothing
+        Close the claw - note not supposed under wifi since the camera takes the place of the claw
+
+        :return: True if the command was sent and False otherwise (can include errors or asking to do this using wifi)
         """
+
+        # not supposed under wifi since the camera takes the place of the claw
+        if (self.use_wifi):
+            return False
+
         # print "close claw"
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "CLOSE")
         # print command_tuple
@@ -408,10 +427,15 @@ class Mambo:
 
     def fire_gun(self):
         """
-        Fire the gun (assumes it is attached)
+        Fire the gun (assumes it is attached) - note not supposed under wifi since the camera takes the place of the gun
 
-        :return: nothing
+        :return: True if the command was sent and False otherwise (can include errors or asking to do this using wifi)
         """
+
+        # not supposed under wifi since the camera takes the place of the gun
+        if (self.use_wifi):
+            return False
+
         # print "firing gun"
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "GunControl", "FIRE")
         # print command_tuple

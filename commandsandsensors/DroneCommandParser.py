@@ -1,4 +1,6 @@
 import untangle
+import os
+from os.path import join
 
 class DroneCommandParser:
     def __init__(self):
@@ -7,9 +9,14 @@ class DroneCommandParser:
 
         # parse the command files from XML (so we don't have to store ids and can use names
         # for readability and portability!)
-        self.common_commands = untangle.parse('commandsandsensors/common.xml')
-        self.minidrone_commands = untangle.parse('commandsandsensors/minidrone.xml')
-        self.ardrone3_commands = untangle.parse('commandsandsensors/ardrone3.xml')
+
+        # grab module path per http://www.karoltomala.com/blog/?p=622
+        path = os.path.abspath(__file__)
+        dir_path = os.path.dirname(path)
+
+        self.common_commands = untangle.parse(join(dir_path, 'common.xml'))
+        self.minidrone_commands = untangle.parse(join(dir_path, 'minidrone.xml'))
+        self.ardrone3_commands = untangle.parse(join(dir_path, 'ardrone3.xml'))
 
 
     def get_command_tuple(self, project, myclass, cmd):

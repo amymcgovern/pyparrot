@@ -9,45 +9,45 @@ mamboAddr = "e0:14:d0:63:3d:d0"
 
 # make my mambo object
 # remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
-mambo = Mambo(mamboAddr, use_wifi=False)
+mambo = Mambo(mamboAddr, use_wifi=True)
 
-print "trying to connect"
+print("trying to connect")
 success = mambo.connect(num_retries=3)
-print "connected: %s" % success
+print("connected: %s" % success)
 
 # get the state information
-print "sleeping"
+print("sleeping")
 mambo.smart_sleep(2)
 mambo.ask_for_state_update()
 mambo.smart_sleep(2)
 
-print "taking off!"
+print("taking off!")
 mambo.safe_takeoff(5)
 
-print "flip left"
+print("flip left")
 success = mambo.flip(direction="left")
-print "mambo flip result %s" % success
+print("mambo flip result %s" % success)
 mambo.smart_sleep(5)
 
-print "flip right"
+print("flip right")
 success = mambo.flip(direction="right")
-print "mambo flip result %s" % success
+print("mambo flip result %s" % success)
 mambo.smart_sleep(5)
 
-print "flip front"
+print("flip front")
 success = mambo.flip(direction="front")
-print "mambo flip result %s" % success
+print("mambo flip result %s" % success)
 mambo.smart_sleep(5)
 
-print "flip back"
+print("flip back")
 success = mambo.flip(direction="back")
-print "mambo flip result %s" % success
+print("mambo flip result %s" % success)
 mambo.smart_sleep(5)
 
-print "landing"
-mambo.safe_land()
+print("landing")
+mambo.safe_land(5)
 mambo.smart_sleep(5)
 
-print "disconnect"
+print("disconnect")
 mambo.disconnect()
 

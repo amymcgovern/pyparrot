@@ -168,7 +168,7 @@ class WifiConnection:
                 data = self.udp_receive_sock.recv(66000)
                 if len(data) > 0:
                     self.handle_data(data)
-                    color_print("listening got data", "INFO")
+                    #color_print("listening got data", "INFO")
                     #print data
 
             except socket.timeout:
@@ -195,7 +195,7 @@ class WifiConnection:
         my_data = data
 
         while (my_data):
-            print("inside loop to handle data ")
+            #print("inside loop to handle data ")
             (packet_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
             recv_data = data[7:packet_size]
 
@@ -205,9 +205,9 @@ class WifiConnection:
             my_data = my_data[packet_size:]
 
     def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
-        print("got a packet type of of %d " % packet_type)
-        print("got a buffer id of of %d " % buffer_id)
-        print("got a packet seq id of of %d " % packet_seq_id)
+        #print("got a packet type of of %d " % packet_type)
+        # print("got a buffer id of of %d " % buffer_id)
+        #print("got a packet seq id of of %d " % packet_seq_id)
 
         if (buffer_id == self.buffer_ids['PING']):
             color_print("this is a ping!  need to pong", "INFO")
@@ -413,11 +413,12 @@ class WifiConnection:
         start_time = time.time()
         while (time.time() - start_time < duration):
             self.sequence_counter['SEND_NO_ACK'] = (self.sequence_counter['SEND_NO_ACK'] + 1) % 256
-
-            packet = struct.pack("<BBBIBBBHbbbbbI", self.data_types_by_name['DATA_NO_ACK'],
+            packet = struct.pack("<BBBIBBHBbbbbI",
+                                 self.data_types_by_name['DATA_NO_ACK'],
                                  self.buffer_ids['SEND_NO_ACK'],
-                                 self.sequence_counter['SEND_NO_ACK'], 21,
-                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 self.sequence_counter['SEND_NO_ACK'],
+                                 20,
+                                 command_tuple[0], command_tuple[1], command_tuple[2],
                                  1, roll, pitch, yaw, vertical_movement, 0)
 
             self.safe_send(packet)

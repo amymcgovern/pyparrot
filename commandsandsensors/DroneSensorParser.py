@@ -5,15 +5,21 @@ since it knows what to do with it.
 import struct
 import untangle
 from utils.colorPrint import color_print
+import os
+from os.path import join
 
 class DroneSensorParser:
     def __init__(self, drone_type):
-        self.common_sensors = untangle.parse('commandsandsensors/common.xml')
+        # grab module path per http://www.karoltomala.com/blog/?p=622
+        path = os.path.abspath(__file__)
+        dir_path = os.path.dirname(path)
+
+        self.common_sensors = untangle.parse(join(dir_path, 'common.xml'))
 
         if (drone_type == "Mambo"):
-            self.drone_sensors = untangle.parse('commandsandsensors/minidrone.xml')
+            self.drone_sensors = untangle.parse(join(dir_path, 'minidrone.xml'))
         else:
-            self.drone_sensors = untangle.parse('commandsandsensors/ardrone3.xml')
+            self.drone_sensors = untangle.parse(join(dir_path, 'ardrone3.xml'))
 
         self.sensor_tuple_cache = dict()
 
@@ -23,9 +29,9 @@ class DroneSensorParser:
         :param data: BLE packet of sensor data
         :return: a tuple of (sensor name, sensor value, sensor enum, header_tuple)
         """
-        print("updating sensors with ")
+        #print("updating sensors with ")
         header_tuple = struct.unpack_from("<BBBB", data)
-        print(header_tuple)
+        #print(header_tuple)
         (names, data_sizes) = self._parse_sensor_tuple(header_tuple)
         #print "name of sensor is %s" % names
         #print "data size is %s" % data_sizes
