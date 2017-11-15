@@ -80,7 +80,7 @@ class DroneSensorParser:
                     sensor_data = None
                     color_print("Write the parser for this value", "ERROR")
 
-                color_print("updating the sensor!", "NONE")
+                #color_print("updating the sensor!", "NONE")
 
                 return (name, sensor_data, self.sensor_tuple_cache, header_tuple)
         else:

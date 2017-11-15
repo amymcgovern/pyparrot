@@ -474,7 +474,7 @@ class WifiConnection:
         :param packet_id: the packet id to ack
         :return: nothing
         """
-        color_print("ack: buffer id of %d and packet id of %d" % (buffer_id, packet_id))
+        #color_print("ack: buffer id of %d and packet id of %d" % (buffer_id, packet_id))
         new_buf_id = (buffer_id + 128) % 256
 
         if (new_buf_id not in self.sequence_counter):
