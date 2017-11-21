@@ -63,7 +63,6 @@ class MamboSensors:
         """
         #print("updating sensor %s" % name)
         #print(value)
-
         if (name is None):
             print("Error empty sensor")
             return
@@ -76,6 +75,7 @@ class MamboSensors:
             else:
                 enum_value = sensor_enum[(name, "enum")][value]
                 value = enum_value
+
 
         # add it to the sensors
         if (name == "BatteryStateChanged_battery_percent"):

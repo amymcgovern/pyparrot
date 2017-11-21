@@ -20,11 +20,11 @@ if (success and False):
 if (success):
     mambo.safe_takeoff(5)
 
-    mambo.fly_direct(roll=0, pitch=0,yaw=25,vertical_movement=0,duration=1)
-    mambo.smart_sleep(2)
+    #mambo.fly_direct(roll=0, pitch=0,yaw=25,vertical_movement=0,duration=1)
+    #mambo.smart_sleep(2)
 
-    #mambo.flip(direction="front")
-    #mambo.smart_sleep(5)
+    mambo.flip(direction="front")
+    mambo.smart_sleep(2)
 
     #mambo.smart_sleep(5)
     mambo.safe_land(5)

@@ -12,38 +12,31 @@ from commandsandsensors.DroneSensorParser import DroneSensorParser
 
 class BebopSensors:
     def __init__(self):
-        self.latitude = None
-        self.longitude = None
-        self.speed_x = None
-        self.speed_y = None
-        self.speed_z = None
-        self.altitude = None
-        self.roll = None
-        self.tilt = None
-
+        self.sensors = dict()
 
     def update(self, sensor_name, sensor_value, sensor_enum):
-        if (sensor_name == "PositionChanged_latitude"):
-            self.latitude = sensor_value
-        elif (sensor_name == "PositionChanged_longitude"):
-            self.longitude = sensor_value
-        elif (sensor_name == "SpeedChanged_speedX"):
-            self.speed_x = sensor_value
-        elif (sensor_name == "SpeedChanged_speedY"):
-            self.speed_y = sensor_value
-        elif (sensor_name == "SpeedChanged_speedZ"):
-            self.speed_z = sensor_value
-        elif (sensor_name == "AltitudeChanged_altitude"):
-            self.altitude = sensor_value
-        elif (sensor_name == "AttitudeChanged_roll"):
-            self.roll = sensor_value
-        elif (sensor_name == "Orientation_tilt"):
-            self.tilt = sensor_value
+        if (sensor_name is None):
+            print("Error empty sensor")
+            return
+
+
+        if (sensor_name, "enum") in sensor_enum:
+            # grab the string value
+            if (sensor_value > len(sensor_enum[(sensor_name, "enum")])):
+                value = "UNKNOWN_ENUM_VALUE"
+            else:
+                enum_value = sensor_enum[(sensor_name, "enum")][sensor_value]
+                value = enum_value
+
+            self.sensors[sensor_name] = value
+
         else:
-            print("got a new sensor of ")
-            print(sensor_name)
-            print("and a new value of ")
-            print(sensor_value)
+            # regular sensor
+            self.sensors[sensor_name] = sensor_value
+
+    def __str__(self):
+        str = "Bebop sensors: %s" % self.sensors
+        return str
 
 class Bebop:
     def __init__(self):
@@ -61,7 +54,7 @@ class Bebop:
         self.sensor_parser = DroneSensorParser(drone_type="Bebop")
 
 
-    def update_sensors(self, data_type, sequence_number, raw_data, ack):
+    def update_sensors(self, data_type, buffer_id, sequence_number, raw_data, ack):
         """
         Update the sensors (called via the wifi or ble connection)
 
@@ -77,7 +70,7 @@ class Bebop:
 
 
         if (ack):
-            self.drone_connection.ack_packet(sequence_number)
+            self.drone_connection.ack_packet(buffer_id, sequence_number)
 
 
     def connect(self, num_retries):
@@ -106,6 +99,16 @@ class Bebop:
         :return: void
         """
         self.drone_connection.disconnect()
+
+    def ask_for_state_update(self):
+        """
+        Ask for a full state update (likely this should never be used but it can be called if you want to see
+        everything the bebop is storing)
+
+        :return: nothing but it will eventually fill the sensors with all of the state variables as they arrive
+        """
+        command_tuple = self.command_parser.get_command_tuple("common", "Common", "AllStates")
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
 
     def takeoff(self):

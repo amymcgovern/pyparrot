@@ -9,9 +9,12 @@ print(success)
 print("sleeping")
 bebop.smart_sleep(5)
 
-bebop.takeoff()
-bebop.smart_sleep(5)
-bebop.land()
+bebop.ask_for_state_update()
+
+
+#bebop.takeoff()
+#bebop.smart_sleep(5)
+#bebop.land()
 
 print("DONE - disconnecting")
 bebop.disconnect()

@@ -125,7 +125,7 @@ class DroneSensorParser:
                                     if (data_size == 'enum'):
                                         enum_names = list()
                                         for eitem in arg_child.enum:
-                                            color_print(eitem)
+                                            #color_print(eitem)
                                             enum_names.append(eitem['name'])
                                         self.sensor_tuple_cache[sensor_name, "enum"] = enum_names
                                         #color_print("added to sensor cache %s" % enum_names)
