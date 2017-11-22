@@ -132,6 +132,21 @@ Each of the commands available to control the mambo is listed below with its doc
 * ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 
+## Mambo sensors:
+
+All of the sensor data that is passed back to the program is saved.  Note that Parrot sends back more information via wifi than via BLE, due to the limited BLE bandwidth.  The sensors are saved in Mambo.sensors.  This is an instance of a MamboSensors class, which can be seen at the top of the Mambo.py file.  The sensors are:
+
+* battery (defaults to 100 and stays at that level until a real reading is received from the drone).  
+* flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "rolling", "init".  These are the values as specified in [minidrone.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/minidrone.xml)
+* gun_id: defaults to 0 (as far as I can tell, it is only ever 0 when it comes from the drone anyway)
+* gun_state: "READY" or "BUSY" as sent by the drone, if a gun is attached. Defaults to None.
+* claw_id: defaults to 0 
+* claw_state: "OPENING", "OPENED", "CLOSING", "CLOSED" as sent by the drone, if a claw is attached.  Defaults to None.
+* speed_x, speed_y, speed_z, speed_ts: the speed in x (forward > 0), y (right > 0), and z (down > 0).  The ts is the timestamp that the speed was valid. 
+* altitude, altitude_ts: wifi only, altitude in meters.  Zero is where you took off.  The ts is the timestamp where the altitude was valid.
+* quaternion_w, quaternion_x, quaternion_y, quaternion_z, quaternion_ts: wifi only.  Quaternion as estimated from takeoff (which is set to 0). Ranges from -1 to 1. ts is the timestamp where this was valid.
+* sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the [minidrone.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/minidrone.xml) and [common.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/common.xml). 
+
 ## Bebop commands
 
 Each of the commands available to control the Bebop is listed below with its documentation.  The code is also well documented.  All of the functions preceeded with an underscore are intended to be internal functions are not listed below.  The bebop is still under very active development and is released to share but will continue to be updated.
