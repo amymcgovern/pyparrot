@@ -22,7 +22,7 @@ class BebopSensors:
 
         if (sensor_name, "enum") in sensor_enum:
             # grab the string value
-            if (sensor_value > len(sensor_enum[(sensor_name, "enum")])):
+            if (sensor_value is None or sensor_value > len(sensor_enum[(sensor_name, "enum")])):
                 value = "UNKNOWN_ENUM_VALUE"
             else:
                 enum_value = sensor_enum[(sensor_name, "enum")][sensor_value]

@@ -9,7 +9,7 @@ mamboAddr = "e0:14:d0:63:3d:d0"
 
 # make my mambo object
 # remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
-mambo = Mambo(mamboAddr, use_wifi=False)
+mambo = Mambo(mamboAddr, use_wifi=True)
 
 print("trying to connect")
 success = mambo.connect(num_retries=3)

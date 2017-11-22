@@ -198,7 +198,7 @@ class WifiConnection:
         while (my_data):
             #print("inside loop to handle data ")
             (data_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
-            recv_data = data[7:packet_size]
+            recv_data = my_data[7:packet_size]
 
             #print("\tgot a data type of of %d " % data_type)
             #print("\tgot a buffer id of of %d " % buffer_id)
@@ -236,6 +236,12 @@ class WifiConnection:
             print("got a different type of data - help")
 
     def _send_pong(self, data):
+        """
+        Send a PONG back to a PING
+
+        :param data: data that needs to be PONG/ACK'd
+        :return: nothing
+        """
 
         size = len(data)
 
