@@ -1,7 +1,7 @@
 # pyparrot
 Python interface for Parrot Drones
 
-This is a redesign of my initial pymambo repository.  It is more general and handles both the wifi and BLE interfaces and will also handle flying other parrot drones (testing a Bebop now).  
+This is a redesign of my [pymambo](https://github.com/amymcgovern/pymambo) repository.  It is more general and handles both the wifi and BLE interfaces for the mambvo and also handles flying other parrot drones (tested on the Bebop 2).  
 
 This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!  
 
@@ -9,25 +9,49 @@ This interface was developed to teach kids (K-12) STEM concepts (programming, ma
 
 ### Hardware
 
-This code was developed and tested on a Parrot Mambo.  If you use the wifi interface, it requires a Mambo FPV (e.g. you need the camera).  If you want to use the BLE interface, it will work on older Mambos (without the FPV camera) but it will require a linux machine with BLE support.  The BLE interface was developed and tested on a Raspberry Pi 3 Model B.  It should work on any linux machine with BLE support.
+* Parrot Mambo: If you use the wifi interface, it requires a Mambo FPV (e.g. you need the camera).  If you want to use the BLE interface, it will work on older Mambos (without the FPV camera) but it will require a linux machine with BLE support.  The BLE interface was developed and tested on a Raspberry Pi 3 Model B.  It should work on any linux machine with BLE support.
+
+* Parrot Bebop 2: The Bebop interface was tested on a Bebop 2 using a laptop with wifi (any wifi enabled device should work).
 
 ### Software
-You will need python 2.7, pybluez, and untangle.  All of these are available for the Raspberry Pi 3.  To install these do the following:
 
-```
-sudo apt-get install bluetooth
-sudo apt-get install bluez
-sudo apt-get install python-bluez
-pip install untangle
-```
+Software requirements are listed below by type of connection to the drone.
 
-It is possible you need to install bluepy (if it isn't already there).  These commands should do it:
-```
-sudo apt-get install python-pip libglib2.0-dev
-sudo pip install bluepysudo apt-get update
-```
+* All drones:  Python 3 and untangle package
 
-To install the pymambo code, download or clone the repository.
+   I use the [anaconda](https://www.anaconda.com/download/) installer and package manager for python. 
+
+   ```
+   pip install zeroconf
+   ```
+
+
+* Wifi connection: [zeroconf](https://pypi.python.org/pypi/zeroconf)
+
+   To install zeroconf software do the following:
+
+   ```
+   pip install zeroconf
+   ```
+
+* BLE connection: pybluez
+
+   To install the BLE software do the following:
+
+   ```
+   sudo apt-get install bluetooth
+   sudo apt-get install bluez
+   sudo apt-get install python-bluez
+   pip install untangle
+   ```
+
+   It is possible you need to install bluepy (if it isn't already there).  These commands should do it:
+   ```
+   sudo apt-get install python-pip libglib2.0-dev
+   sudo pip install bluepysudo apt-get update
+   ```
+
+To install the pyparrot code, download or clone the repository.
 
 ## Using the pymambo library
 
