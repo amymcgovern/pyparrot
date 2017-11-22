@@ -1,5 +1,5 @@
 """
-Mambo class holds all of the methods needed to pilot the drone from python and to ask for sensor
+Bebop class holds all of the methods needed to pilot the drone from python and to ask for sensor
 data back from the drone
 
 Author: Amy McGovern, dramymcgovern@gmail.com
@@ -15,6 +15,7 @@ class BebopSensors:
         self.sensors = dict()
         self.RelativeMoveEnded = False
         self.CameraMoveEnded = False
+        self.flying_state = "unknown"
 
     def update(self, sensor_name, sensor_value, sensor_enum):
         if (sensor_name is None):
@@ -76,11 +77,10 @@ class Bebop:
         (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
         if (sensor_name is not None):
             self.sensors.update(sensor_name, sensor_value, sensor_enum)
-            print(self.sensors)
+            #print(self.sensors)
         else:
-            print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number))
-            print("Need to figure out why this sensor is missing")
-
+            color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
+            color_print("This sensor is missing (likely because we don't need it)", "WARN")
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
