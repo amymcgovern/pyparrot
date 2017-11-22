@@ -109,7 +109,7 @@ I have provided four demo programs for the Mambo and two for the Bebop.
 
       The bebop can also be directly controlled for roll, pitch, yaw, and vertical.  This program demonstrates the use of all 4 of  these directions.  Be sure to run this in a large enough space!
 
-## mambo flying commands
+## Mambo commands
 
 Each of the commands available to control the mambo is listed below with its documentation.  The code is also well documented.  All of the functions preceeded with an underscore are intended to be internal functions are not listed below.
 
@@ -132,6 +132,28 @@ Each of the commands available to control the mambo is listed below with its doc
 * ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
 * ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
 
+## Bebop commands
+
+Each of the commands available to control the mambo is listed below with its documentation.  The code is also well documented.  All of the functions preceeded with an underscore are intended to be internal functions are not listed below.
+
+* ```Mambo(address)``` create a mambo object with the specific harware address (found using findMambo)
+* ```connect(num_retries,debug_lebel)``` connect to the Mambo's BLE services and characteristics.  This can take several seconds to ensure the connection is working.  You can specify a maximum number of re-tries.  Returns true if the connection suceeded or False otherwise.  The debug_level can be used to control the amount of printouts from the Mambo.  Set to None (default) for no printouts and 0 for all, 10 for errors only.
+* ```disconnect``` disconnect from the BLE connection
+* ```takeoff()``` Sends a single takeoff command to the mambo.  This is not the recommended method.
+* ```safe_takeoff()``` This is the recommended method for takeoff.  It sends a command and then checks the sensors (via flying state) to ensure the mambo is actually taking off.  Then it waits until the mambo is flying or hovering to return.
+* ```land()``` Sends a single land command to the mambo.  This is not the recommended method.
+* ```safe_land()``` This is the recommended method to land the mambo.  Sends commands until the mambo has actually reached the landed state.
+* ```hover()``` Puts the mambo into hover mode.  This is the default mode if it is not receiving commands.
+* ```flip(direction)``` Sends the flip command to the mambo. Valid directions to flip are: front, back, right, left.
+* ```turn_degrees()``` Turns the mambo in place the specified number of degrees.  The range is -180 to 180.  This can be accomplished in direct_fly() as well but this one uses the internal mambo sensors (which are not sent out right now) so it is more accurate.
+* ```smart_sleep()``` This sleeps the number of seconds but wakes for all BLE notifications.  This comamnd is VERY important.  NEVER use regular time.sleep() as your BLE will disconnect regularly!  Use smart_sleep instead!
+* ```turn_on_auto_takeoff()``` This puts the mambo in throw mode.  When it is in throw mode, the eyes will blink.
+* ```take_picture()``` The mambo will take a picture with the downward facing camera.  It is stored internally on the mambo and you can download them using a mobile interface.  As soon as I figure out the protocol for downloading the photos, I will add it to the python interface.
+* ```ask_for_state_update()``` This sends a request to the mambo to send back ALL states (this includes the claw and gun states).  Only the battery and flying state are currently sent automatically.  This command will return immediately but you should wait a few seconds before using the new state information as it has to be updated by BLE characteristic handlers and it sends each type of state in a separate BLE packet.
+* ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the mambo directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
+* ```open_claw()``` Open the claw.  Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
+* ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
+* ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
 
 
 ## Planned updates/extensions
