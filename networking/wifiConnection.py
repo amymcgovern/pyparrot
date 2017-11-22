@@ -434,6 +434,47 @@ class WifiConnection:
             self.safe_send(packet)
             self.smart_sleep(0.1)
 
+    def send_fly_relative_command(self, command_tuple, change_x, change_y, change_z, change_angle):
+        """
+        Send the packet to fly relative (this is Bebop only).
+
+        :param command_tuple: command tuple per the parser
+        :param change_x: change in x
+        :param change_y: change in y
+        :param change_z: change in z
+        :param change_angle: change in angle
+        """
+        self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
+        packet = struct.pack("<BBBIBBHffff",
+                             self.data_types_by_name['DATA_WITH_ACK'],
+                             self.buffer_ids['SEND_WITH_ACK'],
+                             self.sequence_counter['SEND_WITH_ACK'],
+                             27,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
+                             change_x, change_y, change_z, change_angle)
+
+        self.safe_send(packet)
+
+
+    def send_camera_move_command(self, command_tuple, pan, tilt):
+        """
+        Send the packet to move the camera (this is Bebop only).
+
+        :param command_tuple: command tuple per the parser
+        :param pan:
+        :param tilt:
+        """
+        self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
+        packet = struct.pack("<BBBIBBHff",
+                             self.data_types_by_name['DATA_WITH_ACK'],
+                             self.buffer_ids['SEND_WITH_ACK'],
+                             self.sequence_counter['SEND_WITH_ACK'],
+                             19,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
+                             pan, tilt)
+
+        self.safe_send(packet)
+
     def send_enum_command_packet_ack(self, command_tuple, enum_value, usb_id=None):
         """
         Send a command on the ack channel with enum parameters as well (most likely a flip).

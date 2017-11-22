@@ -13,6 +13,8 @@ from commandsandsensors.DroneSensorParser import DroneSensorParser
 class BebopSensors:
     def __init__(self):
         self.sensors = dict()
+        self.RelativeMoveEnded = False
+        self.CameraMoveEnded = False
 
     def update(self, sensor_name, sensor_value, sensor_enum):
         if (sensor_name is None):
@@ -33,6 +35,16 @@ class BebopSensors:
         else:
             # regular sensor
             self.sensors[sensor_name] = sensor_value
+
+        # some sensors are saved outside the dictionary for internal use (they are also in the dictionary)
+        if (sensor_name == "FlyingStateChanged_state"):
+            self.flying_state = sensor_value
+
+        if (sensor_name == "PilotingEvent_moveByEnd"):
+            self.RelativeMoveEnded = True
+
+        if (sensor_name == "CameraState_OrientationV2"):
+            self.CameraMoveEnded = True
 
     def __str__(self):
         str = "Bebop sensors: %s" % self.sensors
@@ -122,6 +134,28 @@ class Bebop:
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "TakeOff")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def safe_takeoff(self, timeout):
+        """
+        Sends commands to takeoff until the Bebop reports it is taking off
+
+        :param timeout: quit trying to takeoff if it takes more than timeout seconds
+        """
+
+        start_time = time.time()
+        # take off until it really listens
+        while (self.sensors.flying_state != "takingoff" and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
+            success = self.takeoff()
+            self.smart_sleep(1)
+
+        # now wait until it finishes takeoff before returning
+        while ((self.sensors.flying_state not in ("flying", "hovering") and
+                   (time.time() - start_time < timeout))):
+            if (self.sensors.flying_state == "emergency"):
+                return
+            self.smart_sleep(1)
+
 
     def land(self):
         """
@@ -133,6 +167,23 @@ class Bebop:
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def safe_land(self, timeout):
+        """
+        Ensure the Bebop lands by sending the command until it shows landed on sensors
+        """
+        start_time = time.time()
+
+        while (self.sensors.flying_state not in ("landing", "landed") and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
+            color_print("trying to land", "INFO")
+            success = self.land()
+            self.smart_sleep(1)
+
+        while (self.sensors.flying_state != "landed" and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
+            self.smart_sleep(1)
 
     def smart_sleep(self, timeout):
         """
@@ -143,3 +194,111 @@ class Bebop:
         """
         self.drone_connection.smart_sleep(timeout)
 
+    def _ensure_fly_command_in_range(self, value):
+        """
+        Ensure the fly direct commands are in range
+
+        :param value: the value sent by the user
+        :return: a value in the range -100 to 100
+        """
+        if (value < -100):
+            return -100
+        elif (value > 100):
+            return 100
+        else:
+            return value
+
+    def fly_direct(self, roll, pitch, yaw, vertical_movement, duration):
+        """
+        Direct fly commands using PCMD.  Each argument ranges from -100 to 100.  Numbers outside that are clipped
+        to that range.
+
+        Note that the xml refers to gaz, which is apparently french for vertical movements:
+        http://forum.developer.parrot.com/t/terminology-of-gaz/3146
+
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        :return:
+        """
+
+        my_roll = self._ensure_fly_command_in_range(roll)
+        my_pitch = self._ensure_fly_command_in_range(pitch)
+        my_yaw = self._ensure_fly_command_in_range(yaw)
+        my_vertical = self._ensure_fly_command_in_range(vertical_movement)
+
+        print("roll is %d pitch is %d yaw is %d vertical is %d" % (my_roll, my_pitch, my_yaw, my_vertical))
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "PCMD")
+
+        self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
+
+    def fly_relative(self, change_x, change_y, change_z, change_angle, wait_for_end=True):
+        """
+        Fly relative to current position.  Must specify change in x, y and z, and angle.
+
+        if wait_for_end is True, wait for the RelativeMoveEnded command to come back
+        before returning
+
+        Note that the xml refers to gaz, which is apparently french for vertical movements:
+        http://forum.developer.parrot.com/t/terminology-of-gaz/3146
+
+        :param change_x: desired change in x (in meters)
+        :param change_y: desired change in y (in meters)
+        :param change_z: desired change in z (in meters)
+        :param change_angle: desired change in angle (in radians)
+        :param wait_for_end: True if you want to wait for the command to end and False otherwise
+        :return:
+        """
+
+        # reset the move ended bit
+        self.sensors.RelativeMoveEnded = False
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "moveBy")
+
+        self.drone_connection.send_fly_relative_command(command_tuple, change_x, change_y, change_z, change_angle)
+
+        if (wait_for_end):
+            while (not self.sensors.RelativeMoveEnded):
+                self.smart_sleep(0.1)
+
+    def flip(self, direction):
+        """
+        Sends the flip command to the bebop.  Gets the codes for it from the xml files. Ensures the
+        packet was received or sends it again up to a maximum number of times.
+        Valid directions to flip are: front, back, right, left
+
+        :return: True if the command was sent and False otherwise
+        """
+        fixed_direction = direction.lower()
+        if (fixed_direction not in ("front", "back", "right", "left")):
+            print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
+                                                                                      "Animations", "Flip", fixed_direction)
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def move_camera(self, pan, tilt, wait_for_end=True):
+        """
+        Move the camera using the specifed pan and tilt
+
+        :param pan: pan degrees
+        :param tilt: tilt degrees
+        :param wait_for_end: True if you want to wait for the command to end and False otherwise
+        """
+
+        # reset the move ended bit
+        self.sensors.CameraMoveEnded = False
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
+
+        self.drone_connection.send_camera_move_command(command_tuple, pan, tilt)
+
+        if (wait_for_end):
+            while (not self.sensors.CameraMoveEnded):
+                self.smart_sleep(0.1)

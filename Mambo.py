@@ -233,12 +233,16 @@ class Mambo:
         start_time = time.time()
         # take off until it really listens
         while (self.sensors.flying_state != "takingoff" and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
             success = self.takeoff()
             self.smart_sleep(1)
 
         # now wait until it finishes takeoff before returning
-        while ((self.sensors.flying_state != "flying" or self.sensors.flying_state != "hovering") and
-                   (time.time() - start_time < timeout)):
+        while ((self.sensors.flying_state not in ("flying", "hovering") and
+                   (time.time() - start_time < timeout))):
+            if (self.sensors.flying_state == "emergency"):
+                return
             self.smart_sleep(1)
 
     def land(self):
@@ -257,12 +261,16 @@ class Mambo:
         """
         start_time = time.time()
 
-        while (self.sensors.flying_state != "landing" and (time.time() - start_time < timeout)):
+        while (self.sensors.flying_state not in ("landing", "landed") and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
             color_print("trying to land", "INFO")
             success = self.land()
             self.smart_sleep(1)
 
         while (self.sensors.flying_state != "landed" and (time.time() - start_time < timeout)):
+            if (self.sensors.flying_state == "emergency"):
+                return
             self.smart_sleep(1)
 
 
