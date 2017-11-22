@@ -68,35 +68,35 @@ I have provided four demo programs for the Mambo and two for the Bebop.
    * [demoMamboTricks.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboTricks.py) 
 
       ```
-      python demoMamboTricks.py
+      python examples/demoMamboTricks.py
       ```
       demoMamboTricks.py will take off, demonstrate all 4 types of flips, and then land.
       
    * [demoMamboDirectFlight.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboDirectFlight.py)
 
       ```
-      python demoMamboDirectFlight.py
+      python examples/demoMamboDirectFlight.py
       ```
       demoMamboDirectFlight.py will demonstrate directly controlling the roll, pitch, yaw, and vertical control.  Make sure you try this one in a large enough room!
       
    * [demoMamboClaw.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboClaw.py)
 
       ```
-      python demoMamboClaw.py
+      python examples/demoMamboClaw.py
       ```
       demoMamboClaw shows you how to control the claw.  In this demo program, the mambo takes off, opens and closes the claw, and lands again.  
       
    * [demoMamboGun.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboGun.py)
    
       ```
-      python demoMamboGun.py
+      python examples/demoMamboGun.py
       ```
       demoMamboGun shows you how to control the gun.  In this demo program, the mambo takes off, fires the gun, and lands again.
    
 * **Bebop**
    * [demoBebopTricks.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoBebopTricks.py)
       ```
-      python demoBebopTricks.py
+      python examples/demoBebopTricks.py
       ```
 
       The bebop can flip just like the Mambo!  This does the exact same thing as the Mambo tricks demo: take off, flip in all 4 directions, land
@@ -104,7 +104,7 @@ I have provided four demo programs for the Mambo and two for the Bebop.
    * [demoBebopDirectFlight.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoBebopDirectFlight.py)
 
       ```
-      python demoBebopDirectFlight.py
+      python examples/demoBebopDirectFlight.py
       ```
 
       The bebop can also be directly controlled for roll, pitch, yaw, and vertical.  This program demonstrates the use of all 4 of  these directions.  Be sure to run this in a large enough space!
