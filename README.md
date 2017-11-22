@@ -21,11 +21,6 @@ Software requirements are listed below by type of connection to the drone.
 
    I use the [anaconda](https://www.anaconda.com/download/) installer and package manager for python. 
 
-   ```
-   pip install zeroconf
-   ```
-
-
 * Wifi connection: [zeroconf](https://pypi.python.org/pypi/zeroconf)
 
    To install zeroconf software do the following:
@@ -53,9 +48,9 @@ Software requirements are listed below by type of connection to the drone.
 
 To install the pyparrot code, download or clone the repository.
 
-## Using the pymambo library
+## Using the pyparrot library
 
-To use the library, you will first need to find the address of your Mambo.  BLE permissions on linux require that this command run in sudo mode.  To this this, from the directory where you installed the pymambo code, type:
+If you want to use wifi for either the Mambo or the Bebop, you need to connect your controling device (laptop, computer, etc) to the wifi for the drone.  If you want to use BLE, you will first need to find the BLE address of your Mambo.  BLE permissions on linux require that this command run in sudo mode.  To this this, from the directory where you installed the pyparrot code, type:
 
 ```
 sudo python findMambo.py
@@ -63,28 +58,42 @@ sudo python findMambo.py
 
 This will identify all BLE devices within hearing of the Pi.  The Mambo will be identified at the end.  Save the address and use it in your connection code (discussed below).  If findMambo does not report "FOUND A MAMBO!", then be sure your Mambo is turned on when you run the findMambo code and that your Pi (or other linux box) has its BLE interface turned on.
 
-## Flying
+## Quick start:  Demos
 
-Once you have gotten the address of your mambo from findMambo, you can use it to connect to the Mambo and fly!  We have provided some example scripts and a list of the available commands for writing your own scripts.
+I have provided a set of [example](https://github.com/amymcgovern/pyparrot/tree/master/examples) scripts for both the Mambo and the Bebop.  Note that you will need to edit the mambo scripts to either use your own BLE address or to ensure that use_wifi=True is set, so that it connects using wifi.  Note that you do not need to run any of the other code in sudo mode!  That was only for discovery.
 
-Note that you do not need to run any of the flying code in sudo mode!  That was only for discovery.
+I have provided four demo programs for the Mambo and two for the Bebop. 
 
-I have provided three demo programs. 
+* Mambo
+   * [demoMamboTricks.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboTricks.py) 
 
-```
-python demoTricks.py
-```
-demoTrick.py will take off, demonstrate all 4 types of flips, and then land.
+      ```
+      python demoMamboTricks.py
+      ```
+      demoMamboTricks.py will take off, demonstrate all 4 types of flips, and then land.
+      
+   * [demoMamboDirectFlight.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboDirectFlight.py)
 
-```
-python demoDirectFlight.py
-```
-demoDirectFlight.py will demonstrate directly controlling the roll, pitch, yaw, and vertical control.  Make sure you try this one in a large enough room!
+      ```
+      python demoMamboDirectFlight.py
+      ```
+      demoMamboDirectFlight.py will demonstrate directly controlling the roll, pitch, yaw, and vertical control.  Make sure you try this one in a large enough room!
+      
+   * [demoMamboClaw.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboClaw.py)
 
-```
-python demoClaw.py
-```
-demoClaw shows you how to control the claw.  The gun can also be controlled through the python interface.  In this demo program, the mambo takes off, opens and closes the claw, and lands again.  Once the FPV camera is integrated, we can use it to actually pick up objects.
+      ```
+      python demoMamboClaw.py
+      ```
+      demoMamboClaw shows you how to control the claw.  In this demo program, the mambo takes off, opens and closes the claw, and lands again.  
+      
+   * [demoMamboGun.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboGun.py)
+   
+      ```
+      python demoMamboGun.py
+      ```
+      demoMamboGun shows you how to control the gun.  In this demo program, the mambo takes off, fires the gun, and lands again.
+   
+* Bebop
 
 ## mambo flying commands
 
