@@ -9,7 +9,7 @@ mamboAddr = "e0:14:d0:63:3d:d0"
 
 # make my mambo object
 # remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
-mambo = Mambo(mamboAddr, use_wifi=True)
+mambo = Mambo(mamboAddr, use_wifi=False)
 
 print("trying to connect")
 success = mambo.connect(num_retries=3)
@@ -25,7 +25,7 @@ print("taking off!")
 mambo.safe_takeoff(5)
 
 print("Flying direct: going up")
-mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=50, duration=1)
+mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=1)
 
 print("flip left")
 success = mambo.flip(direction="left")

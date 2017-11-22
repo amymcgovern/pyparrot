@@ -496,7 +496,7 @@ class BLEConnection:
                 color_print("reconnecting to send packet", "WARN")
                 self._reconnect(3)
 
-    def ack_packet(self, packet_id):
+    def ack_packet(self, buffer_id, packet_id):
         """
         Ack the packet id specified by the argument on the ACK_COMMAND channel
 
