@@ -351,9 +351,9 @@ class BLEConnection:
         """
         self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
 
-        packet = struct.pack("<BBBBBBh", self.data_types['DATA_WITH_ACK'],
+        packet = struct.pack("<BBBBHh", self.data_types['DATA_WITH_ACK'],
                              self.characteristic_send_counter['SEND_WITH_ACK'],
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
                              degrees)
 
         return self.send_command_packet_ack(packet)
@@ -369,9 +369,9 @@ class BLEConnection:
         self.characteristic_send_counter['SEND_WITH_ACK'] = (
                                                                 self.characteristic_send_counter[
                                                                     'SEND_WITH_ACK'] + 1) % 256
-        packet = struct.pack("<BBBBBBB", self.data_types['DATA_WITH_ACK'],
+        packet = struct.pack("<BBBBHB", self.data_types['DATA_WITH_ACK'],
                              self.characteristic_send_counter['SEND_WITH_ACK'],
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
                              1)
 
         return self.send_command_packet_ack(packet)
@@ -414,9 +414,9 @@ class BLEConnection:
 
             self.characteristic_send_counter['SEND_NO_ACK'] = (
                                                               self.characteristic_send_counter['SEND_NO_ACK'] + 1) % 256
-            packet = struct.pack("<BBBBBBBbbbbI", self.data_types['DATA_NO_ACK'],
+            packet = struct.pack("<BBBBHBbbbbI", self.data_types['DATA_NO_ACK'],
                                  self.characteristic_send_counter['SEND_NO_ACK'],
-                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 command_tuple[0], command_tuple[1], command_tuple[2],
                                  1, roll, pitch, yaw, vertical_movement, 0)
 
             self._safe_ble_write(characteristic=self.send_characteristics['SEND_NO_ACK'], packet=packet)
@@ -436,8 +436,8 @@ class BLEConnection:
         :return: True if the command was sent and False otherwise
         """
         self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
-        packet = struct.pack("<BBBBBB", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
+        packet = struct.pack("<BBBBH", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
+                             command_tuple[0], command_tuple[1], command_tuple[2])
         return self.send_command_packet_ack(packet)
 
 
@@ -462,8 +462,8 @@ class BLEConnection:
         else:
             color_print((self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                          command_tuple[0], command_tuple[1], command_tuple[2], 0, usb_id, enum_value), 1)
-            packet = struct.pack("<BBBBBBBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
-                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+            packet = struct.pack("<BBBBHBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
+                                 command_tuple[0], command_tuple[1], command_tuple[2],
                                  usb_id, enum_value)
         return self.send_command_packet_ack(packet)
 

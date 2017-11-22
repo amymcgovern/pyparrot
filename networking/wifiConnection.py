@@ -87,7 +87,7 @@ class WifiConnection:
         }
 
         self.buffer_ids = {
-            'PING': 1,                  # pings from device
+            'PING': 0,                  # pings from device
             'PONG': 1,                  # respond to pings
             'SEND_NO_ACK': 10,           # not-ack commandsandsensors (piloting and camera rotations)
             'SEND_WITH_ACK': 11,         # ack commandsandsensors (all piloting commandsandsensors)
@@ -98,6 +98,8 @@ class WifiConnection:
             'VIDEO_DATA' : 125,            # video data
             'ACK_FROM_SEND_WITH_ACK': 139  # 128 + buffer id for 'SEND_WITH_ACK' is 139
             }
+
+        self.data_buffers = (self.buffer_ids['ACK_DRONE_DATA'], self.buffer_ids['NO_ACK_DRONE_DATA'])
 
         # store whether a command was acked
         self.command_received = {
@@ -161,18 +163,17 @@ class WifiConnection:
 
         print("starting listening at ")
         lasttime = time.time()
+        data = None
 
         while (self.is_listening):
             lasttime = time.time()
             try:
-                data = self.udp_receive_sock.recv(66000)
-                if len(data) > 0:
-                    self.handle_data(data)
-                    #color_print("listening got data", "INFO")
-                    #print data
+                (data, address) = self.udp_receive_sock.recvfrom(66000)
 
             except socket.timeout:
                 print("timeout - trying again")
+
+            self.handle_data(data)
 
         print("difference in time is")
         print(lasttime)
@@ -195,24 +196,25 @@ class WifiConnection:
         my_data = data
 
         while (my_data):
-            #print("inside loop to handle data ")
-            (packet_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
+            print("inside loop to handle data ")
+            (data_type, buffer_id, packet_seq_id, packet_size) = struct.unpack('<BBBI', my_data[0:7])
             recv_data = data[7:packet_size]
 
-            self.handle_frame(packet_type, buffer_id, packet_seq_id, recv_data)
+            print("\tgot a data type of of %d " % data_type)
+            print("\tgot a buffer id of of %d " % buffer_id)
+            print("\tgot a packet seq id of of %d " % packet_seq_id)
+            print("\tsize is %d" % packet_size)
+            self.handle_frame(data_type, buffer_id, packet_seq_id, recv_data)
 
             # loop in case there is more data
             my_data = my_data[packet_size:]
+            print("assigned more data")
+        print("ended loop handling data")
 
     def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
-        #print("got a packet type of of %d " % packet_type)
-        # print("got a buffer id of of %d " % buffer_id)
-        #print("got a packet seq id of of %d " % packet_seq_id)
-
         if (buffer_id == self.buffer_ids['PING']):
             color_print("this is a ping!  need to pong", "INFO")
             self._send_pong(recv_data)
-
 
         if (self.data_types_by_number[packet_type] == 'ACK'):
             print("setting command received to true")
@@ -220,11 +222,15 @@ class WifiConnection:
             self._set_command_received('SEND_WITH_ACK', True, ack_seq)
             self.ack_packet(buffer_id, ack_seq)
         elif (self.data_types_by_number[packet_type] == 'DATA_NO_ACK'):
-            self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=False)
+            print("DATA NO ACK")
+            if (buffer_id in self.data_buffers):
+                self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=False)
         elif (self.data_types_by_number[packet_type] == 'LOW_LATENCY_DATA'):
             print("Need to handle Low latency data")
         elif (self.data_types_by_number[packet_type] == 'DATA_WITH_ACK'):
-            self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=True)
+            print("DATA WITH ACK")
+            if (buffer_id in self.data_buffers):
+                self.drone.update_sensors(packet_type, buffer_id, packet_seq_id, recv_data, ack=True)
         else:
             color_print("HELP ME", "ERROR")
             print("got a different type of data - help")
@@ -236,7 +242,8 @@ class WifiConnection:
         self.sequence_counter['PONG'] = (self.sequence_counter['PONG'] + 1) % 256
 
         packet = struct.pack("<BBBI", self.data_types_by_name['DATA_NO_ACK'], self.buffer_ids['PONG'],
-                             size + 7, data)
+                             self.sequence_counter['PONG'], size + 7)
+        packet += data
         self.safe_send(packet)
 
 
@@ -390,11 +397,8 @@ class WifiConnection:
         packet = struct.pack("<BBBIBBBH", self.data_types_by_name['DATA_WITH_ACK'],
                              self.buffer_ids['SEND_WITH_ACK'],
                              self.sequence_counter['SEND_WITH_ACK'], 11,
-                             command_tuple[0], command_tuple[1], command_tuple[2], 0)
+                             command_tuple[0], command_tuple[1], command_tuple[2])
 
-        print (self.data_types_by_name['DATA_WITH_ACK'], self.buffer_ids['SEND_WITH_ACK'],
-               self.sequence_counter['SEND_WITH_ACK'], 11,
-               command_tuple[0], command_tuple[1], command_tuple[2], 0)
         self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 
         #self.safe_send(packet)
@@ -439,16 +443,16 @@ class WifiConnection:
         self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
 
         if (usb_id is None):
-            packet = struct.pack("<BBBIBBBBI", self.data_types_by_name['DATA_WITH_ACK'],
+            packet = struct.pack("<BBBIBBBHI", self.data_types_by_name['DATA_WITH_ACK'],
                                  self.buffer_ids['SEND_WITH_ACK'],
                                  self.sequence_counter['SEND_WITH_ACK'], 15,
-                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 command_tuple[0], command_tuple[1], command_tuple[2],
                                  enum_value)
         else:
-            packet = struct.pack("<BBBIBBBBBI", self.data_types_by_name['DATA_WITH_ACK'],
+            packet = struct.pack("<BBBIBBBHBI", self.data_types_by_name['DATA_WITH_ACK'],
                                  self.buffer_ids['SEND_WITH_ACK'],
                                  self.sequence_counter['SEND_WITH_ACK'], 16,
-                                 command_tuple[0], command_tuple[1], command_tuple[2], 0,
+                                 command_tuple[0], command_tuple[1], command_tuple[2],
                                  usb_id, enum_value)
         return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 

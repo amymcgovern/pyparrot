@@ -30,8 +30,8 @@ class DroneSensorParser:
         :return: a tuple of (sensor name, sensor value, sensor enum, header_tuple)
         """
         #print("updating sensors with ")
-        header_tuple = struct.unpack_from("<BBBB", data)
-        #print(header_tuple)
+        header_tuple = struct.unpack_from("<BBH", data)
+        print(header_tuple)
         (names, data_sizes) = self._parse_sensor_tuple(header_tuple)
         #print "name of sensor is %s" % names
         #print "data size is %s" % data_sizes
@@ -98,11 +98,11 @@ class DroneSensorParser:
         :return: a tuple with (name of the sensor, data size to be used for grabbing the rest of the data)
         """
         # grab the individual values
-        (project_id, myclass_id, cmd_id, extra_id) = sensor_tuple
+        (project_id, myclass_id, cmd_id) = sensor_tuple
 
         # return the cache if it is there
-        if (project_id, myclass_id, cmd_id, extra_id) in self.sensor_tuple_cache:
-            return self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)]
+        if (project_id, myclass_id, cmd_id) in self.sensor_tuple_cache:
+            return self.sensor_tuple_cache[(project_id, myclass_id, cmd_id)]
 
         #color_print("looking for project id %d in minidrone" % project_id)
         if (project_id == int(self.drone_sensors.project['id'])):
@@ -140,7 +140,7 @@ class DroneSensorParser:
                                 data_sizes.append(None)
 
                             # cache the results
-                            self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)] = (
+                            self.sensor_tuple_cache[(project_id, myclass_id, cmd_id)] = (
                             sensor_names, data_sizes)
                             return (sensor_names, data_sizes)
 
@@ -181,11 +181,11 @@ class DroneSensorParser:
                                 data_sizes.append(None)
 
                             # cache the results
-                            self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)] = (
+                            self.sensor_tuple_cache[(project_id, myclass_id, cmd_id)] = (
                             sensor_names, data_sizes)
                             return (sensor_names, data_sizes)
 
         # didn't find it, return an error
         # cache the results
-        self.sensor_tuple_cache[(project_id, myclass_id, cmd_id, extra_id)] = (None, None)
+        self.sensor_tuple_cache[(project_id, myclass_id, cmd_id)] = (None, None)
         return (None, None)

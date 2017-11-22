@@ -66,6 +66,7 @@ class Bebop:
             self.sensors.update(sensor_name, sensor_value, sensor_enum)
             print(self.sensors)
         else:
+            print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number))
             print("Need to figure out why this sensor is missing")
 
 
