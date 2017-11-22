@@ -64,7 +64,7 @@ I have provided a set of [example](https://github.com/amymcgovern/pyparrot/tree/
 
 I have provided four demo programs for the Mambo and two for the Bebop. 
 
-* Mambo
+* **Mambo**
    * [demoMamboTricks.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoMamboTricks.py) 
 
       ```
@@ -93,7 +93,12 @@ I have provided four demo programs for the Mambo and two for the Bebop.
       ```
       demoMamboGun shows you how to control the gun.  In this demo program, the mambo takes off, fires the gun, and lands again.
    
-* Bebop
+* **Bebop**
+   * [demoBebopTricks.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoBebopTricks.py)
+   The bebop can flip just like the Mambo!  This does the exact same thing as the Mambo tricks demo: take off, flip in all 4 directions, land
+   
+   * [demoBebopDirectFlight.py](https://github.com/amymcgovern/pyparrot/blob/master/examples/demoBebopDirectFlight.py)
+   The bebop can also be directly controlled for roll, pitch, yaw, and vertical.  This program demonstrates the use of all 4 of these directions.  Be sure to run this in a large enough space!
 
 ## mambo flying commands
 
