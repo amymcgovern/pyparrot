@@ -24,6 +24,9 @@ mambo.smart_sleep(2)
 print("taking off!")
 mambo.safe_takeoff(5)
 
+print("Flying direct: going up")
+mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=50, duration=1)
+
 print("flip left")
 success = mambo.flip(direction="left")
 print("mambo flip result %s" % success)
