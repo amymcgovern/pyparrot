@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="134" name="follow_me">
+	FollowMe feature
+	<enums>
+		<enum name="mode">
+			FollowMe mode
+			<value name="none">
+				No follow me
+			</value>
+			<value name="look_at">
+				Look at the target without moving automatically
+			</value>
+			<value name="geographic">
+				Follow the target keeping the same vector
+			</value>
+			<value name="relative">
+				Follow the target keeping the same orientation to its direction
+			</value>
+		</enum>
+		<enum name="behavior">
+			FollowMe behavior
+			<value name="idle">
+				Drone is not moving according to the target
+				This means that at least one required input is missing
+			</value>
+			<value name="follow">
+				Follow the target
+			</value>
+			<value name="look_at">
+				Look at the target without moving
+			</value>
+		</enum>
+		<enum name="input">
+			Input values used by the FollowMe
+			<value name="drone_calibrated">
+				Drone is calibrated
+			</value>
+			<value name="drone_gps_good_accuracy">
+				Drone gps has fixed and has a good accuracy
+			</value>
+			<value name="target_gps_good_accuracy">
+				Target gps data is known and has a good accuracy
+			</value>
+			<value name="target_barometer_ok">
+				Target barometer data is available
+			</value>
+			<value name="drone_far_enough">
+				Drone is far enough from the target
+			</value>
+			<value name="drone_high_enough">
+				Drone is high enough from the ground
+			</value>
+			<value name="image_detection">
+				Target detection is done by image detection among other things
+			</value>
+		</enum>
+		<enum name="geo_rel_configure_param">
+			Geographic and Relative follow me configuration parameters
+			<value name="distance">
+				Distance configuration
+			</value>
+			<value name="elevation">
+				Elevation configuration
+			</value>
+			<value name="azimuth">
+				Azimuth configuration
+			</value>
+		</enum>
+		<enum name="animation">
+			FollowMe animation type
+			<value name="none">
+				No animation
+			</value>
+			<value name="helicoid">
+				Turn around the target
+			</value>
+			<value name="swing">
+				Pass by the zenith and change of side
+			</value>
+			<value name="boomerang">
+				Fly far from the target and fly back
+			</value>
+			<value name="candle">
+				Move to the target and go high when it is near
+			</value>
+			<value name="dolly_slide">
+				Fly in line
+			</value>
+		</enum>
+		<enum name="helicoid_configure_param">
+			Helicoid animation configuration parameters.
+			<value name="speed">
+				Speed parameter
+			</value>
+			<value name="revolution_nb">
+				Number of turn
+			</value>
+			<value name="vertical_distance">
+				Vertical distance
+			</value>
+		</enum>
+		<enum name="swing_configure_param">
+			Swing configure parameters.
+			<value name="speed">
+				Speed parameter
+			</value>
+			<value name="vertical_distance">
+				Vertical distance
+			</value>
+		</enum>
+		<enum name="boomerang_configure_param">
+			Boomerang animation configure parameters.
+			<value name="speed">
+				Speed parameter
+			</value>
+			<value name="distance">
+				Distance
+			</value>
+		</enum>
+		<enum name="candle_configure_param">
+			Candle animation configure parameters.
+			<value name="speed">
+				Speed parameter
+			</value>
+			<value name="vertical_distance">
+				Follow the target keeping the same vector
+			</value>
+		</enum>
+		<enum name="dolly_slide_configure_param">
+			Dolly slide animation configure parameters.
+			<value name="speed">
+				Speed parameter
+			</value>
+			<value name="angle">
+				Angle
+			</value>
+			<value name="horizontal_distance">
+				Horizontal distance
+			</value>
+		</enum>
+		<enum name="image_detection_status">
+			State of the image detection
+			<value name="none">
+				No image detection
+			</value>
+			<value name="ok">
+				Image detection is considered ok by the drone
+			</value>
+			<value name="lost">
+				Image detection is considered lost or
+				in contradiction with gps value.
+				This state will remain until a new selection of the target is done
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="start" id="1">
+			<comment
+				title="Start followMe mode"
+				desc="Start a FollowMe with all its params set to the default params. \n
+				Sending this command will stop other running followMe."
+				support="090c:4.0.0"
+				result="Event [state](#134-3) is triggered.\n
+				Also triggers the event that informs about the current \n
+				configuration (if there is one) like event\n
+				[Geographic configuration](#134-4) or [Relative configuration](#134-6)"/>
+			<arg name="mode" type="enum:mode"/>
+		</cmd>
+		<cmd name="stop" id="2">
+			<comment
+				title="Stop current followMe"
+				desc="Stop current followMe."
+				support="090c:4.0.0"
+				result="Event [state](#134-3) is triggered with mode equals to none."/>
+		</cmd>
+		<evt name="state" id="3">
+			<comment
+				title="State of the FollowMe"
+				support="090c:4.0.0"
+				triggered="by any changes on the followme, like [start](#134-1),\n
+				[stop](#134-2), [start helicoid anim](#134-9)..."/>
+			<arg name="mode" type="enum:mode">
+				Mode asked by user
+			</arg>
+			<arg name="behavior" type="enum:behavior">
+				Behavior of the drone according to the asked mode
+			</arg>
+			<arg name="animation" type="enum:animation">
+				Current animation.
+				This parameter has been deprecated. Please use the animation feature.
+			</arg>
+			<arg name="animation_available" type="bitfield:u16:animation">
+				List of available animations
+				This parameter has been deprecated. Please use the animation feature.
+			</arg>
+		</evt>
+		<evt name="mode_info" id="4" type="MAP_ITEM:mode">
+			<comment
+				title="FollowMe mode info"
+				support="090c:4.0.0"
+				triggered="When the list of missing requirements or improvments changes"/>
+			<arg name="mode" type="enum:mode"/>
+			<arg name="missing_requirements" type="bitfield:u16:input">
+				List of missing requirements to enter this mode on start.
+				Bit is 0 if the input is not ok, 1 if the input is ok.
+				If at least one input is missing, drone won't able to follow the target.
+				It won't use any fallback either
+			</arg>
+			<arg name="improvements" type="bitfield:u16:input">
+				List of inputs that can improve the mode.
+				Bit is 0 if the input is not ok, 1 if the input is ok.
+				If at least one input is missing, a downgraded mode will be used. See behavior
+			</arg>
+		</evt>
+		<cmd name="configure_geographic" id="6">
+			<comment
+				title="Configure the geographic follow me"
+				desc="Configure the geographic FollowMe.\n
+				This should only be taken in account if arg behavior in [state](#134-3) is equal to Follow."
+				support="090c:4.0.0"
+				result="Event [Geographic config](#134-6) is sent and drone will move to respect the configuration."/>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+				Not used when arg start is at 0
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad (not used when arg start is at 0)
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth north-leader-follower in rad (not used when arg start is at 0)
+			</arg>
+		</cmd>
+		<evt name="geographic_config" id="7">
+			<comment
+				title="Geographic configuration changed"
+				desc="Geographic configuration changed.\n
+				This event is only valid when arg behavior in [state](#134-3) is equal to Follow."
+				support="090c:4.0.0"
+				triggered="By [start geographic](#134-1) or [configure geographic](#134-4)."/>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+				If distance is default, this value is the current drone distance
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad
+				If elevation is default, this value is the current leader to drone elevation
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth north-leader-follower in rad
+				If azimuth is default, this value is the current leader to drone azimuth
+			</arg>
+		</evt>
+		<cmd name="configure_relative" id="8">
+			<comment
+				title="Configure the relative follow me"
+				desc="Configure the relative FollowMe.\n
+				This should only be taken in account if arg behavior in [state](#134-3) is equal to Follow"
+				support="090c:4.0.0"
+				result="Event [Relative config](#134-6) is sent and drone will move to respect the configuration."/>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth north-leader-follower in rad
+			</arg>
+		</cmd>
+		<evt name="relative_config" id="9">
+			<comment
+				title="Relative configuration changed"
+				desc="Relative configuration changed.\n
+				This event is only valid when arg behavior in [state](#134-3) is equal to Follow."
+				support="090c:4.0.0"
+				triggered="By [start relative](#134-1) or [configure relative](#134-4)."/>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+				If distance is default, this value is the current drone distance
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad
+				If elevation is default, this value is the current leader to drone elevation
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth course-leader-follower in rad
+				If azimuth is default, this value is the current leader to drone azimuth
+			</arg>
+		</evt>
+		<evt name="target_trajectory" id="10" buffer="NON_ACK">
+			<comment
+				title="Target estimated trajectory"
+				support="090c:4.0.0"
+				triggered="Regularly when a FollowMe is started."/>
+			<arg name="latitude" type="double">
+				Target latitude (in degrees)
+			</arg>
+			<arg name="longitude" type="double">
+				Target longitude (in degrees)
+			</arg>
+			<arg name="altitude" type="float">
+				Target altitude (in meters, relative to sea level)
+			</arg>
+			<arg name="north_speed" type="float">
+				Target north speed (in m/s)
+			</arg>
+			<arg name="east_speed" type="float">
+				Target east speed (in m/s)
+			</arg>
+			<arg name="down_speed" type="float">
+				Target down speed (in m/s)
+			</arg>
+		</evt>
+		<!-- FollowMe Animations -->
+		<cmd name="stop_animation" id="11" deprecated="true">
+			<comment
+				title="Stop current followMe animation"
+				desc="Stop current followMe animation.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="FollowMe animation will stop. Event [state](#134-2) is triggered."/>
+		</cmd>
+		<cmd name="start_helicoid_anim" id="12" deprecated="true">
+			<comment
+				title="Start a helicoid animation"
+				desc="Start a helicoid animation.\n
+				The helicoid animation allows the drone to revolve around the target while going up, with a fixed radius.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="Animation is started and event [state](#134-2) is triggered."/>
+			<arg name="use_default" type="bitfield:u8:helicoid_configure_param"/>
+			<arg name="speed" type="float">
+				The desired speed of the anim in m/s
+				Not used when speed_is_default is 1
+			</arg>
+			<arg name="revolution_number" type="float">
+				The number of revolution (in turn)
+				Negative value is infinite
+				Example: 1.5 makes an entire turn plus half of a turn
+				Not used when revolutionNb_is_default is 1
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that should be made by the product to reach the top of the helicoid in m
+				Not used when verticalDistance_is_default is 1
+			</arg>
+		</cmd>
+		<evt name="helicoid_anim_config" id="13" deprecated="true">
+			<comment
+				title="Helicoid animation configuration"
+				desc="Helicoid animation configuration.\n
+				This should only be taken in account if arg animation in [state](#134-3) is equal to helicoid.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				triggered="by a [start helicoid animation](#134-9)."/>
+			<arg name="use_default" type="bitfield:u8:helicoid_configure_param"/>
+			<arg name="speed" type="float">
+				The speed of the anim in m/s
+			</arg>
+			<arg name="revolution_nb" type="float">
+				The number of revolution (in turn)
+				Negative value is infinite
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that will be made by the product to reach the top of the helicoid in m
+			</arg>
+		</evt>
+		<cmd name="start_swing_anim" id="14" deprecated="true">
+			<comment
+				title="Start a swing animation"
+				desc="Start a swing animation.\n
+				The swing animation enables a vertical point of view while the drone passes over the target.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="Animation is started and event [state](#134-2) is triggered."/>
+			<arg name="use_default" type="bitfield:u8:swing_configure_param"/>
+			<arg name="speed" type="float">
+				The desired speed of the anim in m/s
+				Not used when speed_is_default is 1
+				Not used when start is 0
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that should be made by the product to reach the top of the swing in m
+				Not used when verticalDistance_is_default is 1
+				Not used when start is 0
+			</arg>
+		</cmd>
+		<evt name="swing_anim_config" id="15" deprecated="true">
+			<comment
+				title="Swing animation configuration changed"
+				desc="Swing animation configuration changed.\n
+				This should only be taken in account if arg animation in [state](#134-3) is equal to swing.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				triggered="by a [start swing animation](#134-11)."/>
+			<arg name="use_default" type="bitfield:u8:swing_configure_param"/>
+			<arg name="speed" type="float">
+				The speed of the anim in m/s
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that will be made by the product to reach the top of the swing in m
+			</arg>
+		</evt>
+		<cmd name="start_boomerang_anim" id="16" deprecated="true">
+			<comment
+				title="Start a boomerang animation"
+				desc="Start a boomerang animation.\n
+				The boomerang animation enables a zoom-out/zoom-in trajectory while preserving the framing chosen by the user.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="Animation is started and event [state](#134-2) is triggered."/>
+			<arg name="use_default" type="bitfield:u8:boomerang_configure_param"/>
+			<arg name="speed" type="float">
+				The desired speed of the anim in m/s
+				Not used when speed_is_default is 1
+				Not used when start is 0
+			</arg>
+			<arg name="distance" type="float">
+				Distance that should be made by the product to reach its return point in m
+				Not used when distance_is_default is 1
+				Not used when start is 0
+			</arg>
+		</cmd>
+		<evt name="boomerang_anim_config" id="17" deprecated="true">
+			<comment
+				title="Boomerang animation configuration changed"
+				desc="Boomerang animation configuration changed.\n
+				This should only be taken in account if arg animation in [state](#134-3) is equal to boomerang.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				triggered="by a [start boomerang animation](#134-13)."/>
+			<arg name="use_default" type="bitfield:u8:boomerang_configure_param"/>
+			<arg name="speed" type="float">
+				The speed of the anim in m/s
+			</arg>
+			<arg name="distance" type="float">
+				Distance that will be made by the product to reach its return point in m
+			</arg>
+		</evt>
+		<cmd name="start_candle_anim" id="18" deprecated="true">
+			<comment
+				title="Start a candle animation"
+				desc="Start a candle animation.\n
+				The candle animation enables a zoom-in directly on the target followed by a vertical zoom-out.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="Animation is started and event [state](#134-2) is triggered."/>
+			<arg name="use_default" type="bitfield:u8:candle_configure_param"/>
+			<arg name="speed" type="float">
+				The desired speed of the anim in m/s
+				Not used when speed_is_default is 1
+				Not used when start is 0
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that should be made by the product to reach the top of the vertical zoom-out in m
+				Not used when verticalDistance_is_default is 1
+				Not used when start is 0
+			</arg>
+		</cmd>
+		<evt name="candle_anim_config" id="19" deprecated="true">
+			<comment
+				title="Candle animation configuration changed"
+				desc="Candle animation configuration changed.\n
+				This should only be taken in account if arg animation in [state](#134-3) is equal to candle.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				triggered="by a [start candle animation](#134-15)."/>
+			<arg name="use_default" type="bitfield:u8:candle_configure_param"/>
+			<arg name="speed" type="float">
+				The speed of the anim in m/s
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Distance that will be made by the product to reach the top of the vertical zoom-out in m
+			</arg>
+		</evt>
+		<cmd name="start_dolly_slide_anim" id="20" deprecated="true">
+			<comment
+				title="Start a dolly slide animation"
+				desc="Start a dolly slide animation.\n
+				Allows the drone to catch up to the target before flying past it, creating a zoom-in/zoom_out effect without a curved path.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				result="Animation is started and event [state](#134-2) is triggered."/>
+			<arg name="use_default" type="bitfield:u8:dolly_slide_configure_param"/>
+			<arg name="speed" type="float">
+				The desired speed of the anim in m/s
+				Not used when speed_is_default is 1
+				Not used when start is 0
+			</arg>
+			<arg name="angle" type="float">
+				Desired angle Product-User-Target in rad
+				Not used when angle_is_default is 1
+				Not used when start is 0
+			</arg>
+			<arg name="horizontal_distance" type="float">
+				Distance that should be made by the product to reach its target in m
+				Not used when horizontalDistance_is_default is 1
+				Not used when start is 0
+			</arg>
+		</cmd>
+		<evt name="dolly_slide_anim_config" id="21" deprecated="true">
+			<comment
+				title="DollySlide animation configuration changed"
+				desc="DollySlide animation configuration changed.\n
+				This should only be taken in account if arg animation in [state](#134-3) is equal to dolly_slide.\n
+				This message has been deprecated. Please use the animation feature."
+				support="090c:4.0.0"
+				triggered="by a [start dolly slide animation](#134-17)."/>
+			<arg name="use_default" type="bitfield:u8:dolly_slide_configure_param"/>
+			<arg name="speed" type="float">
+				The speed of the anim in m/s
+			</arg>
+			<arg name="angle" type="float">
+				Angle Product-User-Target in rad
+			</arg>
+			<arg name="horizontal_distance" type="float">
+				Distance that will be made by the product to reach its target in m
+			</arg>
+		</evt>
+		<cmd name="target_framing_position" id="22">
+			<comment
+				title="Set the target framing"
+				desc="Set the desired target framing in the video."
+				support="090c:4.0.0"
+				result="Event [target framing position](#134-20) is triggered."/>
+			<arg name="horizontal" type="i8">
+				Horizontal position in the video (in %, from left to right)
+			</arg>
+			<arg name="vertical" type="i8">
+				Vertical position in the video (in %, from bottom to top)
+			</arg>
+		</cmd>
+		<evt name="target_framing_position_changed" id="23">
+			<comment
+				title="Desired target framing"
+				support="090c:4.0.0"
+				triggered="by [set target framing](#134-19)."/>
+			<arg name="horizontal" type="i8">
+				Horizontal position in the video (in %, from left to right)
+			</arg>
+			<arg name="vertical" type="i8">
+				Vertical position in the video (in %, from bottom to top)
+			</arg>
+		</evt>
+		<cmd name="target_image_detection" id="24">
+			<comment
+				title="Send vision detection results"
+				desc="Send vision detection results."
+				support="090c:4.0.0"
+				result="If drone is in FollowMe, is will look at the target according to\n
+				the chosen [framing position](#134-20)."/>
+			<arg name="target_azimuth" type="float">
+				Horizontal north-drone-target angle in radian
+			</arg>
+			<arg name="target_elevation" type="float">
+				Vertical angle horizon-drone-target in radian
+			</arg>
+			<arg name="change_of_scale" type="float">
+				Normalized relative radial speed in 1/second
+			</arg>
+			<arg name="confidence_index" type="u8">
+				Confidence index of the detection (from 0 to 255, the highest is the best)
+			</arg>
+			<arg name="is_new_selection" type="u8">
+				Boolean. 1 if the selection is new, 0 otherwise
+			</arg>
+			<arg name="timestamp" type="u64">
+				Acquisition time of processed picture in millisecond
+			</arg>
+		</cmd>
+		<evt name="target_image_detection_state" id="25">
+			<comment
+				title="State of the image detection"
+				support="090c:4.0.0"
+				triggered="By a possible wrong [target image detection](#134-24)."/>
+			<arg name="state" type="enum:image_detection_status"/>
+		</evt>
+	</msgs>
+</feature>

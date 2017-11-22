@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="135" name="wifi">
+	All commands/events related to the Wifi
+	<enums>
+		<enum name="band">
+			The band : 2.4 Ghz or 5 Ghz
+			<value name="2_4_ghz">
+				2.4 GHz band
+			</value>
+			<value name="5_ghz">
+				5 GHz band
+			</value>
+		</enum>
+		<enum name="selection_type">
+			The wifi selection type available
+			<value name="auto_all">
+				Auto selection on all channels
+			</value>
+			<value name="auto_2_4_ghz">
+				Auto selection 2.4ghz
+			</value>
+			<value name="auto_5_ghz">
+				Auto selection 5 ghz
+			</value>
+			<value name="manual">
+				manual selection
+			</value>
+		</enum>
+		<enum name="security_type">
+			The type of wifi security (open, wpa2)
+			<value name="open">
+				Wifi is not protected by any security (default)
+			</value>
+			<value name="wpa2">
+				Wifi is protected by wpa2
+			</value>
+		</enum>
+		<enum name="security_key_type">
+			Type of the key sent
+			<value name="plain">
+				Key is plain text, not encrypted
+			</value>
+		</enum>
+		<enum name="environment">
+			Type of environment
+			<value name="indoor">
+				indoor environment
+			</value>
+			<value name="outdoor">
+				outdoor environment
+			</value>
+		</enum>
+		<enum name="country_selection">
+			Type of country selection
+			<value name="manual">
+				Manual selection.
+			</value>
+			<value name="auto">
+				Automatic selection.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="scan" id="1">
+			<comment
+				title="Scan wifi network"
+				desc="Launches wifi network scan for a given band to get a list of all wifi networks found by the drone."
+				support="0901;0902;0905;0906;090c"
+				result="Event [WifiScanListChanged](#135-2) is triggered with all networks found."/>
+			<arg name="band" type="bitfield:u8:band"/>
+		</cmd>
+		<evt name="scanned_item" id="2" type="MAP_ITEM:ssid">
+			<comment
+				title="Wifi scan results"
+				desc="Wifi scan results."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered for each wifi scanned after a [ScanWifi](#135-1)."/>
+			<arg name="ssid" type="string">
+				SSID of the AP
+			</arg>
+			<arg name="rssi" type="i16">
+				RSSI of the AP.
+			</arg>
+			<arg name="band" type="enum:band">
+			</arg>
+			<arg name="channel" type="u8">
+				Channel of the AP
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+			<!-- implicit
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+			-->
+		</evt>
+		<cmd name="update_authorized_channels" id="3">
+			<comment
+				title="Get all available Wifi channels"
+				desc="Get all available Wifi channels.\nThe list of available Wifi channels is related to the country of the drone. You can get this country with the event [WifiCountryChanged](#wifi-CountryChanged)."
+				support="0901;0902;0905;0906;090c"
+				result="Event [AvailableChannelListChanged](#135-4) is triggered with all authorized channels."/>
+		</cmd>
+		<evt name="authorized_channel" id="4" type="LIST_ITEM">
+			<comment
+				title="Available channel results"
+				desc="Available channel results."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered for each channels found after a [UpdateAvailableChannels](#135-3)."/>
+			<arg name="band" type="enum:band">
+			</arg>
+			<arg name="channel" type="u8">
+				The channel number
+			</arg>
+			<arg name="environment" type="bitfield:u8:environment"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+			<!-- implicit
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+			-->
+		</evt>
+		<cmd name="set_ap_channel" id="5">
+			<comment
+				title="Wifi selection"
+				desc="Select channel of choosen band to put the drone's access point on this channel."
+				support="0901;0902;0905;0906;090c"
+				result="The wifi channel changes according to given parameters. Watch out, a disconnection might appear.\nThen, event [WifiSelectionChanged](#135-6) is triggered."/>
+			<arg name="type" type="enum:selection_type"/>
+			<arg name="band" type="enum:band" desc="Used only when type is manual"/>
+			<arg name="channel" type="u8">
+				The channel you want to select. Used only when type is manual.
+			</arg>
+		</cmd>
+		<evt name="ap_channel_changed" id="6">
+			<comment
+				title="Wifi selection changed"
+				desc="Wifi selection changed."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered by [WifiSelection](#135-5)."/>
+			<arg name="type" type="enum:selection_type"/>
+			<arg name="band" type="enum:band"/>
+			<arg name="channel" type="u8">
+				The channel of the drone's access point
+			</arg>
+		</evt>
+		<cmd name="set_security" id="7">
+			<comment
+				title="Set the wifi security"
+				desc="Set the wifi security.\nThe security is changed on the next boot."
+				support="0901;0902;0905;0906;090c:3.1.0"
+				result="The wifi security is set.\nThen, event [WifiSecurityChanged](#135-8) is triggered."/>
+			<arg name="type" type="enum:security_type"/>
+			<arg name="key" type="string">
+				The key to secure the network. Not used if type is open
+			</arg>
+			<arg name="key_type" type="enum:security_key_type"/>
+		</cmd>
+		<evt name="security_changed" id="8">
+			<comment
+				title="Wifi security changed"
+				support="0901;0902;0905;0906;090c:3.1.0"
+				triggered="Triggered by [SetWifiSecurity](#135-7)."/>
+			<arg name="key" type="string">
+				The key to secure the network. Not used if type is open
+			</arg>
+			<arg name="key_type" type="enum:security_type"/>
+		</evt>
+		<cmd name="set_country" id="9">
+			<comment
+				title="Set the wifi country"
+				desc="Set the wifi country."
+				support="0901;0902;0905;0906;090c"
+				result="The country of the product is changed.\nThen, it will trigger [CountryChanged](#135-10)."/>
+			<arg name="selection_mode" type="enum:country_selection"/>
+			<arg name="code" type="string">
+				Country code with ISO 3166 format. Not used if automatic is 1.
+			</arg>
+		</cmd>
+		<evt name="country_changed" id="10">
+			<comment
+				title="Wifi country changed"
+				desc="Wifi country changed."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered by [SetCountry](#135-9)."/>
+			<arg name="selection_mode" type="enum:country_selection"/>
+			<arg name="code" type="string">
+				Country code with ISO 3166 format, empty string means unknown country.
+			</arg>
+		</evt>
+		<cmd name="set_environment" id="11">
+			<comment
+				title="Set indoor/outdoor wifi settings"
+				desc="Set indoor or outdoor wifi settings."
+				support="0901;0902;0905;0906;090c"
+				result="The product change its indoor/outdoor wifi settings.\nThen, it will trigger [OutdoorChanged](#135-12).\nAccording to the country (defined by [SetAutoCountry](#wifi-AutoCountry) or [SetCountry](#wifi-Country)) laws the drone might change its wifi band and channel. So a disconnection might appear."/>
+			<arg name="environment" type="enum:environment"/>
+		</cmd>
+		<evt name="environment_changed" id="12">
+			<comment
+				title="Outdoor setting changed"
+				desc="Status of the wifi config : either indoor or outdoor."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered by [SetOutdoor](#135-11)."/>
+			<arg name="environment" type="enum:environment">
+				1 if it uses outdoor wifi settings, 0 otherwise
+			</arg>
+		</evt>
+		<evt name="rssi_changed" id="13">
+			<comment
+				title="Rssi changed"
+				desc="Rssi Changed. This is an information about the Wifi link quality."
+				support="0901;0902;0905;0906;090c"
+				triggered="Triggered regularly when the link quality changes."/>
+			<arg name="rssi" type="i16">
+				Rssi on the connected wifi network. Rssi values are generally between -30 and -120dBm. The nearest of 0 is the better.
+			</arg>
+		</evt>
+		<evt name="supported_countries" id="14">
+			<comment
+				title="Supported countries"
+				desc="List of countries supported by the drone."
+				support="none"
+				triggered="when the supported countries list changed."/>
+			<arg name="countries" type="string">
+				List of country code in ISO 3166 format separated by ";"
+			</arg>
+		</evt>
+	</msgs>
+</feature>
