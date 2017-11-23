@@ -20,6 +20,8 @@ Software requirements are listed below by type of connection to the drone.
 * All drones:  Python 3 and untangle package
 
    I use the [anaconda](https://www.anaconda.com/download/) installer and package manager for python. 
+   
+* Vision:  If you intend to process the camera files, you will need to install opencv.  
 
 * Wifi connection: [zeroconf](https://pypi.python.org/pypi/zeroconf)
 
