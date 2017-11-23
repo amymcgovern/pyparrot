@@ -115,7 +115,7 @@ Each of the commands available to control the mambo is listed below with its doc
 
 * ```Mambo(address, use_wifi=True/False)``` create a mambo object with the specific harware address (found using findMambo).  The use_wifi argument defaults to False (which means BLE is the default).  Set to True to use wifi.  You can only use wifi if you have a FPV camera installed on your Mambo!
 * ```connect(num_retries)``` connect to the Mambo either using BLE services and characteristics or wifi (specified when you created the Mambo object).  This can take several seconds to ensure the connection is working.  You can specify a maximum number of re-tries.  Returns true if the connection suceeded or False otherwise.  
-* ```disconnect``` disconnect from the BLE connection
+* ```disconnect()``` disconnect from the BLE connection
 * ```takeoff()``` Sends a single takeoff command to the mambo.  This is not the recommended method.
 * ```safe_takeoff(timeout)``` This is the recommended method for takeoff.  It sends a command and then checks the sensors (via flying state) to ensure the mambo is actually taking off.  Then it waits until the mambo is flying or hovering to return.  It will timeout and return if the time exceeds timeout seconds.
 * ```land()``` Sends a single land command to the mambo.  This is not the recommended method.
@@ -126,7 +126,7 @@ Each of the commands available to control the mambo is listed below with its doc
 * ```smart_sleep()``` This sleeps the number of seconds but wakes for all BLE or wifi notifications.  This comamnd is VERY important.  **NEVER** use regular time.sleep() as your BLE will disconnect regularly!  Use smart_sleep instead!
 * ```turn_on_auto_takeoff()``` This puts the mambo in throw mode.  When it is in throw mode, the eyes will blink.
 * ```take_picture()``` The mambo will take a picture with the downward facing camera.  It is stored internally on the mambo and you can download them using a mobile interface.  As soon as I figure out the protocol for downloading the photos, I will add it to the python interface.
-* ```ask_for_state_update()``` This sends a request to the mambo to send back ALL states (this includes the claw and gun states).  Only the battery and flying state are currently sent automatically.  This command will return immediately but you should wait a few seconds before using the new state information as it has to be updated by BLE characteristic handlers and it sends each type of state in a separate BLE/wifi packet.
+* ```ask_for_state_update()``` This sends a request to the mambo to send back ALL states (this includes the claw and gun states).  Only the battery and flying state are currently sent automatically.  This command will return immediately but you should wait a few seconds before using the new state information as it has to be updated.
 * ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the mambo directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
 * ```open_claw()``` Open the claw.  Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
@@ -136,7 +136,7 @@ Each of the commands available to control the mambo is listed below with its doc
 
 All of the sensor data that is passed back to the program is saved.  Note that Parrot sends back more information via wifi than via BLE, due to the limited BLE bandwidth.  The sensors are saved in Mambo.sensors.  This is an instance of a MamboSensors class, which can be seen at the top of the Mambo.py file.  The sensors are:
 
-* battery (defaults to 100 and stays at that level until a real reading is received from the drone).  
+* battery (defaults to 100 and stays at that level until a real reading is received from the drone)  
 * flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "rolling", "init".  These are the values as specified in [minidrone.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/minidrone.xml)
 * gun_id: defaults to 0 (as far as I can tell, it is only ever 0 when it comes from the drone anyway)
 * gun_state: "READY" or "BUSY" as sent by the drone, if a gun is attached. Defaults to None.
@@ -149,37 +149,33 @@ All of the sensor data that is passed back to the program is saved.  Note that P
 
 ## Bebop commands
 
-Each of the commands available to control the Bebop is listed below with its documentation.  The code is also well documented.  All of the functions preceeded with an underscore are intended to be internal functions are not listed below.  The bebop is still under very active development and is released to share but will continue to be updated.
+Each of the commands available to control the Bebop is listed below with its documentation.  The code is also well documented.  All of the functions preceeded with an underscore are intended to be internal functions are not listed below.  Note that the bebop is still under very active development.
 
 * ```Bebop(address)``` create a mambo object with the specific harware address (found using findMambo)
-* ```connect(num_retries,debug_lebel)``` connect to the Mambo's BLE services and characteristics.  This can take several seconds to ensure the connection is working.  You can specify a maximum number of re-tries.  Returns true if the connection suceeded or False otherwise.  The debug_level can be used to control the amount of printouts from the Mambo.  Set to None (default) for no printouts and 0 for all, 10 for errors only.
-* ```disconnect``` disconnect from the BLE connection
-* ```takeoff()``` Sends a single takeoff command to the mambo.  This is not the recommended method.
-* ```safe_takeoff()``` This is the recommended method for takeoff.  It sends a command and then checks the sensors (via flying state) to ensure the mambo is actually taking off.  Then it waits until the mambo is flying or hovering to return.
-* ```land()``` Sends a single land command to the mambo.  This is not the recommended method.
-* ```safe_land()``` This is the recommended method to land the mambo.  Sends commands until the mambo has actually reached the landed state.
-* ```hover()``` Puts the mambo into hover mode.  This is the default mode if it is not receiving commands.
-* ```flip(direction)``` Sends the flip command to the mambo. Valid directions to flip are: front, back, right, left.
-* ```turn_degrees()``` Turns the mambo in place the specified number of degrees.  The range is -180 to 180.  This can be accomplished in direct_fly() as well but this one uses the internal mambo sensors (which are not sent out right now) so it is more accurate.
-* ```smart_sleep()``` This sleeps the number of seconds but wakes for all BLE notifications.  This comamnd is VERY important.  NEVER use regular time.sleep() as your BLE will disconnect regularly!  Use smart_sleep instead!
-* ```turn_on_auto_takeoff()``` This puts the mambo in throw mode.  When it is in throw mode, the eyes will blink.
-* ```take_picture()``` The mambo will take a picture with the downward facing camera.  It is stored internally on the mambo and you can download them using a mobile interface.  As soon as I figure out the protocol for downloading the photos, I will add it to the python interface.
-* ```ask_for_state_update()``` This sends a request to the mambo to send back ALL states (this includes the claw and gun states).  Only the battery and flying state are currently sent automatically.  This command will return immediately but you should wait a few seconds before using the new state information as it has to be updated by BLE characteristic handlers and it sends each type of state in a separate BLE packet.
-* ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the mambo directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
-* ```open_claw()``` Open the claw.  Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
-* ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
-* ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.
+* ```connect(num_retries)``` connect to the Bebop's wifi services.  This performs a handshake.  This can take several seconds to ensure the connection is working.  You can specify a maximum number of re-tries.  Returns true if the connection suceeded or False otherwise.  
+* ```disconnect()``` disconnect from the BLE connection
+* ```takeoff()``` Sends a single takeoff command to the bebop.  This is not the recommended method.
+* ```safe_takeoff(timeout)``` This is the recommended method for takeoff.  It sends a command and then checks the sensors (via flying state) to ensure the bebop is actually taking off.  Then it waits until the bebop is flying or hovering to return.
+* ```land()``` Sends a single land command to the bebop.  This is not the recommended method.
+* ```safe_land(timeout)``` This is the recommended method to land the bebop.  Sends commands until the bebop has actually reached the landed state.
+* ```flip(direction)``` Sends the flip command to the bebop. Valid directions to flip are: front, back, right, left.
+* ```smart_sleep()``` This sleeps the number of seconds but wakes for all wifi notifications.  You should always use this instead of just directly calling time.sleep()
+* ```ask_for_state_update()``` This sends a request to the bebop to send back ALL states. This command will return immediately but you should wait a few seconds before using the new state information as it can take awhile.
+* ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the bebop directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
 
 
 ## Planned updates/extensions
 
 This is a work in progress.  Planned extensions include:
 
-* FPV camera.  Update: the FPV camera works but the Raspberry Pi can't handle the framerate so the devleopment is only initial. 
-* Downloading pictures from the downward facing camera.  We can take photos from it (mambo.take_picture()) but I haven't figured out the protocol to download the photos remotely yet.  When I figure that out, I will update the code.
-* Sensors.  The mambo currently only sends a limited number of sensors back regularly (flying state and battery).  They have stated they will improve this in a future firmware release.  I will update the code to handle the new sensors (hopefully including altitude!) when the firmware is updated.  11/2: working on the wifi sensor data.
+* **Mambo**
+
+   * FPV camera.  The FPV camera works but the Raspberry Pi can't handle the framerate so you should only use it on a machine that can handle the framerate (30 fps).  MamboVision is still under active development.  
+   * Downloading pictures from the downward facing camera.  We can take photos from it (mambo.take_picture()) but I haven't figured out the protocol to download the photos remotely yet.  When I figure that out, I will update the code.
+   
+* **Bebop**
+   * Vision: The vision data is handled differently on the Bebop than on the Mambo.  This is one of my high priorities to get working quickly.
+   * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 ## Major updates:
-* 10/6/2017: General BLE stability improvements with the specific goal of flying multiple mambos at once.  Now if BLE disconnects, it catches that event and re-connects.  
-* 10/6/2017: Multi-mambo flight is now possible so long as you control each one in a separate python file (this seems to be a limitation within bluepy). 
-* 11/3/2017: Added MamboVision code that correctly connects and grabs images from the FPV camera but the Raspberry Pi can't handle the 30 FPS so the code is not finished.  Also updated the states that are parsed via BLE.
+* 11/22/2017: Initial release 
