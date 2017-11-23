@@ -165,6 +165,9 @@ Each of the commands available to control the Bebop is listed below with its doc
 * ```ask_for_state_update()``` This sends a request to the bebop to send back ALL states. This command will return immediately but you should wait a few seconds before using the new state information as it can take awhile.
 * ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the bebop directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
 
+## Bebop sensors
+
+TODO: Add this
 
 ## Planned updates/extensions
 
@@ -181,3 +184,7 @@ This is a work in progress.  Planned extensions include:
 
 ## Major updates:
 * 11/22/2017: Initial release 
+
+## Programming and using your drones responsibly
+
+It is your job to program and use your drones responsibly!  We are not responsible for any losses or damages of your drones or injuries.  Please fly safely and obey all laws.
