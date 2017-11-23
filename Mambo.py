@@ -28,7 +28,8 @@ class MamboSensors:
         # drone on the ground
         self.flying_state = "landed"
 
-        self.unknown_sensors = dict()
+        # dictionary for extra sensors
+        self.sensors_dict = dict()
 
         self.gun_id = 0
         self.gun_state = None
@@ -114,7 +115,7 @@ class MamboSensors:
             self.quaternion_ts = value
         else:
             #print "new sensor - add me to the struct but saving in the dict for now"
-            self.unknown_sensors[name] = value
+            self.sensors_dict[name] = value
 
     def __str__(self):
         """
@@ -133,7 +134,7 @@ class MamboSensors:
                 self.quaternion_w, self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_ts)
         my_str += "gun id: %d, state %s, " % (self.gun_id, self.gun_state)
         my_str += "claw id: %d, state %s, " % (self.claw_id, self.claw_state)
-        my_str += "unknown sensors: %s," % self.unknown_sensors
+        my_str += "extra sensors: %s," % self.sensors_dict
         return my_str
 
 

@@ -233,6 +233,48 @@ class Bebop:
 
         self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
 
+
+    def flip(self, direction):
+        """
+        Sends the flip command to the bebop.  Gets the codes for it from the xml files. Ensures the
+        packet was received or sends it again up to a maximum number of times.
+        Valid directions to flip are: front, back, right, left
+
+        :return: True if the command was sent and False otherwise
+        """
+        fixed_direction = direction.lower()
+        if (fixed_direction not in ("front", "back", "right", "left")):
+            print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
+                                                                                      "Animations", "Flip", fixed_direction)
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def move_camera(self, pan, tilt, wait_for_end=True):
+        """
+        Move the camera using the specified pan and tilt.
+
+        :param pan: pan degrees
+        :param tilt: tilt degrees
+        :param wait_for_end: True if you want to wait for the command to end and False otherwise
+        """
+
+        # reset the move ended bit
+        self.sensors.CameraMoveEnded = False
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
+
+        self.drone_connection.send_camera_move_command(command_tuple, pan, tilt)
+
+        if (wait_for_end):
+            while (not self.sensors.CameraMoveEnded):
+                self.smart_sleep(0.1)
+
     def fly_relative(self, change_x, change_y, change_z, change_angle, wait_for_end=True):
         """
         Fly relative to current position.  Must specify change in x, y and z, and angle.
@@ -260,45 +302,4 @@ class Bebop:
 
         if (wait_for_end):
             while (not self.sensors.RelativeMoveEnded):
-                self.smart_sleep(0.1)
-
-    def flip(self, direction):
-        """
-        Sends the flip command to the bebop.  Gets the codes for it from the xml files. Ensures the
-        packet was received or sends it again up to a maximum number of times.
-        Valid directions to flip are: front, back, right, left
-
-        :return: True if the command was sent and False otherwise
-        """
-        fixed_direction = direction.lower()
-        if (fixed_direction not in ("front", "back", "right", "left")):
-            print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
-            print("Ignoring command and returning")
-            return
-
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
-                                                                                      "Animations", "Flip", fixed_direction)
-        # print command_tuple
-        # print enum_tuple
-
-        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
-
-    def move_camera(self, pan, tilt, wait_for_end=True):
-        """
-        Move the camera using the specifed pan and tilt
-
-        :param pan: pan degrees
-        :param tilt: tilt degrees
-        :param wait_for_end: True if you want to wait for the command to end and False otherwise
-        """
-
-        # reset the move ended bit
-        self.sensors.CameraMoveEnded = False
-
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
-
-        self.drone_connection.send_camera_move_command(command_tuple, pan, tilt)
-
-        if (wait_for_end):
-            while (not self.sensors.CameraMoveEnded):
                 self.smart_sleep(0.1)
