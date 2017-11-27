@@ -48,7 +48,9 @@ Software requirements are listed below by type of connection to the drone.
    sudo pip install bluepysudo apt-get update
    ```
 
-To install the pyparrot code, download or clone the repository.
+## Installing
+
+To install the pyparrot code, download the latest release (go to the releases tab above).
 
 ## Using the pyparrot library
 
