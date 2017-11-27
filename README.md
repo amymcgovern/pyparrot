@@ -169,7 +169,12 @@ Each of the commands available to control the Bebop is listed below with its doc
 
 ## Bebop sensors
 
-TODO: Add this
+All of the sensor data that is passed back to the Bebop is saved in a python dictionary.  Since the Bebop code is still under active development, there will eventually be extra variables saved outside of the dictionary.  For now, you can access all the variables using BebopSensors.sensors_dict
+
+The sensors are:
+* flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in [ardrone3.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml)
+
+* sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the [ardrone3.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml) and [common.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/common.xml). 
 
 ## Planned updates/extensions
 
