@@ -169,7 +169,12 @@ Each of the commands available to control the Bebop is listed below with its doc
 
 ## Bebop sensors
 
-TODO: Add this
+All of the sensor data that is passed back to the Bebop is saved in a python dictionary.  Since the Bebop code is still under active development, there will eventually be extra variables saved outside of the dictionary.  The data is stored in  the BebopSensors class.
+
+The sensors are:
+* flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in [ardrone3.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml)
+
+* sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the [ardrone3.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml) and [common.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/common.xml). 
 
 ## Planned updates/extensions
 
@@ -184,8 +189,8 @@ This is a work in progress.  Planned extensions include:
    * Vision: The vision data is handled differently on the Bebop than on the Mambo.  This is one of my high priorities to get working quickly.
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
-## Major updates:
-* 11/22/2017: Initial release 
+## Major updates and releases:
+* 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
 
 ## Programming and using your drones responsibly
 
