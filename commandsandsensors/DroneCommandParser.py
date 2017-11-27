@@ -67,11 +67,10 @@ class DroneCommandParser:
         :param cmd: command to execute (from XML file)
         :return:
         """
-        print("get command tuple with enum")
         # only search if it isn't already in the cache
         if (myclass, cmd, enum_name) in self.command_tuple_cache:
-            print("using the cache")
-            print(self.command_tuple_cache[(myclass, cmd, enum_name)])
+            #print("using the cache")
+            #print(self.command_tuple_cache[(myclass, cmd, enum_name)])
             return self.command_tuple_cache[(myclass, cmd, enum_name)]
 
         # pick the right command file to draw from
@@ -105,6 +104,6 @@ class DroneCommandParser:
                                         # cache the result
                                         self.command_tuple_cache[(myclass, cmd, enum_name)] = ((project_id, class_id, cmd_id), enum_id)
 
-                                        print  ((project_id, class_id, cmd_id), enum_id)
+                                        #print  ((project_id, class_id, cmd_id), enum_id)
                                         return ((project_id, class_id, cmd_id), enum_id)
 

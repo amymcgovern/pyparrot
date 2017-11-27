@@ -175,11 +175,7 @@ class WifiConnection:
 
             self.handle_data(data)
 
-        print("difference in time is")
-        print(lasttime)
-        print(time.time())
-        color_print("Listening thread broke out of the listener - figure out why!", "ERROR")
-        print("disconnecting")
+        color_print("disconnecting", "INFO")
         self.disconnect()
 
     def handle_data(self, data):
@@ -217,7 +213,7 @@ class WifiConnection:
             self._send_pong(recv_data)
 
         if (self.data_types_by_number[packet_type] == 'ACK'):
-            print("setting command received to true")
+            #print("setting command received to true")
             ack_seq = int(struct.unpack("<B", recv_data)[0])
             self._set_command_received('SEND_WITH_ACK', True, ack_seq)
             self.ack_packet(buffer_id, ack_seq)
