@@ -367,7 +367,7 @@ class WifiConnection:
             except:
                 #print "resetting connection"
                 self.udp_send_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-                self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
+                #self.udp_send_sock.connect((self.drone_ip, self.udp_send_port))
                 try_num += 1
 
 
