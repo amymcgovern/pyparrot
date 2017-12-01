@@ -27,19 +27,19 @@ class MamboDelegate(DefaultDelegate):
 
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
-            color_print("calling update sensors ack true", "WARN")
+            #color_print("calling update sensors ack true", "WARN")
             self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
-            color_print("drone data - no ack needed")
+            #color_print("drone data - no ack needed")
             self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
-            color_print("Ack!  command received!")
+            #color_print("Ack!  command received!")
             self.ble_connection._set_command_received('SEND_WITH_ACK', True)
         elif channel == 'ACK_HIGH_PRIORITY':
             # ack 0c channel, SEND_HIGH_PRIORITY
-            color_print("Ack!  high priority received")
+            #color_print("Ack!  high priority received")
             self.ble_connection._set_command_received('SEND_HIGH_PRIORITY', True)
         else:
             color_print("unknown channel %s sending data " % channel, "ERROR")
@@ -268,17 +268,17 @@ class BLEConnection:
 
             # check to see if all 8 characteristics were found
             allServicesFound = True
-            for r_id in self.characteristic_receive_uuids.itervalues():
+            for r_id in self.characteristic_receive_uuids.values():
                 if r_id not in self.receive_characteristics:
                     color_print("setting to false in receive on %s" % r_id)
                     allServicesFound = False
 
-            for s_id in self.characteristic_send_uuids.itervalues():
+            for s_id in self.characteristic_send_uuids.values():
                 if s_id not in self.send_characteristics:
                     color_print("setting to false in send")
                     allServicesFound = False
 
-            for f_id in self.characteristic_ftp_uuids.itervalues():
+            for f_id in self.characteristic_ftp_uuids.values():
                 if f_id not in self.ftp_characteristics:
                     color_print("setting to false in ftp")
                     allServicesFound = False
@@ -306,7 +306,7 @@ class BLEConnection:
         color_print("magic handshake to make the drone listen to our commandsandsensors")
 
         # Note this code snippet below more or less came from the python example posted to that forum (I adapted it to my interface)
-        for c in self.handshake_characteristics.itervalues():
+        for c in self.handshake_characteristics.values():
             # for some reason bluepy characteristic handle is two lower than what I need...
             # Need to write 0x0100 to the characteristics value handle (which is 2 higher)
             self.drone_connection.writeCharacteristic(c.handle + 2, struct.pack("<BB", 1, 0))
