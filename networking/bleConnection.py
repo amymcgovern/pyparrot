@@ -27,19 +27,19 @@ class MamboDelegate(DefaultDelegate):
 
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
-            color_print("calling update sensors ack true", "WARN")
+            #color_print("calling update sensors ack true", "WARN")
             self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
-            color_print("drone data - no ack needed")
+            #color_print("drone data - no ack needed")
             self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
-            color_print("Ack!  command received!")
+            #color_print("Ack!  command received!")
             self.ble_connection._set_command_received('SEND_WITH_ACK', True)
         elif channel == 'ACK_HIGH_PRIORITY':
             # ack 0c channel, SEND_HIGH_PRIORITY
-            color_print("Ack!  high priority received")
+            #color_print("Ack!  high priority received")
             self.ble_connection._set_command_received('SEND_HIGH_PRIORITY', True)
         else:
             color_print("unknown channel %s sending data " % channel, "ERROR")
@@ -503,12 +503,12 @@ class BLEConnection:
         :param packet_id: the packet id to ack
         :return: nothing
         """
-        color_print("ack last packet on the ACK_COMMAND channel", "INFO")
+        #color_print("ack last packet on the ACK_COMMAND channel", "INFO")
         self.characteristic_send_counter['ACK_COMMAND'] = (self.characteristic_send_counter['ACK_COMMAND'] + 1) % 256
         packet = struct.pack("<BBB", self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
                              packet_id)
-        color_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
-                                           packet_id), "INFO")
+        #color_print("sending packet %d %d %d" % (self.data_types['ACK'], self.characteristic_send_counter['ACK_COMMAND'],
+        #                                   packet_id), "INFO")
 
         self._safe_ble_write(characteristic=self.send_characteristics['ACK_COMMAND'], packet=packet)
         #self.send_characteristics['ACK_COMMAND'].write(packet)
