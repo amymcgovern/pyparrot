@@ -74,17 +74,19 @@ class Bebop:
         :param data: raw data packet that needs to be parsed
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
-        (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
-        if (sensor_name is not None):
-            self.sensors.update(sensor_name, sensor_value, sensor_enum)
-            #print(self.sensors)
-        else:
-            color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
-            color_print("This sensor is missing (likely because we don't need it)", "WARN")
+        sensor_list = self.sensor_parser.extract_sensor_values(raw_data)
+        if (sensor_list is not None):
+            for sensor in sensor_list:
+                (sensor_name, sensor_value, sensor_enum, header_tuple) = sensor
+                if (sensor_name is not None):
+                    self.sensors.update(sensor_name, sensor_value, sensor_enum)
+                    #print(self.sensors)
+                else:
+                    color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
+                    color_print("This sensor is missing (likely because we don't need it)", "WARN")
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
-
 
     def connect(self, num_retries):
         """
