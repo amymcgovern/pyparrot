@@ -96,7 +96,7 @@ class DroneSensorParser:
                 return (name, sensor_data, self.sensor_tuple_cache, header_tuple)
         else:
             color_print("Error parsing sensor information!", "ERROR")
-            print(header_tuple)
+            #print(header_tuple)
             return (None, None, None, None)
 
 

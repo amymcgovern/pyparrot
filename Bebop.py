@@ -12,7 +12,7 @@ from commandsandsensors.DroneSensorParser import DroneSensorParser
 
 class BebopSensors:
     def __init__(self):
-        self.sensors = dict()
+        self.sensors_dict = dict()
         self.RelativeMoveEnded = False
         self.CameraMoveEnded = False
         self.flying_state = "unknown"
@@ -31,11 +31,11 @@ class BebopSensors:
                 enum_value = sensor_enum[(sensor_name, "enum")][sensor_value]
                 value = enum_value
 
-            self.sensors[sensor_name] = value
+            self.sensors_dict[sensor_name] = value
 
         else:
             # regular sensor
-            self.sensors[sensor_name] = sensor_value
+            self.sensors_dict[sensor_name] = sensor_value
 
         # some sensors are saved outside the dictionary for internal use (they are also in the dictionary)
         if (sensor_name == "FlyingStateChanged_state"):
@@ -48,7 +48,7 @@ class BebopSensors:
             self.CameraMoveEnded = True
 
     def __str__(self):
-        str = "Bebop sensors: %s" % self.sensors
+        str = "Bebop sensors: %s" % self.sensors_dict
         return str
 
 class Bebop:

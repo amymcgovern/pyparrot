@@ -40,7 +40,7 @@ print("Flying direct: going up")
 mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=50, duration=1)
 
 print("Flying direct: going around in a circle (yes you can mix roll, pitch, yaw in one command!)")
-mambo.fly_direct(roll=25, pitch=0, yaw=50, vertical_movement=0, duration=5)
+mambo.fly_direct(roll=25, pitch=0, yaw=50, vertical_movement=0, duration=3)
 
 print("landing")
 mambo.safe_land(5)

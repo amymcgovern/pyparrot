@@ -8,25 +8,25 @@ from Mambo import Mambo
 mamboAddr = "e0:14:d0:63:3d:d0"
 
 # make my mambo object
-# remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
+# remember you can't use the gun with the camera installed so this must be BLE connected to work
 mambo = Mambo(mamboAddr, use_wifi=False)
 
-print "trying to connect"
+print("trying to connect")
 success = mambo.connect(num_retries=3)
-print "connected: %s" % success
+print("connected: %s" % success)
 
 # get the state information
-print "sleeping"
+print ("sleeping")
 mambo.smart_sleep(2)
 mambo.ask_for_state_update()
 mambo.smart_sleep(2)
 
-print "shoot the gun"
+print("shoot the gun")
 mambo.fire_gun()
 
 # sleep to ensure it does the firing
 mambo.smart_sleep(15)
 
-print "disconnect"
+print("disconnect")
 mambo.disconnect()
 
