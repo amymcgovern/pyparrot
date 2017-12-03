@@ -44,14 +44,14 @@ class MamboSensors:
         self.speed_ts = 0
 
         # these are only available on wifi
-        self.altitude = None
+        self.altitude = -1
         self.altitude_ts = 0
 
-        self.quaternion_w = None
-        self.quaternion_x = None
-        self.quaternion_y = None
-        self.quaternion_z = None
-        self.quaternion_ts = None
+        self.quaternion_w = -1
+        self.quaternion_x = -1
+        self.quaternion_y = -1
+        self.quaternion_z = -1
+        self.quaternion_ts = -1
 
     def update(self, name, value, sensor_enum):
         """
@@ -101,7 +101,7 @@ class MamboSensors:
             self.speed_ts = value
         elif (name == "DroneAltitude_altitude"):
             self.altitude = value
-        elif (name == "DroneAltitude_altitude_ts"):
+        elif (name == "DroneAltitude_ts"):
             self.altitude_ts = value
         elif (name == "DroneQuaternion_q_w"):
             self.quaternion_w = value
@@ -111,7 +111,7 @@ class MamboSensors:
             self.quaternion_y = value
         elif (name == "DroneQuaternion_q_z"):
             self.quaternion_z = value
-        elif (name == "DroneQuaternion_tz"):
+        elif (name == "DroneQuaternion_ts"):
             self.quaternion_ts = value
         else:
             #print "new sensor - add me to the struct but saving in the dict for now"
@@ -177,9 +177,19 @@ class Mambo:
         :param data: raw data packet that needs to be parsed
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
-        (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
-        self.sensors.update(sensor_name, sensor_value, sensor_enum)
-        #print(self.sensors)
+
+        sensor_list = self.sensor_parser.extract_sensor_values(raw_data)
+        if (sensor_list is not None):
+            for sensor in sensor_list:
+                (sensor_name, sensor_value, sensor_enum, header_tuple) = sensor
+                if (sensor_name is not None):
+                    self.sensors.update(sensor_name, sensor_value, sensor_enum)
+                    # print(self.sensors)
+                else:
+                    color_print(
+                        "data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number),
+                        "WARN")
+                    color_print("This sensor is missing (likely because we don't need it)", "WARN")
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)

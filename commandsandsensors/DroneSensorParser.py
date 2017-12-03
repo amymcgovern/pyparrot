@@ -44,51 +44,72 @@ class DroneSensorParser:
         #print("name of sensor is %s" % names)
         #print("data size is %s" % data_sizes)
 
+        packet_offset = 4
         if names is not None:
             for idx, name in enumerate(names):
                 data_size = data_sizes[idx]
                 try:
                     if (data_size == "u8" or data_size == "enum"):
                         # unsigned 8 bit, single byte
-                        sensor_data = struct.unpack_from("<B", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<B", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 1
                     elif (data_size == "i8"):
                         # signed 8 bit, single byte
-                        sensor_data = struct.unpack_from("<b", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<b", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 1
                     elif (data_size == "u16"):
-                        sensor_data = struct.unpack_from("<H", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<H", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 2
                     elif (data_size == "i16"):
-                        sensor_data = struct.unpack_from("<h", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<h", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 2
                     elif (data_size == "u32"):
-                        sensor_data = struct.unpack_from("<I", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<I", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 4
                     elif (data_size == "i32"):
-                        sensor_data = struct.unpack_from("<i", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<i", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 4
                     elif (data_size == "u64"):
-                        sensor_data = struct.unpack_from("<Q", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<Q", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 8
                     elif (data_size == "i64"):
-                        sensor_data = struct.unpack_from("<q", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<q", data, offset=packet_offset)
                         sensor_data = int(sensor_data[0])
+                        packet_offset += 8
                     elif (data_size == "float"):
-                        sensor_data = struct.unpack_from("<f", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<f", data, offset=packet_offset)
                         sensor_data = float(sensor_data[0])
+                        packet_offset += 4
                     elif (data_size == "double"):
-                        sensor_data = struct.unpack_from("<d", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<d", data, offset=packet_offset)
                         sensor_data = float(sensor_data[0])
+                        packet_offset += 8
                     elif (data_size == "string"):
                         # string
-                        sensor_data = struct.unpack_from("<s", data, offset=4*(idx+1))
+                        sensor_data = struct.unpack_from("<s", data, offset=packet_offset)
                         sensor_data = sensor_data[0]
+                        packet_offset += len(sensor_data)
                     else:
-                        sensor_data = None
-                        color_print("Write the parser for this value", "ERROR")
+                        #color_print("Write the parser for this value", "ERROR")
+                        #print("name of sensor is %s" % names)
+                        #print("data size is %s" % data_sizes)
+                        # this is usually a boolean flag stating that values have changed so set the value to True
+                        # and let it return the name
+                        sensor_data = True
                 except:
                     sensor_data = None
+                    #print(header_tuple)
+                    print("name of sensor is %s" % names)
+                    print("data size is %s" % data_sizes)
+                    print(len(data))
+                    print(4*(idx+1))
                     color_print("Error parsing data for sensor", "ERROR")
                 
                 #print("%s %s %s" % (name,idx,sensor_data))
