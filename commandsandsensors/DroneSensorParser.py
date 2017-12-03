@@ -102,7 +102,6 @@ class DroneSensorParser:
             #print(header_tuple)
             return None
 
-
     def _parse_sensor_tuple(self, sensor_tuple):
         """
         Parses the sensor information from the command id bytes and returns the name
