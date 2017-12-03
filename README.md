@@ -45,7 +45,8 @@ Software requirements are listed below by type of connection to the drone.
    It is possible you need to install bluepy (if it isn't already there).  These commands should do it:
    ```
    sudo apt-get install python-pip libglib2.0-dev
-   sudo pip install bluepysudo apt-get update
+   sudo pip install bluepy
+   sudo apt-get update
    ```
 
 ## Installing
@@ -189,6 +190,7 @@ This is a work in progress.  Planned extensions include:
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 ## Major updates and releases:
+* 12/02/2017: Version 1.1.  Fixed sensors with multiple values for Mambo and Bebop.
 * 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
 
 ## Programming and using your drones responsibly
