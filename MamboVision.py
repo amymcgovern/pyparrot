@@ -12,18 +12,15 @@ import threading
 import time
 
 class MamboVision:
-    def __init__(self, fps=10, buffer_size=10):
+    def __init__(self, buffer_size=10):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
 
-        :param fps: frames per second (don't set this very high on a Raspberry Pi!).  Defaults to 10 which is a number
-        that should keep a Raspberry Pi busy but not overheated.
-
         :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
         """
+        self.fps = 30
 
-        self.fps = fps
         self.buffer_size = buffer_size
 
         # initialize a buffer (will contain the last buffer_size vision objects)
@@ -31,7 +28,7 @@ class MamboVision:
         self.buffer_index = 0
 
         # setup the thread for monitoring the vision (but don't start it until we connect in open_video)
-        self.vision_thread = threading.Thread(target=self._buffer_vision, args=(fps, buffer_size))
+        self.vision_thread = threading.Thread(target=self._buffer_vision, args=(buffer_size, ))
 
         self.vision_running = True
 
@@ -48,17 +45,13 @@ class MamboVision:
         :param max_retries: Maximum number of retries in opening the camera (remember to connect to camera wifi!).
         Defaults to 3.
 
-        :param fps: frames per second (don't set this very high on a Raspberry Pi!).  Defaults to 10 which is a number
-        that should keep a Raspberry Pi busy but not overheated.
-
-        :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
-
         :return True if the vision opened correctly and False otherwise
         """
         print("opening the camera")
         self.capture = cv2.VideoCapture("rtsp://192.168.99.1/media/stream2")
 
-        #print self.capture.get(cv2.CV_CAP_PROPS_FPS)
+        # if you do 0, it opens the laptop webcam
+        #self.capture = cv2.VideoCapture(0)
 
         # if it didn't open the first time, try again a maximum number of times
         try_num = 1
@@ -80,11 +73,10 @@ class MamboVision:
             print("starting vision thread")
             self.vision_thread.start()
 
-    def _buffer_vision(self, fps, buffer_size):
+    def _buffer_vision(self, buffer_size):
         """
         Internal method to save valid video captures from the camera fps times a second
 
-        :param fps: frames per second (set in init)
         :param buffer_size: number of images to buffer (set in init)
         :return:
         """
@@ -99,7 +91,7 @@ class MamboVision:
                 self.buffer[self.buffer_index] = video_frame
                 
             # put the thread back to sleep for fps
-            time.sleep(1.0 / fps)
+            time.sleep(1.0 / self.fps)
         
 
     def get_latest_valid_picture(self):

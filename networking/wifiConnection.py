@@ -121,7 +121,7 @@ class WifiConnection:
 
         :param num_retries: maximum number of retries
 
-        :return: True if the connection suceeded and False otherwise
+        :return: True if the connection succeeded and False otherwise
         """
 
         zeroconf = Zeroconf()
@@ -280,7 +280,7 @@ class WifiConnection:
         # create the TCP socket for the handshake
         tcp_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
         #print (self.connection_info.address, self.connection_info.port)
-        #print ipaddress.IPv4Address(self.connection_info.address)
+        #print(ipaddress.IPv4Address(self.connection_info.address))
         self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
 
         # connect
