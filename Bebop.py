@@ -74,17 +74,19 @@ class Bebop:
         :param data: raw data packet that needs to be parsed
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
-        (sensor_name, sensor_value, sensor_enum, header_tuple) = self.sensor_parser.extract_sensor_values(raw_data)
-        if (sensor_name is not None):
-            self.sensors.update(sensor_name, sensor_value, sensor_enum)
-            #print(self.sensors)
-        else:
-            color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
-            color_print("This sensor is missing (likely because we don't need it)", "WARN")
+        sensor_list = self.sensor_parser.extract_sensor_values(raw_data)
+        if (sensor_list is not None):
+            for sensor in sensor_list:
+                (sensor_name, sensor_value, sensor_enum, header_tuple) = sensor
+                if (sensor_name is not None):
+                    self.sensors.update(sensor_name, sensor_value, sensor_enum)
+                    #print(self.sensors)
+                else:
+                    color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
+                    color_print("This sensor is missing (likely because we don't need it)", "WARN")
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
-
 
     def connect(self, num_retries):
         """
@@ -255,51 +257,3 @@ class Bebop:
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
 
-    def move_camera(self, pan, tilt, wait_for_end=True):
-        """
-        Move the camera using the specified pan and tilt.
-
-        :param pan: pan degrees
-        :param tilt: tilt degrees
-        :param wait_for_end: True if you want to wait for the command to end and False otherwise
-        """
-
-        # reset the move ended bit
-        self.sensors.CameraMoveEnded = False
-
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
-
-        self.drone_connection.send_camera_move_command(command_tuple, pan, tilt)
-
-        if (wait_for_end):
-            while (not self.sensors.CameraMoveEnded):
-                self.smart_sleep(0.1)
-
-    def fly_relative(self, change_x, change_y, change_z, change_angle, wait_for_end=True):
-        """
-        Fly relative to current position.  Must specify change in x, y and z, and angle.
-
-        if wait_for_end is True, wait for the RelativeMoveEnded command to come back
-        before returning
-
-        Note that the xml refers to gaz, which is apparently french for vertical movements:
-        http://forum.developer.parrot.com/t/terminology-of-gaz/3146
-
-        :param change_x: desired change in x (in meters)
-        :param change_y: desired change in y (in meters)
-        :param change_z: desired change in z (in meters)
-        :param change_angle: desired change in angle (in radians)
-        :param wait_for_end: True if you want to wait for the command to end and False otherwise
-        :return:
-        """
-
-        # reset the move ended bit
-        self.sensors.RelativeMoveEnded = False
-
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "moveBy")
-
-        self.drone_connection.send_fly_relative_command(command_tuple, change_x, change_y, change_z, change_angle)
-
-        if (wait_for_end):
-            while (not self.sensors.RelativeMoveEnded):
-                self.smart_sleep(0.1)
