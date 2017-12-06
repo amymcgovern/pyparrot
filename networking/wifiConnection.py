@@ -364,6 +364,9 @@ class WifiConnection:
         Disconnect cleanly from the sockets
         """
         self.is_listening = False
+        # Sleep for a moment to allow all socket activity to cease before closing
+        # This avoids a Winsock error regarding a operations on a closed socket 
+        self.smart_sleep(0.5)
         self.udp_send_sock.close()
         self.udp_receive_sock.close()
 
