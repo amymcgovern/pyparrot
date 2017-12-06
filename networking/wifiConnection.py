@@ -56,6 +56,9 @@ class WifiConnection:
 
         if (drone_type == "Bebop"):
             self.mdns_address = "_arsdk-090c._udp.local."
+            #Bebop video streaming
+            self.stream_port = 55004
+            self.stream_control_port = 55005
         elif (drone_type == "Mambo"):
             self.mdns_address = "_arsdk-090b._udp.local."
 
@@ -287,7 +290,18 @@ class WifiConnection:
         tcp_sock.connect((self.drone_ip, self.connection_info.port))
 
         # send the handshake information
-        json_string = json.dumps({"d2c_port":self.udp_receive_port, "controller_type":"computer", "controller_name":"pyparrot" })
+        if(self.drone_type=="Bebop"):
+            # For Bebop add video stream ports to the json request
+            json_string = json.dumps({"d2c_port":self.udp_receive_port,
+                                      "controller_type":"computer",
+                                      "controller_name":"pyparrot",
+                                      "arstream2_client_stream_port":self.stream_port,
+                                      "arstream2_client_control_port":self.stream_control_port})
+        else:
+            json_string = json.dumps({"d2c_port":self.udp_receive_port,
+                                      "controller_type":"computer",
+                                      "controller_name":"pyparrot"})
+            
         json_obj = json.loads(json_string)
         print(json_string)
         tcp_sock.send(bytes(json_string, 'utf-8'))
@@ -403,7 +417,59 @@ class WifiConnection:
 
         self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 
-        #self.safe_send(packet)
+    def send_param_command_packet(self, command_tuple, param_tuple=None, param_type_tuple=0,ack=True):
+        """
+        Send a command packet with parameters. Ack channel is optional for future flexibility,
+        but currently commands are always send over the Ack channel so it defaults to True.
+        :param: command_tuple: the command tuple derived from command_parser.get_command_tuple()
+        :param: param_tuple (optional): the parameter values to be sent (can be found in the XML files)
+        :param: param_size_tuple (optional): a tuple of strings representing the data type of the parameters
+        e.g. u8, float etc. (can be found in the XML files)
+        :param: ack (optional): allows ack to be turned off if required
+        :return:
+        """
+# TODO: This function could potentially be extended to encompass send_noparam_command_packet_ack
+# and send_enum_command_packet_ack if desired for more modular code.
+# TODO: The function could be improved by looking up the parameter data types in the xml files
+# in the same way the send_enum_command_packet_ack does. 
+
+        # Create lists to store the number of bytes and pack chars needed for parameters
+        # Default them to zero so that if no params are provided the packet size is correct 
+        param_size_list = [0] * len(param_tuple)
+        pack_char_list = [0] * len(param_tuple)
+        
+        if param_tuple is not None:
+            # Fetch the parameter sizes. By looping over the param_tuple we only get the data
+            # for requested parameters so a mismatch in params and types does not matter
+            for i,param in enumerate(param_tuple):
+                pack_char_list[i], param_size_list[i] = self._get_pack_format_char(param,param_type_tuple[i])
+            
+        if ack:
+            ack_string = 'SEND_WITH_ACK'
+            data_ack_string = 'DATA_WITH_ACK'
+        else:
+            ack_string = 'SEND_NO_ACK'
+            data_ack_string = 'DATA_NO_ACK'
+
+        # Construct the base packet
+        self.sequence_counter[ack_string] = (self.sequence_counter[ack_string] + 1) % 256
+
+        # Calculate packet size:
+        # base packet <BBBIBBH is 11 bytes, param_size_list can be added up
+        packet_size = 11 + sum(param_size_list)
+        
+        packet = struct.pack("<BBBIBBH", self.data_types_by_name[data_ack_string],
+                             self.buffer_ids[ack_string],
+                             self.sequence_counter[ack_string], packet_size,
+                             command_tuple[0], command_tuple[1], command_tuple[2])
+
+        if param_tuple is not None:
+            # Add in the parameter values based on their sizes
+            for i,param in enumerate(param_tuple):
+                packet += struct.pack(pack_char_list[i],param)
+                
+        self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+        
 
     def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
         """
@@ -534,3 +600,55 @@ class WifiConnection:
                              packet_id)
 
         self.safe_send(packet)
+
+    def _get_pack_format_char(self,data,data_type):
+#TODO - could move this function to a more general class and use elsewhere within the code, e.g. DroneSensorParser
+        """
+        Internal function to convert data_type to the corresponding struct.pack format string
+        as per https://docs.python.org/2/library/struct.html#format-characters
+
+        :param data: the data that will be packed. Not actually used here unless the data_type is string, then
+                     it is used to calculate the data size.
+        :param data_type: a string representing the data type
+        :return: a tuple of a string representing the struct.pack format for the data type and an int representing
+                 the number of bytes (NOTE: data size for strings will be NONE as their length is variable
+                 and must be computed by the calling function.
+        """
+        if data_type == "u8":
+            format_char = "<B"
+            data_size = 1
+        elif data_type == "i8":
+            format_char = "<b"
+            data_size = 1
+        elif data_type == "u16":
+            format_char = "<H"
+            data_size = 2
+        elif data_type == "i16":
+            format_char = "<h"
+            data_size = 2
+        elif data_type == "u32":
+            format_char = "<I"
+            data_size = 4
+        elif data_type == "i32":
+            format_char = "<i"
+            data_size = 4
+        elif data_type == "u64":
+            format_char = "<Q"
+            data_size = 8
+        elif data_type == "i64":
+            format_char = "<q"
+            data_size = 8
+        elif data_type == "float":
+            format_char = "<f"
+            data_size = 4
+        elif data_type == "double":
+            format_char = "<d"
+            data_size = 8
+        elif data_type == "string":
+            format_char = "<s"
+            data_size = len(data)
+        else:
+            format_char=""
+            data_size = 0
+            
+        return format_char, data_size
