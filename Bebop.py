@@ -257,3 +257,52 @@ class Bebop:
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
 
+    def start_stream(self):
+        """
+        Sends the start stream command to the bebop. The bebop will start streaming
+        RTP packets on the port defined in wifiConnection.py (55004 by default).
+        The packets can be picked up by opening an approriate SDP file in a media
+        player such as VLC, MPlayer, FFMPEG or OpenCV.
+
+        :return: 
+        """
+        
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
+        param_tuple = [1] # Enable
+        param_type_tuple = ['u8']
+        self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+
+
+    def stop_stream(self):
+        """
+        Sends the stop stream command to the bebop. The bebop will stop streaming
+        RTP packets.
+
+        :return: 
+        """
+        
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
+        param_tuple = [0] # Disable
+        param_type_tuple = ['u8']
+        self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+        
+
+    def set_stream_mode(self,mode='low_latency'):
+        """
+        Set the video mode for the RTP stream.
+        :param: mode: one of 'low_latency', 'high_reliability' or 'high_reliability_low_framerate'
+  
+        :return: True if the command was sent and False otherwise
+        """
+        if (mode not in ("low_latency", "high_reliability", "high_reliability_low_framerate")):
+            print("Error: %s is not a valid stream mode.  Must be one of %s" % (mode, "low_latency, high_reliability or high_reliability_low_framerate"))
+            print("Ignoring command and returning")
+            return False
+
+        
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
+                                                                                      "MediaStreaming", "VideoStreamMode", mode)
+        
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple,enum_tuple)
+
+   
