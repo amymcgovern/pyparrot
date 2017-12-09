@@ -14,6 +14,7 @@ except:
 from utils.colorPrint import color_print
 from commandsandsensors.DroneCommandParser import DroneCommandParser
 from commandsandsensors.DroneSensorParser import DroneSensorParser
+import math
 
 class MamboSensors:
     """
@@ -47,10 +48,10 @@ class MamboSensors:
         self.altitude = -1
         self.altitude_ts = 0
 
-        self.quaternion_w = -1
-        self.quaternion_x = -1
-        self.quaternion_y = -1
-        self.quaternion_z = -1
+        self.quaternion_w = 0
+        self.quaternion_x = 0
+        self.quaternion_y = 0
+        self.quaternion_z = 0
         self.quaternion_ts = -1
 
     def update(self, name, value, sensor_enum):
@@ -116,6 +117,52 @@ class MamboSensors:
         else:
             #print "new sensor - add me to the struct but saving in the dict for now"
             self.sensors_dict[name] = value
+            
+    def get_estimated_z_orientation(self):
+        """
+        Uses the quaternions to return an estimated orientation
+
+        Learn more about unit quaternions here:
+
+        https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+
+        NOTE: This is not a real compass heading.  0 degrees is where you are facing when
+        the mambo turns on!
+
+        :return: 
+        """
+
+        (X, Y, Z) = self.quaternion_to_euler_angle(self.quaternion_w, self.quaternion_x,
+                                                   self.quaternion_y, self.quaternion_z)
+        return Z
+
+    def quaternion_to_euler_angle(self, w, x, y, z):
+        """
+        This code is directly from:
+
+        https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+
+        :param x:
+        :param y:
+        :param z:
+        :return:
+        """
+        ysqr = y * y
+
+        t0 = +2.0 * (w * x + y * z)
+        t1 = +1.0 - 2.0 * (x * x + ysqr)
+        X = math.degrees(math.atan2(t0, t1))
+
+        t2 = +2.0 * (w * y - z * x)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        Y = math.degrees(math.asin(t2))
+
+        t3 = +2.0 * (w * z + x * y)
+        t4 = +1.0 - 2.0 * (ysqr + z * z)
+        Z = math.degrees(math.atan2(t3, t4))
+
+        return X, Y, Z
 
     def __str__(self):
         """
@@ -126,10 +173,10 @@ class MamboSensors:
         my_str = "mambo state: battery %d, " % self.battery
         my_str += "flying state is %s, " % self.flying_state
         my_str += "speed (x, y, z) and ts is (%f, %f, %f) at %f " % (self.speed_x, self.speed_y, self.speed_z, self.speed_ts)
-        if (self.altitude is not None):
+        if (self.altitude_ts > -1):
             my_str += "altitude (m) %f and ts is %f " % (self.altitude, self.altitude_ts)
 
-        if (self.quaternion_x is not None):
+        if (self.quaternion_ts > -1):
             my_str += "quaternion (w, x, y, z) and ts is (%f, %f, %f, %f) at %f " % (
                 self.quaternion_w, self.quaternion_x, self.quaternion_y, self.quaternion_z, self.quaternion_ts)
         my_str += "gun id: %d, state %s, " % (self.gun_id, self.gun_state)
@@ -337,6 +384,13 @@ class Mambo:
         :param degrees: degrees to turn (-180 to 180)
         :return: True if the command was sent and False otherwise
         """
+        if (degrees > 180):
+            degrees = 180
+            print("Degrees too large: setting to 180")
+        elif (degrees < -180):
+            degrees = -180
+            print("Degrees too large and negative: setting to -180")
+
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Animations", "Cap")
         return self.drone_connection.send_turn_command(command_tuple, degrees)
 

@@ -451,6 +451,26 @@ class WifiConnection:
 
         self.safe_send(packet)
 
+    def send_turn_command(self, command_tuple, degrees):
+        """
+        Build the packet for turning and send it
+
+        :param command_tuple: command tuple from the parser
+        :param degrees: how many degrees to turn
+        :return: True if the command was sent and False otherwise
+        """
+        self.sequence_counter['SEND_WITH_ACK'] = (self.sequence_counter['SEND_WITH_ACK'] + 1) % 256
+
+        packet = struct.pack("<BBBIBBHh",
+                             self.data_types_by_name['DATA_WITH_ACK'],
+                             self.buffer_ids['SEND_WITH_ACK'],
+                             self.sequence_counter['SEND_WITH_ACK'],
+                             13,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
+                             degrees)
+
+        return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+
 
     def send_camera_move_command(self, command_tuple, pan, tilt):
         """
