@@ -288,7 +288,7 @@ class Bebop:
         self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
         
 
-    def set_stream_mode(self,mode='low_latency'):
+    def set_video_stream_mode(self,mode='low_latency'):
         """
         Set the video mode for the RTP stream.
         :param: mode: one of 'low_latency', 'high_reliability' or 'high_reliability_low_framerate'
