@@ -425,7 +425,7 @@ class Mambo:
 
     def _ensure_fly_command_in_range(self, value):
         """
-        Ensure the fly direct commands are in range
+        Ensure the fly direct commands are in range and also ensures the values are integers (just rounds them)
 
         :param value: the value sent by the user
         :return: a value in the range -100 to 100
@@ -435,7 +435,7 @@ class Mambo:
         elif (value > 100):
             return 100
         else:
-            return value
+            return int(value)
 
     def fly_direct(self, roll, pitch, yaw, vertical_movement, duration):
         """
