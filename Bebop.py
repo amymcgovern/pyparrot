@@ -74,6 +74,7 @@ class Bebop:
         :param data: raw data packet that needs to be parsed
         :param ack: True if this packet needs to be ack'd and False otherwise
         """
+        #print("data type is %d buffer id is %d sequence number is %d " % (data_type, buffer_id, sequence_number))
         sensor_list = self.sensor_parser.extract_sensor_values(raw_data)
         if (sensor_list is not None):
             for sensor in sensor_list:
@@ -257,14 +258,14 @@ class Bebop:
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
 
-    def start_stream(self):
+    def start_video_stream(self):
         """
         Sends the start stream command to the bebop. The bebop will start streaming
         RTP packets on the port defined in wifiConnection.py (55004 by default).
         The packets can be picked up by opening an approriate SDP file in a media
         player such as VLC, MPlayer, FFMPEG or OpenCV.
 
-        :return: 
+        :return: nothing
         """
         
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
@@ -273,12 +274,12 @@ class Bebop:
         self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
 
 
-    def stop_stream(self):
+    def stop_video_stream(self):
         """
         Sends the stop stream command to the bebop. The bebop will stop streaming
         RTP packets.
 
-        :return: 
+        :return: nothing
         """
         
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")

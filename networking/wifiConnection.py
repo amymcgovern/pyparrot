@@ -12,7 +12,7 @@ import json
 from utils.colorPrint import color_print
 import struct
 import threading
-import sys
+from commandsandsensors.DroneSensorParser import get_data_format_and_size
 
 class mDNSListener(object):
     """
@@ -212,7 +212,7 @@ class WifiConnection:
 
     def handle_frame(self, packet_type, buffer_id, packet_seq_id, recv_data):
         if (buffer_id == self.buffer_ids['PING']):
-            color_print("this is a ping!  need to pong", "INFO")
+            #color_print("this is a ping!  need to pong", "INFO")
             self._send_pong(recv_data)
 
         if (self.data_types_by_number[packet_type] == 'ACK'):
@@ -424,6 +424,9 @@ class WifiConnection:
         """
         Send a command packet with parameters. Ack channel is optional for future flexibility,
         but currently commands are always send over the Ack channel so it defaults to True.
+
+        Contributed by awm102 on github
+
         :param: command_tuple: the command tuple derived from command_parser.get_command_tuple()
         :param: param_tuple (optional): the parameter values to be sent (can be found in the XML files)
         :param: param_size_tuple (optional): a tuple of strings representing the data type of the parameters
@@ -445,7 +448,7 @@ class WifiConnection:
             # Fetch the parameter sizes. By looping over the param_tuple we only get the data
             # for requested parameters so a mismatch in params and types does not matter
             for i,param in enumerate(param_tuple):
-                pack_char_list[i], param_size_list[i] = self._get_pack_format_char(param,param_type_tuple[i])
+                pack_char_list[i], param_size_list[i] = get_data_format_and_size(param, param_type_tuple[i])
             
         if ack:
             ack_string = 'SEND_WITH_ACK'
@@ -470,7 +473,8 @@ class WifiConnection:
             # Add in the parameter values based on their sizes
             for i,param in enumerate(param_tuple):
                 packet += struct.pack(pack_char_list[i],param)
-                
+
+        # TODO: Fix this to not go with ack always
         self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
         
 
@@ -624,54 +628,3 @@ class WifiConnection:
 
         self.safe_send(packet)
 
-    def _get_pack_format_char(self,data,data_type):
-#TODO - could move this function to a more general class and use elsewhere within the code, e.g. DroneSensorParser
-        """
-        Internal function to convert data_type to the corresponding struct.pack format string
-        as per https://docs.python.org/2/library/struct.html#format-characters
-
-        :param data: the data that will be packed. Not actually used here unless the data_type is string, then
-                     it is used to calculate the data size.
-        :param data_type: a string representing the data type
-        :return: a tuple of a string representing the struct.pack format for the data type and an int representing
-                 the number of bytes (NOTE: data size for strings will be NONE as their length is variable
-                 and must be computed by the calling function.
-        """
-        if data_type == "u8":
-            format_char = "<B"
-            data_size = 1
-        elif data_type == "i8":
-            format_char = "<b"
-            data_size = 1
-        elif data_type == "u16":
-            format_char = "<H"
-            data_size = 2
-        elif data_type == "i16":
-            format_char = "<h"
-            data_size = 2
-        elif data_type == "u32":
-            format_char = "<I"
-            data_size = 4
-        elif data_type == "i32":
-            format_char = "<i"
-            data_size = 4
-        elif data_type == "u64":
-            format_char = "<Q"
-            data_size = 8
-        elif data_type == "i64":
-            format_char = "<q"
-            data_size = 8
-        elif data_type == "float":
-            format_char = "<f"
-            data_size = 4
-        elif data_type == "double":
-            format_char = "<d"
-            data_size = 8
-        elif data_type == "string":
-            format_char = "<s"
-            data_size = len(data)
-        else:
-            format_char=""
-            data_size = 0
-            
-        return format_char, data_size
