@@ -201,3 +201,17 @@ This is a work in progress.  Planned extensions include:
 ## Programming and using your drones responsibly
 
 It is your job to program and use your drones responsibly!  We are not responsible for any losses or damages of your drones or injuries.  Please fly safely and obey all laws.
+
+## FAQ on common errors:
+
+There are two common errors that I see when flying.  One requires the drone to reboot and one requires the computer controlling the drone to reboot.  
+
+* Reboot the drone if you get a connection refused when you try to connect.
+
+   
+* Reboot your controlling computer if you get an error about the address or socket already being in use.
+
+   ```
+   OSError: [Errno 48] Address already in use
+   ```
+
