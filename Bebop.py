@@ -295,7 +295,11 @@ class Bebop:
   
         :return: True if the command was sent and False otherwise
         """
-        if (mode not in ("low_latency", "high_reliability", "high_reliability_low_framerate")):
+
+        # handle case issues
+        fixed_mode = mode.lower()
+
+        if (fixed_mode not in ("low_latency", "high_reliability", "high_reliability_low_framerate")):
             print("Error: %s is not a valid stream mode.  Must be one of %s" % (mode, "low_latency, high_reliability or high_reliability_low_framerate"))
             print("Ignoring command and returning")
             return False
