@@ -150,6 +150,7 @@ All of the sensor data that is passed back to the program is saved.  Note that P
 * speed_x, speed_y, speed_z, speed_ts: the speed in x (forward > 0), y (right > 0), and z (down > 0).  The ts is the timestamp that the speed was valid. 
 * altitude, altitude_ts: wifi only, altitude in meters.  Zero is where you took off.  The ts is the timestamp where the altitude was valid.
 * quaternion_w, quaternion_x, quaternion_y, quaternion_z, quaternion_ts: wifi only.  Quaternion as estimated from takeoff (which is set to 0). Ranges from -1 to 1. ts is the timestamp where this was valid.
+* ```get_estimated_z_orientation()```: returns the estimated orientation using the unit quaternions.  Note that 0 is the direction the drone is facing when you boot it up
 * sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the [minidrone.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/minidrone.xml) and [common.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/common.xml). 
 
 ## Bebop commands
@@ -167,6 +168,9 @@ Each of the commands available to control the Bebop is listed below with its doc
 * ```smart_sleep()``` This sleeps the number of seconds but wakes for all wifi notifications.  You should always use this instead of just directly calling time.sleep()
 * ```ask_for_state_update()``` This sends a request to the bebop to send back ALL states. This command will return immediately but you should wait a few seconds before using the new state information as it can take awhile.
 * ```fly_direct(roll, pitch, yaw, vertical_movement, duration)``` Fly the bebop directly using the specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.  Note there are currently no sensors reported back to the user to ensure that these are working but hopefully that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.  
+* ```start_video_stream()```: tells the bebop to start streaming the video
+* ```stop_video_stream()```: tells the bebop to stop streaming the video
+* ```set_video_stream_mode(mode)```: set the video mode to one of three choices: "low_latency", "high_reliability", "high_reliability_low_framerate".  low_latency is the default.
 
 ## Bebop sensors
 
@@ -186,10 +190,11 @@ This is a work in progress.  Planned extensions include:
    * Downloading pictures from the downward facing camera.  We can take photos from it (mambo.take_picture()) but I haven't figured out the protocol to download the photos remotely yet.  When I figure that out, I will update the code.
    
 * **Bebop**
-   * Vision: The vision data is handled differently on the Bebop than on the Mambo.  This is one of my high priorities to get working quickly.
+   * Vision: Now that we have vision streaming, my next priority is to get vision into a BebopVision class and implement callbacks for both BebopVision and Mambo vision.
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 ## Major updates and releases:
+* 12/09/2017: Version 1.2.  Mambo now gives estimated orientation using quaternions.  Bebop now streams vision, which is accessible via VLC or other video clients.  Coming soon: opencv hooks into the vision.  
 * 12/02/2017: Version 1.1.  Fixed sensors with multiple values for Mambo and Bebop.
 * 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
 
