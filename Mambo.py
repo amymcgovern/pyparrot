@@ -54,6 +54,20 @@ class MamboSensors:
         self.quaternion_z = 0
         self.quaternion_ts = -1
 
+        # this is optionally set elsewhere
+        self.user_callback_function = None
+
+    def set_user_callback_function(self, function, args):
+        """
+        Sets the user callback function (called everytime the sensors are updated)
+
+        :param function: name of the user callback function
+        :param args: arguments (tuple) to the function
+        :return:
+        """
+        self.user_callback_function = function
+        self.user_callback_function_args = args
+
     def update(self, name, value, sensor_enum):
         """
         Update the sensor
@@ -117,6 +131,10 @@ class MamboSensors:
         else:
             #print "new sensor - add me to the struct but saving in the dict for now"
             self.sensors_dict[name] = value
+
+        # call the user callback if it isn't None
+        if (not None):
+            self.user_callback_function(self.user_callback_function_args)
             
     def get_estimated_z_orientation(self):
         """
@@ -216,6 +234,16 @@ class Mambo:
         self.sensors = MamboSensors()
         self.sensor_parser = DroneSensorParser(drone_type="Mambo")
 
+    def set_user_sensor_callback(self, function, args):
+        """
+        Set the (optional) user callback function for sensors.  Every time a sensor
+        is updated, it calls this function.
+
+        :param function: name of the function
+        :param args: tuple of arguments to the function
+        :return: nothing
+        """
+        self.sensors.set_user_callback_function(function, args)
 
     def update_sensors(self, data_type, buffer_id, sequence_number, raw_data, ack):
         """
