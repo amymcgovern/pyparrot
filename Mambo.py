@@ -133,7 +133,7 @@ class MamboSensors:
             self.sensors_dict[name] = value
 
         # call the user callback if it isn't None
-        if (not None):
+        if (self.user_callback_function is not None):
             self.user_callback_function(self.user_callback_function_args)
             
     def get_estimated_z_orientation(self):

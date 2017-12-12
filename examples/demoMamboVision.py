@@ -9,19 +9,18 @@ import time
 
 isAlive = False
 
-def save_pictures(vision):
-    index = 0
+class UserVision:
+    def __init__(self, vision):
+        self.index = 0
+        self.vision = vision
 
-    while (isAlive):
-        # grab the latest image
-        img = vision.get_latest_valid_picture()
+    def save_pictures(self, args):
+        img = self.vision.get_latest_valid_picture()
 
-        filename = "test_image_%06d.png" % index
+        filename = "test_image_%06d.png" % self.index
         cv2.imwrite(filename, img)
-        index +=1
+        self.index +=1
 
-        # put the thread back to sleep for fps
-        time.sleep(1.0 / 30.0)
 
 
 # you will need to change this to the address of YOUR mambo
@@ -43,15 +42,13 @@ if (success):
 
     print("Preparing to open vision")
     mamboVision = MamboVision(buffer_size=10)
+    userVision = UserVision(mamboVision)
+    mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
     success = mamboVision.open_video(max_retries=15)
+
     if (success):
         print("Vision successfully started!")
         mamboVision.start_video_buffering()
-
-        picture_thread = threading.Thread(target=save_pictures, args=(mamboVision, ))
-        isAlive = True
-        picture_thread.start()
-
 
     print("taking off!")
     mambo.safe_takeoff(5)
