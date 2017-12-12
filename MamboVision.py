@@ -63,10 +63,10 @@ class MamboVision:
         :return True if the vision opened correctly and False otherwise
         """
         print("opening the camera")
-        #self.capture = cv2.VideoCapture("rtsp://192.168.99.1/media/stream2")
+        self.capture = cv2.VideoCapture("rtsp://192.168.99.1/media/stream2")
 
         # if you do 0, it opens the laptop webcam
-        self.capture = cv2.VideoCapture(0)
+        #self.capture = cv2.VideoCapture(0)
 
         # if it didn't open the first time, try again a maximum number of times
         try_num = 1
