@@ -7,7 +7,9 @@ import threading
 import cv2
 import time
 
-isAlive = False
+
+# set this to true if you want to fly for the demo
+testFlying = False
 
 class UserVision:
     def __init__(self, vision):
@@ -15,6 +17,7 @@ class UserVision:
         self.vision = vision
 
     def save_pictures(self, args):
+        print("in save pictures")
         img = self.vision.get_latest_valid_picture()
 
         filename = "test_image_%06d.png" % self.index
@@ -44,33 +47,39 @@ if (success):
     mamboVision = MamboVision(buffer_size=10)
     userVision = UserVision(mamboVision)
     mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
-    success = mamboVision.open_video(max_retries=15)
+    success = mamboVision.open_video()
 
     if (success):
         print("Vision successfully started!")
         mamboVision.start_video_buffering()
 
-    print("taking off!")
-    mambo.safe_takeoff(5)
+        if (testFlying):
+            print("taking off!")
+            mambo.safe_takeoff(5)
 
-    if (mambo.sensors.flying_state != "emergency"):
-        print("flying state is %s" % mambo.sensors.flying_state)
-        print("Flying direct: going up")
-        mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=1)
+            if (mambo.sensors.flying_state != "emergency"):
+                print("flying state is %s" % mambo.sensors.flying_state)
+                print("Flying direct: going up")
+                mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=1)
 
-        print("flip left")
-        print("flying state is %s" % mambo.sensors.flying_state)
-        success = mambo.flip(direction="left")
-        print("mambo flip result %s" % success)
+                print("flip left")
+                print("flying state is %s" % mambo.sensors.flying_state)
+                success = mambo.flip(direction="left")
+                print("mambo flip result %s" % success)
+                mambo.smart_sleep(5)
+
+            print("landing")
+            print("flying state is %s" % mambo.sensors.flying_state)
+            mambo.safe_land(5)
+        else:
+            print("Sleeeping for 5 seconds - move the mambo around")
+            mambo.smart_sleep(5)
+
+        # done doing vision demo
+        print("Ending the sleep and vision")
+        mamboVision.stop_vision_buffering()
+
         mambo.smart_sleep(5)
-
-    print("landing")
-    print("flying state is %s" % mambo.sensors.flying_state)
-    mambo.safe_land(5)
-    mamboVision.stop_vision_buffering()
-
-    isAlive = False
-    mambo.smart_sleep(5)
 
     print("disconnect")
     mambo.disconnect()

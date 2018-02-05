@@ -304,7 +304,13 @@ class WifiConnection:
             
         json_obj = json.loads(json_string)
         print(json_string)
-        tcp_sock.send(bytes(json_string, 'utf-8'))
+        try:
+            # python 3
+            tcp_sock.send(bytes(json_string, 'utf-8'))
+        except:
+            # python 2
+            tcp_sock.send(json_string)
+
 
         # wait for the response
         finished = False
