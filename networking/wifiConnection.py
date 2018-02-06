@@ -481,7 +481,7 @@ class WifiConnection:
                 packet += struct.pack(pack_char_list[i],param)
 
         # TODO: Fix this to not go with ack always
-        self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+        return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
         
 
     def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):

@@ -544,3 +544,38 @@ class Mambo:
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.gun_id)
 
+
+    def set_max_vertical_speed(self, value):
+        """
+        Sets the maximum vertical speed in m/s.  Unknown what the true maximum is but
+        we do ensure you only set positive values.
+
+        :param value: maximum speed
+        :return: True if the command was sent and False otherwise
+        """
+
+        if (value < 0):
+            print("Can't set a negative max vertical speed.  Setting to 1 m/s instead.")
+            value = 1
+
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "SpeedSettings", "MaxVerticalSpeed")
+        param_tuple = [value]
+        param_type_tuple = ['float']
+        return self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+
+    def set_max_tilt(self, value):
+        """
+        Sets the maximum tilt in degrees.  Ensures you only set positive values.
+
+        :param value: maximum tilt in degrees
+        :return: True if the command was sent and False otherwise
+        """
+
+        if (value < 0):
+            print("Can't set a negative max horizontal speed.  Setting to 1 m/s instead.")
+            value = 1
+
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "PilotingSettings", "MaxTilt")
+        param_tuple = [value]
+        param_type_tuple = ['float']
+        return self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)

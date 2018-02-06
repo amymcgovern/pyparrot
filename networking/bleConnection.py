@@ -2,6 +2,7 @@ from bluepy.btle import Peripheral, UUID, DefaultDelegate, BTLEException
 from utils.colorPrint import color_print
 import struct
 import time
+from commandsandsensors.DroneSensorParser import get_data_format_and_size
 
 class MamboDelegate(DefaultDelegate):
     """
@@ -465,6 +466,54 @@ class BLEConnection:
             packet = struct.pack("<BBBBHBI", self.data_types['DATA_WITH_ACK'], self.characteristic_send_counter['SEND_WITH_ACK'],
                                  command_tuple[0], command_tuple[1], command_tuple[2],
                                  usb_id, enum_value)
+        return self.send_command_packet_ack(packet)
+
+    def send_param_command_packet(self, command_tuple, param_tuple=None, param_type_tuple=0, ack=True):
+        """
+        Send a command packet with parameters. Ack channel is optional for future flexibility,
+        but currently commands are always send over the Ack channel so it defaults to True.
+
+        Contributed by awm102 on github.  Edited by Amy McGovern to work for BLE commands also.
+
+        :param: command_tuple: the command tuple derived from command_parser.get_command_tuple()
+        :param: param_tuple (optional): the parameter values to be sent (can be found in the XML files)
+        :param: param_size_tuple (optional): a tuple of strings representing the data type of the parameters
+        e.g. u8, float etc. (can be found in the XML files)
+        :param: ack (optional): allows ack to be turned off if required
+        :return:
+        """
+        # Create lists to store the number of bytes and pack chars needed for parameters
+        # Default them to zero so that if no params are provided the packet size is correct
+        param_size_list = [0] * len(param_tuple)
+        pack_char_list = [0] * len(param_tuple)
+
+        if param_tuple is not None:
+            # Fetch the parameter sizes. By looping over the param_tuple we only get the data
+            # for requested parameters so a mismatch in params and types does not matter
+            for i, param in enumerate(param_tuple):
+                pack_char_list[i], param_size_list[i] = get_data_format_and_size(param, param_type_tuple[i])
+
+        if ack:
+            ack_string = 'SEND_WITH_ACK'
+            data_ack_string = 'DATA_WITH_ACK'
+        else:
+            ack_string = 'SEND_NO_ACK'
+            data_ack_string = 'DATA_NO_ACK'
+
+        # Construct the base packet
+        self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
+
+        # TODO:  Amy changed this to match the BLE packet structure but needs to fully test it
+        packet = struct.pack("<BBBBBH", self.data_types[data_ack_string],
+                             self.characteristic_send_counter[ack_string],
+                             command_tuple[0], command_tuple[1], command_tuple[2])
+
+        if param_tuple is not None:
+            # Add in the parameter values based on their sizes
+            for i, param in enumerate(param_tuple):
+                packet += struct.pack(pack_char_list[i], param)
+
+        # TODO: Fix this to not go with ack always
         return self.send_command_packet_ack(packet)
 
     def _set_command_received(self, channel, val):
