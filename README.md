@@ -199,6 +199,8 @@ This is a work in progress.  Planned extensions include:
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 ## Major updates and releases:
+* 2/6/2018: Updated Mambo to add speed settings for tilt & vertical.  Needed for class.
+* 2/4/2018: Unofficial updates to add ffmpeg support to the vision (will make an official release with examples soon)
 * 12/09/2017: Version 1.2.  Mambo now gives estimated orientation using quaternions.  Bebop now streams vision, which is accessible via VLC or other video clients.  Coming soon: opencv hooks into the vision.  
 * 12/02/2017: Version 1.1.  Fixed sensors with multiple values for Mambo and Bebop.
 * 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
