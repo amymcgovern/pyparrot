@@ -136,6 +136,8 @@ Each of the commands available to control the mambo is listed below with its doc
 * ```open_claw()``` Open the claw.  Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
+* ```set_max_tilt(degrees)``` Set the maximum tilt in degrees.  Be careful as this makes your drone go faster!
+* ```set_max_vertical_speed(speed)``` Set the maximum vertical speed in m/s.  Be careful as this makes your drone go up/down faster!
 
 ## Mambo sensors:
 
