@@ -21,7 +21,11 @@ Software requirements are listed below by type of connection to the drone.
 
    I use the [anaconda](https://www.anaconda.com/download/) installer and package manager for python. 
    
-* Vision:  If you intend to process the camera files, you will need to install opencv.  
+   ```
+   pip install untangle
+   ```
+
+* Vision:  If you intend to process the camera files, you will need to install opencv and ffmpeg.  I installed ffmpeg using brew for the mac but apt-get on linux should also work.
 
 * Wifi connection: [zeroconf](https://pypi.python.org/pypi/zeroconf)
 
@@ -31,7 +35,7 @@ Software requirements are listed below by type of connection to the drone.
    pip install zeroconf
    ```
 
-* BLE connection: pybluez
+* BLE connection: pybluez (note this is ONLY for support without the camera!)
 
    To install the BLE software do the following:
 
@@ -39,7 +43,6 @@ Software requirements are listed below by type of connection to the drone.
    sudo apt-get install bluetooth
    sudo apt-get install bluez
    sudo apt-get install python-bluez
-   pip install untangle
    ```
 
    It is possible you need to install bluepy (if it isn't already there).  These commands should do it:
