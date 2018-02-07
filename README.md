@@ -21,7 +21,11 @@ Software requirements are listed below by type of connection to the drone.
 
    I use the [anaconda](https://www.anaconda.com/download/) installer and package manager for python. 
    
-* Vision:  If you intend to process the camera files, you will need to install opencv.  
+   ```
+   pip install untangle
+   ```
+
+* Vision:  If you intend to process the camera files, you will need to install opencv and ffmpeg.  I installed ffmpeg using brew for the mac but apt-get on linux should also work.
 
 * Wifi connection: [zeroconf](https://pypi.python.org/pypi/zeroconf)
 
@@ -31,7 +35,7 @@ Software requirements are listed below by type of connection to the drone.
    pip install zeroconf
    ```
 
-* BLE connection: pybluez
+* BLE connection: pybluez (note this is ONLY for support without the camera!)
 
    To install the BLE software do the following:
 
@@ -39,7 +43,6 @@ Software requirements are listed below by type of connection to the drone.
    sudo apt-get install bluetooth
    sudo apt-get install bluez
    sudo apt-get install python-bluez
-   pip install untangle
    ```
 
    It is possible you need to install bluepy (if it isn't already there).  These commands should do it:
@@ -136,6 +139,8 @@ Each of the commands available to control the mambo is listed below with its doc
 * ```open_claw()``` Open the claw.  Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```close_claw()``` Close the claw. Note that the claw should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
 * ```fire_gun()``` Fires the gun.  Note that the gun should be attached for this to work.  The id is obtained from a prior ```ask_for_state_update()``` call.  Note that you cannot use the claw with the FPV camera attached.
+* ```set_max_tilt(degrees)``` Set the maximum tilt in degrees.  Be careful as this makes your drone go faster!
+* ```set_max_vertical_speed(speed)``` Set the maximum vertical speed in m/s.  Be careful as this makes your drone go up/down faster!
 
 ## Mambo sensors:
 
@@ -194,6 +199,8 @@ This is a work in progress.  Planned extensions include:
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 ## Major updates and releases:
+* 2/6/2018: Updated Mambo to add speed settings for tilt & vertical.  Needed for class.
+* 2/4/2018: Unofficial updates to add ffmpeg support to the vision (will make an official release with examples soon)
 * 12/09/2017: Version 1.2.  Mambo now gives estimated orientation using quaternions.  Bebop now streams vision, which is accessible via VLC or other video clients.  Coming soon: opencv hooks into the vision.  
 * 12/02/2017: Version 1.1.  Fixed sensors with multiple values for Mambo and Bebop.
 * 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
