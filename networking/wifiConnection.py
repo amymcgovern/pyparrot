@@ -370,11 +370,18 @@ class WifiConnection:
         Disconnect cleanly from the sockets
         """
         self.is_listening = False
+
         # Sleep for a moment to allow all socket activity to cease before closing
-        # This avoids a Winsock error regarding a operations on a closed socket 
+        # This helps to avoids a Winsock error regarding a operations on a closed socket
         self.smart_sleep(0.5)
-        self.udp_send_sock.close()
-        self.udp_receive_sock.close()
+
+        # then put the close in a try/except to catch any further winsock errors
+        # the errors seem to be mostly occurring on windows for some reason
+        try:
+            self.udp_receive_sock.close()
+            self.udp_send_sock.close()
+        except:
+            pass
 
     def safe_send(self, packet):
 
