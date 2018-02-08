@@ -504,7 +504,7 @@ class BLEConnection:
         self.characteristic_send_counter['SEND_WITH_ACK'] = (self.characteristic_send_counter['SEND_WITH_ACK'] + 1) % 256
 
         # TODO:  Amy changed this to match the BLE packet structure but needs to fully test it
-        packet = struct.pack("<BBBBBH", self.data_types[data_ack_string],
+        packet = struct.pack("<BBBBH", self.data_types[data_ack_string],
                              self.characteristic_send_counter[ack_string],
                              command_tuple[0], command_tuple[1], command_tuple[2])
 

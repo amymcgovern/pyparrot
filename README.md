@@ -9,7 +9,7 @@ This interface was developed to teach kids (K-12) STEM concepts (programming, ma
 
 ### Hardware
 
-* Parrot Mambo: If you use the wifi interface, it requires a Mambo FPV (e.g. you need the camera).  If you want to use the BLE interface, it will work on older Mambos (without the FPV camera) but it will require a linux machine with BLE support.  The BLE interface was developed and tested on a Raspberry Pi 3 Model B.  It should work on any linux machine with BLE support.
+* Parrot Mambo: If you use the wifi interface, it requires a Mambo FPV (e.g. you need the camera).  The wifi interface will work on Mac, Linux, or Windows.  If you want to use the BLE interface, it will work on older Mambos (without the FPV camera) but it will require a linux machine with BLE support.  The BLE interface was developed and tested on a Raspberry Pi 3 Model B.  It should work on any linux machine with BLE support.
 
 * Parrot Bebop 2: The Bebop interface was tested on a Bebop 2 using a laptop with wifi (any wifi enabled device should work).
 
