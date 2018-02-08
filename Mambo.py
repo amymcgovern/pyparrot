@@ -429,7 +429,7 @@ class Mambo:
         """
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "AutoTakeOffMode")
 
-        return self.drone_connection.send_auto_takeoff_command(command_tuple)
+        return self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[1], param_type_tuple=["u8"])
 
 
     def take_picture(self):
