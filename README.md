@@ -1,11 +1,10 @@
 # pyparrot
 Python interface for Parrot Drones
 
-This is a redesign of my [pymambo](https://github.com/amymcgovern/pymambo) repository.  It is more general and handles both the wifi and BLE interfaces for the mambvo and also handles flying other parrot drones (tested on the Bebop 2).  
+pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using python.  This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!   
 
-This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!  
-
-The majority of the documentation on installing and using the library is in the [wiki](https://github.com/amymcgovern/pyparrot/wiki)
+# Installation, Quick-start, Documenation, FAQs
+The majority of the documentation on installing and using the library is in the GitHub [wiki](https://github.com/amymcgovern/pyparrot/wiki)
 
 ## Planned updates/extensions
 
