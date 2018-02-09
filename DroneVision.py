@@ -1,9 +1,9 @@
 """
-MamboVision is separated from the main Mambo class to enable the use of the drone without the FPV camera.
-If you want to do vision processing, you will need to create a MamboVision object to capture the
+DroneVision is separated from the main Mambo/Bebop class to enable the use of the drone without the FPV camera.
+If you want to do vision processing, you will need to create a DroneVision object to capture the
 video stream.
 
-Note that this module relies on the opencv module.
+Note that this module relies on the opencv module and the ffmpeg program
 
 Author: Amy McGovern, dramymcgovern@gmail.com
 """
@@ -13,18 +13,23 @@ import time
 import subprocess
 import os
 from utils.NonBlockingStreamReader import NonBlockingStreamReader
+import inspect
+from os.path import join
 
-class MamboVision:
-    def __init__(self, buffer_size=10):
+class DroneVision:
+    def __init__(self, drone_object, is_bebop, buffer_size=10):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
 
+        :param drone_object reference to the drone (mambo or bebop) object
+        :param is_bebop: True if it is a bebop and false if it is a mambo
         :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
         """
         self.fps = 30
-
         self.buffer_size = buffer_size
+        self.drone_object = drone_object
+        self.is_bebop = is_bebop
 
         # initialize a buffer (will contain the last buffer_size vision objects)
         self.buffer = [None] * buffer_size
@@ -65,14 +70,29 @@ class MamboVision:
         :return True if the vision opened correctly and False otherwise
         """
 
+        # start the stream on the bebop
+        if (self.is_bebop):
+            self.drone_object.start_video_stream()
+
         # we have bypassed the old opencv VideoCapture method because it was unreliable for rtsp
+        fullPath = inspect.getfile(DroneVision)
+        shortPathIndex = fullPath.rfind("/")
+        shortPath = fullPath[0:shortPathIndex]
+        imagePath = join(shortPath, "images")
+        utilPath = join(shortPath, "utils")
 
         # the first step is to open the rtsp stream through ffmpeg first
         # this step creates a directory full of images, one per frame
         print("Opening ffmpeg")
-        self.ffmpeg_process = \
-            subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png &",
-                           shell=True, cwd="images", stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        if (self.is_bebop):
+            cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % utilPath + "%03d.png &"
+            print(cmdStr)
+            self.ffmpeg_process = \
+                subprocess.Popen(cmdStr, shell=True, cwd=imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        else:
+            self.ffmpeg_process = \
+                subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png &",
+                               shell=True, cwd=imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         print("Opening non-blocking readers")
 
         # open non-blocking readers to look for errors or success
@@ -117,7 +137,7 @@ class MamboVision:
         stdout_reader.finish_reader()
         stderr_reader.finish_reader()
 
-        # the second starts opencv on these files.  That will happen inside the other thread
+        # the second thread starts opencv on these files.  That will happen inside the other thread
         # so here we just sent the image index to 1 ( to start)
         self.image_index = 1
 
@@ -211,4 +231,8 @@ class MamboVision:
         """
         self.vision_running = False
         self.ffmpeg_process.kill()
-    
+
+        # send the command to kill the vision stream (bebop only)
+        if (self.is_bebop):
+            self.drone_object.stop_video_stream()
+

@@ -2,7 +2,7 @@
 Demo of the mambo vision code (basically flies around and saves out photos as it flies)
 """
 from Mambo import Mambo
-from MamboVision import MamboVision
+from DroneVision import DroneVision
 import threading
 import cv2
 import time
@@ -44,7 +44,7 @@ if (success):
     mambo.smart_sleep(1)
 
     print("Preparing to open vision")
-    mamboVision = MamboVision(buffer_size=10)
+    mamboVision = DroneVision(mambo, is_bebop=False, buffer_size=10)
     userVision = UserVision(mamboVision)
     mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
     success = mamboVision.open_video()
@@ -72,8 +72,8 @@ if (success):
             print("flying state is %s" % mambo.sensors.flying_state)
             mambo.safe_land(5)
         else:
-            print("Sleeeping for 5 seconds - move the mambo around")
-            mambo.smart_sleep(5)
+            print("Sleeeping for 15 seconds - move the mambo around")
+            mambo.smart_sleep(15)
 
         # done doing vision demo
         print("Ending the sleep and vision")

@@ -2,7 +2,7 @@
 Demo of the Bebop vision code (basically flies around and saves out photos as it flies)
 """
 from Bebop import Bebop
-from BebopVision import BebopVision
+from DroneVision import DroneVision
 import threading
 import cv2
 import time
@@ -31,23 +31,24 @@ success = bebop.connect(5)
 
 if (success):
     # start up the video
-    bebopVision = BebopVision(bebop)
+    bebopVision = DroneVision(bebop, is_bebop=True)
 
     userVision = UserVision(bebopVision)
     bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
-    success = bebopVision.open_video(max_retries=15)
+    success = bebopVision.open_video()
 
     if (success):
         print("Vision successfully started!")
         bebopVision.start_video_buffering()
 
+        # skipping actually flying for safety purposes indoors - if you want
+        # different pictures, move the bebop around by hand
+        print("Fly me around by hand!")
+        bebop.smart_sleep(30)
 
-    # skipping actually flying for safety purposes indoors - if you want
-    # different pictures, move the bebop around by hand
-    print("Fly me around by hand!")
-    bebop.smart_sleep(5)
+        bebopVision.stop_vision_buffering()
 
-    bebopVision.stop_vision_buffering()
+    # disconnect nicely so we don't need a reboot
     bebop.disconnect()
 else:
     print("Error connecting to bebop.  Retry")
