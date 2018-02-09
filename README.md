@@ -6,7 +6,7 @@ pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using pyt
 # Installation, Quick-start, Documenation, FAQs
 The majority of the documentation on installing and using the library is in the GitHub [wiki](https://github.com/amymcgovern/pyparrot/wiki)
 
-## Planned updates/extensions
+# Planned updates/extensions
 
 This is a work in progress.  Planned extensions include:
 
@@ -16,7 +16,7 @@ This is a work in progress.  Planned extensions include:
 * **Bebop**
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
-## Major updates and releases:
+# Major updates and releases:
 * 2/8/2018: Version 1.3. Vision is working for both the Mambo and Bebop in a general interface called DroneVision.  Major documenation updates as well.
 * 2/6/2018: Updated Mambo to add speed settings for tilt & vertical.  Needed for class.
 * 2/4/2018: Unofficial updates to add ffmpeg support to the vision (will make an official release with examples soon)
@@ -24,7 +24,7 @@ This is a work in progress.  Planned extensions include:
 * 12/02/2017: Version 1.1.  Fixed sensors with multiple values for Mambo and Bebop.
 * 11/26/2017: Initial release, version 1.0.  Working wifi and BLE for Mambo, initial flight for Bebop.
 
-## Programming and using your drones responsibly
+# Programming and using your drones responsibly
 
 It is your job to program and use your drones responsibly!  We are not responsible for any losses or damages of your drones or injuries.  Please fly safely and obey all laws.
 
