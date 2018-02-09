@@ -5,7 +5,7 @@ This is a redesign of my [pymambo](https://github.com/amymcgovern/pymambo) repos
 
 This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!  
 
-The majority of the documentation on installing and using the library is in the [wiki|https://github.com/amymcgovern/pyparrot/wiki]
+The majority of the documentation on installing and using the library is in the [wiki](https://github.com/amymcgovern/pyparrot/wiki)
 
 ## Planned updates/extensions
 
