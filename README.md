@@ -17,6 +17,7 @@ This is a work in progress.  Planned extensions include:
    * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
 
 # Major updates and releases:
+* 2/10/2018: Version 1.3.1. Updated DroneVision to work on Windows.
 * 2/8/2018: Version 1.3. Vision is working for both the Mambo and Bebop in a general interface called DroneVision.  Major documenation updates as well.
 * 2/6/2018: Updated Mambo to add speed settings for tilt & vertical.  Needed for class.
 * 2/4/2018: Unofficial updates to add ffmpeg support to the vision (will make an official release with examples soon)
