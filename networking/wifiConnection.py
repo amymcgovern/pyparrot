@@ -176,6 +176,9 @@ class WifiConnection:
             except socket.timeout:
                 print("timeout - trying again")
 
+            except:
+                pass
+
             self.handle_data(data)
 
         color_print("disconnecting", "INFO")
