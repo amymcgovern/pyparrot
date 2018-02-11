@@ -77,9 +77,15 @@ class DroneVision:
         # we have bypassed the old opencv VideoCapture method because it was unreliable for rtsp
         fullPath = inspect.getfile(DroneVision)
         shortPathIndex = fullPath.rfind("/")
+        if (shortPathIndex == -1):
+            # handle Windows paths
+            shortPathIndex = fullPath.rfind("\\")
+        print(shortPathIndex)
         shortPath = fullPath[0:shortPathIndex]
         imagePath = join(shortPath, "images")
         utilPath = join(shortPath, "utils")
+        print(imagePath)
+        print(utilPath)
 
         # the first step is to open the rtsp stream through ffmpeg first
         # this step creates a directory full of images, one per frame
