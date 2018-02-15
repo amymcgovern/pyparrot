@@ -579,3 +579,31 @@ class Mambo:
         param_tuple = [value]
         param_type_tuple = ['float']
         return self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+
+    def emergency(self):
+        """
+        Sends the emergency command to the mambo.  Gets the codes for it from the xml files.  Ensures the
+        packet was received or sends it again up to a maximum number of times.
+
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Emergency")
+        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+
+    def safe_emergency(self, timeout):
+        """
+        Sends emergency stop command  until the Mambo reports it is not flying anymore
+
+        :param timeout: quit trying to emergency stop if it takes more than timeout seconds
+        """
+
+        start_time = time.time()
+        # send emergency until it really listens
+        while ((self.sensors.flying_state in ("flying", "hovering")) and (time.time() - start_time < timeout)):
+            success = self.emergency()
+            self.smart_sleep(1)
+
+        # now wait until it touches ground before returning
+        while ((self.sensors.flying_state != "landed") and (time.time() - start_time < timeout)):
+            self.smart_sleep(1)
