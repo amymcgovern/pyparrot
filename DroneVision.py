@@ -82,23 +82,23 @@ class DroneVision:
             shortPathIndex = fullPath.rfind("\\")
         print(shortPathIndex)
         shortPath = fullPath[0:shortPathIndex]
-        imagePath = join(shortPath, "images")
-        utilPath = join(shortPath, "utils")
-        print(imagePath)
-        print(utilPath)
+        self.imagePath = join(shortPath, "images")
+        self.utilPath = join(shortPath, "utils")
+        print(self.imagePath)
+        print(self.utilPath)
 
         # the first step is to open the rtsp stream through ffmpeg first
         # this step creates a directory full of images, one per frame
         print("Opening ffmpeg")
         if (self.is_bebop):
-            cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % utilPath + "%03d.png &"
+            cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % self.utilPath + "%03d.png &"
             print(cmdStr)
             self.ffmpeg_process = \
-                subprocess.Popen(cmdStr, shell=True, cwd=imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                subprocess.Popen(cmdStr, shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         else:
             self.ffmpeg_process = \
                 subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png &",
-                               shell=True, cwd=imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                               shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         print("Opening non-blocking readers")
 
         # open non-blocking readers to look for errors or success
@@ -198,7 +198,7 @@ class DroneVision:
             # grab the latest image
             try:
                 # make the name for the next image
-                path = "images/image_%03d.png" % (self.image_index)
+                path = "%s/image_%03d.png" % (self.imagePath, self.image_index)
                 if (not os.path.exists(path)) and (not os.path.isfile(path)):
                     #print("File %s doesn't exist" % (path))
                     continue
