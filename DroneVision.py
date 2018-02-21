@@ -17,7 +17,7 @@ import inspect
 from os.path import join
 
 class DroneVision:
-    def __init__(self, drone_object, is_bebop, buffer_size=10):
+    def __init__(self, drone_object, is_bebop, buffer_size=200):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -180,7 +180,7 @@ class DroneVision:
 
             # put the thread back to sleep for fps
             # sleeping shorter to ensure we stay caught up on frames
-            time.sleep(1.0 / (2.0 * self.fps))
+            time.sleep(1.0 / (3.0 * self.fps))
 
 
     def _buffer_vision(self, buffer_size):
@@ -201,6 +201,7 @@ class DroneVision:
                 path = "%s/image_%03d.png" % (self.imagePath, self.image_index)
                 if (not os.path.exists(path)) and (not os.path.isfile(path)):
                     #print("File %s doesn't exist" % (path))
+                    #print(os.listdir(self.imagePath))
                     continue
 
                 img = cv2.imread(path,1)

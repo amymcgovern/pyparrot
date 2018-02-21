@@ -17,12 +17,13 @@ class UserVision:
         self.vision = vision
 
     def save_pictures(self, args):
-        print("in save pictures")
+        #print("in save pictures")
         img = self.vision.get_latest_valid_picture()
 
         filename = "test_image_%06d.png" % self.index
         cv2.imwrite(filename, img)
         self.index +=1
+        #print(self.index)
 
 
 
@@ -72,8 +73,8 @@ if (success):
             print("flying state is %s" % mambo.sensors.flying_state)
             mambo.safe_land(5)
         else:
-            print("Sleeeping for 15 seconds - move the mambo around")
-            mambo.smart_sleep(15)
+            print("Sleeeping for 30 seconds - move the mambo around")
+            mambo.smart_sleep(30)
 
         # done doing vision demo
         print("Ending the sleep and vision")
