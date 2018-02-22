@@ -421,6 +421,17 @@ class WifiConnection:
 
         return self._is_command_received('SEND_WITH_ACK', seq_id)
 
+    def send_command_packet_noack(self, packet):
+        """
+        Sends the actual packet on the No-ack channel.  Internal function only.
+
+        :param packet: packet constructed according to the command rules (variable size, constructed elsewhere)
+        :return: True if the command was sent and False otherwise
+        """
+        try_num = 0
+        color_print("sending packet on try %d", try_num)
+        self.safe_send(packet)
+
     def send_noparam_command_packet_ack(self, command_tuple):
         """
         Send a no parameter command packet on the ack channel
@@ -490,9 +501,11 @@ class WifiConnection:
             for i,param in enumerate(param_tuple):
                 packet += struct.pack(pack_char_list[i],param)
 
-        # TODO: Fix this to not go with ack always
-        return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
-        
+        if ack:
+            return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+        else:
+            return self.send_command_packet_noack(packet)
+
 
     def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
         """

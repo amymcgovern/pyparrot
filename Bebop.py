@@ -14,7 +14,8 @@ class BebopSensors:
     def __init__(self):
         self.sensors_dict = dict()
         self.RelativeMoveEnded = False
-        self.CameraMoveEnded = False
+        self.CameraMoveEnded_tilt = False
+        self.CameraMoveEnded_pan = False
         self.flying_state = "unknown"
 
     def update(self, sensor_name, sensor_value, sensor_enum):
@@ -44,8 +45,11 @@ class BebopSensors:
         if (sensor_name == "PilotingEvent_moveByEnd"):
             self.RelativeMoveEnded = True
 
-        if (sensor_name == "CameraState_OrientationV2"):
-            self.CameraMoveEnded = True
+        if (sensor_name == "OrientationV2_tilt"):
+            self.CameraMoveEnded_tilt = True
+
+        if (sensor_name == "OrientationV2_pan"):
+            self.CameraMoveEnded_pan = True
 
     def __str__(self):
         str = "Bebop sensors: %s" % self.sensors_dict
@@ -310,4 +314,47 @@ class Bebop:
         
         return self.drone_connection.send_enum_command_packet_ack(command_tuple,enum_tuple)
 
-   
+    def pan_tilt_camera(self, tilt_degrees, pan_degrees):
+        """
+        Send the command to pan/tilt the camera by the specified number of degrees in pan/tilt
+
+        Note, this only seems to work in small increments.  Use pan_tilt_velocity to get the camera to look
+        straight downward
+
+        :param tilt_degrees: tilt degrees
+        :param pan_degrees: pan degrees
+        :return:
+        """
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
+
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt_degrees, pan_degrees],
+                                                        param_type_tuple=['float', 'float'], ack=False)
+
+    def pan_tilt_camera_velocity(self, tilt_velocity, pan_velocity, duration=0):
+        """
+        Send the command to tilt the camera by the specified number of degrees per second in pan/tilt.
+        This function has two modes.  First, if duration is 0, the initial velocity is sent and
+        then the function returns (meaning the camera will keep moving).  If it is greater than 0,
+        the command executes for that amount of time and then sends a stop command to the camera
+        and then returns.
+
+        :param tilt_degrees: tile change in degrees per second
+        :param pan_degrees: pan change in degrees per second
+        :param duration: seconds to run the command for
+        :return:
+        """
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "Velocity")
+
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt_velocity, pan_velocity],
+                                                        param_type_tuple=['float', 'float'], ack=False)
+
+
+        if (duration > 0):
+            # wait for the specified duration
+            start_time = time.time()
+            while (time.time() - start_time < duration):
+                self.drone_connection.smart_sleep(0.1)
+
+            # send the stop command
+            self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[0, 0],
+                                                            param_type_tuple=['float', 'float'], ack=False)

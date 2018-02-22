@@ -42,7 +42,7 @@ class NonBlockingStreamReader:
                 queue.put(line)
             else:
                 self.finish_reader()
-            time.sleep(0.01)
+            time.sleep(0.001)
 
     def readline(self, timeout = None):
         try:

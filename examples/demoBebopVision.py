@@ -15,11 +15,11 @@ class UserVision:
         self.vision = vision
 
     def save_pictures(self, args):
-        print("saving picture")
+        #print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
         filename = "test_image_%06d.png" % self.index
-        cv2.imwrite(filename, img)
+        #cv2.imwrite(filename, img)
         self.index +=1
 
 
@@ -44,8 +44,12 @@ if (success):
         # skipping actually flying for safety purposes indoors - if you want
         # different pictures, move the bebop around by hand
         print("Fly me around by hand!")
-        bebop.smart_sleep(30)
+        bebop.smart_sleep(5)
 
+        print("Moving the camera using velocity")
+        bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
+        bebop.smart_sleep(25)
+        print("Finishing demo and stopping vision")
         bebopVision.stop_vision_buffering()
 
     # disconnect nicely so we don't need a reboot
