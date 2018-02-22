@@ -246,7 +246,7 @@ class DroneGUI:
         Label(self.root, text="Enter the size of the room you are flying in (decimals to tenths)").grid(row=0, columnspan=2)
         Label(self.root, text="Length (x) (meters)").grid(row=1)
         Label(self.root, text="Height (y) (meters)").grid(row=2)
-        Label(self.root, text="1 pixel = ____ cm").grid(row=3)
+        Label(self.root, text="1 cm = ____ pixels").grid(row=3)
 
         # the entry boxes
         self.length = Entry(self.root)
