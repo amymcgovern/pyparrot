@@ -4,7 +4,7 @@ Python interface for Parrot Drones
 pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using python.  This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!   
 
 # Installation, Quick-start, Documenation, FAQs
-The majority of the documentation on installing and using the library is in the GitHub [wiki](https://github.com/amymcgovern/pyparrot/wiki)
+The GitHub [wiki page for pyparrot](https://github.com/amymcgovern/pyparrot/wiki) has extensive documentation on installing and using pyparrot.  
 
 # Planned updates/extensions
 
@@ -14,9 +14,10 @@ This is a work in progress.  Planned extensions include:
    * Downloading pictures from the downward facing camera.  We can take photos from it (mambo.take_picture()) but I haven't figured out the protocol to download the photos remotely yet.  When I figure that out, I will update the code.
    
 * **Bebop**
-   * Navigation: The Bebop has a lot of additional navigation commands available.  I will implement and test these once the vision is working.  For example, the relative move command seems quite useful.  
+   * Navigation: The Bebop has a lot of additional navigation commands available.  These are on my agenda soon. For example, the relative move command seems quite useful.  
 
 # Major updates and releases:
+* 2/22/2018: Version 1.3.2.  Updated DroneVision to make the vision processing faster.  Interface changed to only have the user call open_vision and close_vision (and not start_video_buffering)
 * 2/10/2018: Version 1.3.1. Updated DroneVision to work on Windows.
 * 2/8/2018: Version 1.3. Vision is working for both the Mambo and Bebop in a general interface called DroneVision.  Major documenation updates as well.
 * 2/6/2018: Updated Mambo to add speed settings for tilt & vertical.  Needed for class.
