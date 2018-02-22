@@ -23,7 +23,7 @@ class UserVision:
         filename = "test_image_%06d.png" % self.index
         cv2.imwrite(filename, img)
         self.index +=1
-        print(self.index)
+        #print(self.index)
 
 
 
