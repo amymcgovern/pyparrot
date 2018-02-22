@@ -41,6 +41,11 @@ class DroneVision:
         self.user_vision_thread = None
         self.vision_running = True
 
+        # the vision thread starts opencv on these files.  That will happen inside the other thread
+        # so here we just sent the image index to 1 ( to start)
+        self.image_index = 1
+
+
     def set_user_callback_function(self, user_callback_function=None, user_callback_args=None):
         """
         Set the (optional) user callback function for handling the new vision frames.  This is
@@ -99,9 +104,12 @@ class DroneVision:
             self.ffmpeg_process = \
                 subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png &",
                                shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        print("Opening non-blocking readers")
 
+        # immediately start the vision buffering (before we even know if it succeeded since waiting puts us behind)
+        self._start_video_buffering()
+            
         # open non-blocking readers to look for errors or success
+        print("Opening non-blocking readers")
         stderr_reader = NonBlockingStreamReader(self.ffmpeg_process.stderr)
         stdout_reader = NonBlockingStreamReader(self.ffmpeg_process.stdout)
 
@@ -143,14 +151,10 @@ class DroneVision:
         stdout_reader.finish_reader()
         stderr_reader.finish_reader()
 
-        # the second thread starts opencv on these files.  That will happen inside the other thread
-        # so here we just sent the image index to 1 ( to start)
-        self.image_index = 1
-
         # return whether or not it worked
         return success
 
-    def start_video_buffering(self):
+    def _start_video_buffering(self):
         """
         If the video capture was successfully opened, then start the thread to buffer the stream
 
@@ -232,11 +236,15 @@ class DroneVision:
         """
         return self.buffer[self.buffer_index]
 
-    def stop_vision_buffering(self):
+    def close_video(self):
         """
-        Should stop the vision thread
+        Stop the vision processing and all its helper threads
         """
+
+        # the helper threads look for this variable to be true
         self.vision_running = False
+
+        # kill the ffmpeg subprocess
         self.ffmpeg_process.kill()
 
         # send the command to kill the vision stream (bebop only)

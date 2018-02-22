@@ -23,7 +23,7 @@ class UserVision:
         filename = "test_image_%06d.png" % self.index
         cv2.imwrite(filename, img)
         self.index +=1
-        #print(self.index)
+        print(self.index)
 
 
 
@@ -52,7 +52,8 @@ if (success):
 
     if (success):
         print("Vision successfully started!")
-        mamboVision.start_video_buffering()
+        #removed the user call to this function (it now happens in open_video())
+        #mamboVision.start_video_buffering()
 
         if (testFlying):
             print("taking off!")
@@ -78,7 +79,7 @@ if (success):
 
         # done doing vision demo
         print("Ending the sleep and vision")
-        mamboVision.stop_vision_buffering()
+        mamboVision.close_video()
 
         mambo.smart_sleep(5)
 

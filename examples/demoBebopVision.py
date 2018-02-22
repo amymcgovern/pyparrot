@@ -39,7 +39,8 @@ if (success):
 
     if (success):
         print("Vision successfully started!")
-        bebopVision.start_video_buffering()
+        #removed the user call to this function (it now happens in open_video())
+        #bebopVision.start_video_buffering()
 
         # skipping actually flying for safety purposes indoors - if you want
         # different pictures, move the bebop around by hand
@@ -50,7 +51,7 @@ if (success):
         bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
         bebop.smart_sleep(25)
         print("Finishing demo and stopping vision")
-        bebopVision.stop_vision_buffering()
+        bebopVision.close_video()
 
     # disconnect nicely so we don't need a reboot
     bebop.disconnect()
