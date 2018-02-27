@@ -25,7 +25,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 	Note: this will not loop at 999, the program will look for 1000 after 999.
 """
-IMAGE_PATH = "/Users/Leo/Desktop/pyparrot-1.2.1/Test file/images/image_%03d.png"
+#IMAGE_PATH = "/Users/Leo/Desktop/pyparrot-1.2.1/Test file/images/image_%03d.png"
+IMAGE_PATH = "/Users/amy/repos/pyparrot/images/image_%03d.png"
 
 """
 	The URL or website name you would like to stream to. Unless you have a strong reason
@@ -90,7 +91,7 @@ class CamHandler(BaseHTTPRequestHandler):
                         continue
                     # File exists. Let's try to read the image
                     img = cv2.imread(path, STREAMING_IMAGE_TYPE)
-                    print("Reading image with index of %d" % (index))
+                    #print("Reading image with index of %d" % (index))
                     # Increase index by one to read the next image file next time
                     index = index + 1
                     # Encode the read png image as a buffer of bytes and write the image to our page

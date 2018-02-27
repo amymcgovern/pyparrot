@@ -15,8 +15,21 @@ class DroneGUI:
     def __init__(self):
         self.root = Tk()
         self.room_map = None
+        self.obstacle_ids = None
+        self.factor = None
+        self.obstacle_color = "#7575a3"
+        self.goal_color = "green"
+        self.start_color = "red"
+        self.start_id = 2
+        self.goal_id = 3
+        self.obstacle_id = 1
 
     def translate_click(self, event):
+        """
+        Translate the click event into room coordinates and map coordinates
+        :param event:
+        :return:
+        """
         print("clicked at", event.x, event.y)
         center_x = event.x
         center_y = event.y
@@ -25,27 +38,48 @@ class DroneGUI:
         factor = 10 * self.scale_val
         lower_x = int(center_x / factor) * factor
         lower_y = int(center_y / factor) * factor
-        print("lower x and y are ", lower_x, lower_y)
+        #print("lower x and y are ", lower_x, lower_y)
 
-        return (center_x, center_y, lower_x, lower_y)
+        # translate the click into the map
+        map_x = int(center_x / self.factor)
+        map_y = self.room_map.shape[1] - int(center_y / self.factor) - 1
+        #print("map x and y are ", map_x, map_y)
 
-    def draw_obstacle_click(self, event):
+        return (center_x, center_y, lower_x, lower_y, map_x, map_y)
+
+    def toggle_obstacle_click(self, event):
         """
-        Draw a gray box for an obstacle at button 1 clicks
+        Toggle an obstacle with left button clicks
+
+        :param event: the tkinter event
+        :return: nothing
+        """
+        (center_x, center_y, lower_x, lower_y, map_x, map_y) = self.translate_click(event)
+
+
+        if (self.room_map[map_x, map_y] == 0):
+            self.draw_obstacle(lower_x,lower_y, size=self.factor, color=self.obstacle_color, map_x=map_x, map_y=map_y)
+            self.room_map[map_x, map_y] = self.obstacle_id
+        else:
+            #print("Deleting obstacle ", self.obstacle_ids[map_x, map_y])
+            self.clear_obstacle(map_x, map_y)
+            self.room_map[map_x, map_y] = 0
+
+    def change_obstacle_type_click(self, event):
+        """
+        Right click brings up a menu to let you choose what kind of obstacle this is
 
         :param event:
         :return:
         """
-        (center_x, center_y, lower_x, lower_y) = self.translate_click(event)
-        factor = 10 * self.scale_val
+        print("In popup menu")
+        popup_menu = Menu(self.root, tearoff=0)
+        popup_menu.add_command(label="Set to start", command=lambda: self.draw_start_click(event))
+        popup_menu.add_command(label="Set to goal", command=lambda: self.draw_goal_click(event))
+        popup_menu.add_command(label="Remove", command=lambda: self.toggle_obstacle_click(event))
 
-        self.draw_obstacle(lower_x,lower_y, factor, color="#7575a3")
+        popup_menu.post(event.x, event.y)
 
-        # and save the click into the map
-        map_x = int(center_x / factor)
-        map_y = self.room_map.shape[1] - int(center_y / factor) - 1
-        print("map x and y are ", map_x, map_y)
-        self.room_map[map_x, map_y] = 1
 
     def draw_goal_click(self, event):
         """
@@ -54,16 +88,16 @@ class DroneGUI:
         :param event:
         :return:
         """
-        (center_x, center_y, lower_x, lower_y) = self.translate_click(event)
-        factor = 10 * self.scale_val
+        (center_x, center_y, lower_x, lower_y, map_x, map_y) = self.translate_click(event)
 
-        self.draw_obstacle(lower_x,lower_y, factor, color="green")
+        # clear whatever was there
+        self.clear_obstacle(map_x, map_y)
+        self.room_map[map_x, map_y] = 0
 
         # and save the click into the map
-        map_x = int(center_x / factor)
-        map_y = self.room_map.shape[1] - int(center_y / factor) - 1
-        print("map x and y are ", map_x, map_y)
-        self.room_map[map_x, map_y] = 3
+        self.room_map[map_x, map_y] = self.goal_id
+        self.draw_obstacle(lower_x,lower_y, self.factor, color=self.goal_color, map_x=map_x, map_y=map_y)
+
 
     def draw_start_click(self, event):
         """
@@ -72,26 +106,36 @@ class DroneGUI:
         :param event:
         :return:
         """
-        (center_x, center_y, lower_x, lower_y) = self.translate_click(event)
-        factor = 10 * self.scale_val
+        (center_x, center_y, lower_x, lower_y, map_x, map_y) = self.translate_click(event)
 
-        self.draw_obstacle(lower_x,lower_y, factor, color="red")
+        # clear whatever was there
+        self.clear_obstacle(map_x, map_y)
+        self.room_map[map_x, map_y] = 0
 
         # and save the click into the map
-        map_x = int(center_x / factor)
-        map_y = self.room_map.shape[1] - int(center_y / factor) - 1
-        print("map x and y are ", map_x, map_y)
-        self.room_map[map_x, map_y] = 2
+        self.room_map[map_x, map_y] = self.start_id
+        self.draw_obstacle(lower_x,lower_y, self.factor, color=self.start_color, map_x=map_x, map_y=map_y)
 
-    def draw_obstacle(self, x, y, size, color):
+
+    def draw_obstacle(self, x, y, size, color, map_x, map_y):
         # draw the rectangle
-        self.room_draw.create_rectangle(x, y, x + size, y + size, fill=color)
+        obs_id = self.room_canvas.create_rectangle(x, y, x + size, y + size, fill=color)
+        #print("Obstacle id is ", obs_id)
+        self.obstacle_ids[map_x, map_y] = obs_id
+
+    def clear_obstacle(self, map_x, map_y):
+        # draw the rectangle
+        self.room_canvas.delete(self.obstacle_ids[map_x, map_y])
+        self.obstacle_ids[map_x, map_y] = 0
 
     def set_scale(self):
         try:
             self.scale_val = int(self.scale.get())
         except:
             self.scale_val = 1
+
+        # set the factor used for drawing translations
+        self.factor = 10 * self.scale_val
 
     def create_room(self):
         """
@@ -109,6 +153,7 @@ class DroneGUI:
 
         # initialize the internal map
         self.room_map = np.zeros((int(length * 10), int(height * 10)))
+        self.obstacle_ids = np.zeros((int(length * 10), int(height * 10)), dtype='int')
         print(self.room_map.shape)
 
         print("Length is %0.1f and height is %0.1f" % (length, height))
@@ -140,8 +185,8 @@ class DroneGUI:
         helpmenu.add_command(label="About...", command=self.about_menu)
 
         # draw the room
-        self.room_draw = Canvas(room, width=canvas_width, height=canvas_height, bg="#ffffe6")
-        self.room_draw.pack()
+        self.room_canvas = Canvas(room, width=canvas_width, height=canvas_height, bg="#ffffe6")
+        self.room_canvas.pack()
 
         # how to draw a checkered canvas from
         # https://www.python-course.eu/tkinter_canvas.php
@@ -149,21 +194,20 @@ class DroneGUI:
         line_distance = 10 * self.scale_val
         for x in range(line_distance, canvas_width, line_distance):
             if (x % (line_distance * 10) == 0):
-                self.room_draw.create_line(x, 0, x, canvas_height, fill="red", width=2)
+                self.room_canvas.create_line(x, 0, x, canvas_height, fill="red", width=2)
             else:
-                self.room_draw.create_line(x, 0, x, canvas_height, fill="black")
+                self.room_canvas.create_line(x, 0, x, canvas_height, fill="black")
 
         # horizontal lines at an interval of "line_distance" pixel
         for y in range(line_distance, canvas_height, line_distance):
             if (y % (line_distance * 10) == 0):
-                self.room_draw.create_line(0, y, canvas_width, y, fill="red", width=2)
+                self.room_canvas.create_line(0, y, canvas_width, y, fill="red", width=2)
             else:
-                self.room_draw.create_line(0, y, canvas_width, y, fill="black")
+                self.room_canvas.create_line(0, y, canvas_width, y, fill="black")
 
         # bind the button clicks to draw out the map
-        self.room_draw.bind("<Button-1>", self.draw_obstacle_click)
-        self.room_draw.bind("<Button-2>", self.draw_start_click)
-        self.room_draw.bind("<Button-3>", self.draw_goal_click)
+        self.room_canvas.bind("<Button-1>", self.toggle_obstacle_click)
+        self.room_canvas.bind("<Button-2>", self.change_obstacle_type_click)
 
         # add in the obstacles (if any exist already)
         (xs, ys) = np.nonzero(self.room_map)
@@ -173,17 +217,17 @@ class DroneGUI:
             lower_x = x * factor
             lower_y = (self.room_map.shape[1] - y - 1) * factor
             if (self.room_map[x, y] == 1):
-                self.draw_obstacle(lower_x, lower_y, factor, color="#7575a3")
+                self.draw_obstacle(lower_x, lower_y, factor, color="#7575a3", map_x=x, map_y=y)
             elif (self.room_map[x, y] == 2):
-                self.draw_obstacle(lower_x, lower_y, factor, color="red")
+                self.draw_obstacle(lower_x, lower_y, factor, color="red", map_x=x, map_y=y)
             elif (self.room_map[x, y] == 3):
-                self.draw_obstacle(lower_x, lower_y, factor, color="green")
+                self.draw_obstacle(lower_x, lower_y, factor, color="green", map_x=x, map_y=y)
 
     def draw_map_from_file(self):
         width = self.room_map.shape[1] / 10.0
         length = self.room_map.shape[0] /10.0
-        print("length and width of loaded room are ", length,width)
-        print("Scale is "), self.scale_val
+        #print("length and width of loaded room are ", length,width)
+        #print("Scale is ", self.scale_val)
         self.draw_room(length, width)
 
     def open_file_menu(self):
@@ -246,7 +290,7 @@ class DroneGUI:
         Label(self.root, text="Enter the size of the room you are flying in (decimals to tenths)").grid(row=0, columnspan=2)
         Label(self.root, text="Length (x) (meters)").grid(row=1)
         Label(self.root, text="Height (y) (meters)").grid(row=2)
-        Label(self.root, text="1 cm = ____ pixels").grid(row=3)
+        Label(self.root, text="1 cm = _ pixels").grid(row=3)
 
         # the entry boxes
         self.length = Entry(self.root)
