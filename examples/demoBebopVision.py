@@ -18,9 +18,10 @@ class UserVision:
         #print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
-        filename = "test_image_%06d.png" % self.index
-        #cv2.imwrite(filename, img)
-        self.index +=1
+        if (img is not None):
+            filename = "test_image_%06d.png" % self.index
+            #cv2.imwrite(filename, img)
+            self.index +=1
 
 
 # make my bebop object

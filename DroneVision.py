@@ -198,6 +198,18 @@ class DroneVision:
         # start with no new data
         self.new_frame = False
 
+        # when the method is first called, sometimes there is already data to catch up on
+        # so find the latest image in the directory and set the index to that
+        found_latest = False
+        while (not found_latest):
+            path = "%s/image_%03d.png" % (self.imagePath, self.image_index)
+            if (os.path.exists(path)) and (not os.path.isfile(path)):
+                # just increment through it (don't save any of these first images)
+                self.image_index = self.image_index + 1
+            else:
+                found_latest = True
+
+        # run forever, trying to grab the latest image
         while (self.vision_running):
             # grab the latest image
             try:
@@ -209,18 +221,21 @@ class DroneVision:
                     continue
 
                 img = cv2.imread(path,1)
-                self.image_index = self.image_index + 1
+                # sometimes cv2 returns a None object so skip
+                # putting those in the array
+                if (img is not None):
+                    self.image_index = self.image_index + 1
 
-                # got a new image, save it to the buffer directly
-                self.buffer_index += 1
-                self.buffer_index %= buffer_size
-                #print video_frame
-                self.buffer[self.buffer_index] = img
-                self.new_frame = True
+                    # got a new image, save it to the buffer directly
+                    self.buffer_index += 1
+                    self.buffer_index %= buffer_size
+                    #print video_frame
+                    self.buffer[self.buffer_index] = img
+                    self.new_frame = True
 
             except cv2.error:
                 #Assuming its an empty image, so decrement the index and try again.
-                print("Trying to read an empty png. Let's wait and try again.")
+                # print("Trying to read an empty png. Let's wait and try again.")
                 self.image_index = self.image_index - 1
                 continue
 

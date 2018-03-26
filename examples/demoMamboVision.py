@@ -20,10 +20,11 @@ class UserVision:
         #print("in save pictures")
         img = self.vision.get_latest_valid_picture()
 
-        filename = "test_image_%06d.png" % self.index
-        cv2.imwrite(filename, img)
-        self.index +=1
-        #print(self.index)
+        if (img is not None):
+            filename = "test_image_%06d.png" % self.index
+            cv2.imwrite(filename, img)
+            self.index +=1
+            #print(self.index)
 
 
 
