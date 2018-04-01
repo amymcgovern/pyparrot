@@ -209,6 +209,9 @@ class DroneVisionGUI:
         self.user_args = user_args
         self.user_thread = UserCodeToRun(user_code_to_run, user_args, self)
 
+        # in case we never setup a user callback function
+        self.user_vision_thread = None
+
     def run_user_code(self):
         """
         Start the thread to run the user code
