@@ -27,7 +27,7 @@ class UserVision:
             #print(self.index)
 
 
-def demo_mambo_user_vision_function(args):
+def demo_mambo_user_vision_function(mamboVision, args):
     """
     Demo the user code to run with the run button for a mambo
 
