@@ -341,6 +341,16 @@ class Mambo:
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def is_landed(self):
+        """
+        Returns true if it is landed or emergency and False otherwise
+        :return:
+        """
+        if (self.sensors.flying_state in ("landed", "emergency")):
+            return True
+        else:
+            return False
+
     def safe_land(self, timeout):
         """
         Ensure the mambo lands by sending the command until it shows landed on sensors

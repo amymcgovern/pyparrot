@@ -96,9 +96,13 @@ class Player(QMainWindow):
         self.hbuttonbox.addWidget(self.playbutton)
         self.playbutton.clicked.connect(self.drone_vision.run_user_code)
 
-        self.stopbutton = QPushButton("Land/Close Video")
+        self.landbutton = QPushButton("Land NOW")
+        self.hbuttonbox.addWidget(self.landbutton)
+        self.landbutton.clicked.connect(self.drone_vision.land)
+
+        self.stopbutton = QPushButton("Quit")
         self.hbuttonbox.addWidget(self.stopbutton)
-        self.stopbutton.clicked.connect(self.drone_vision.close_video)
+        self.stopbutton.clicked.connect(self.drone_vision.close_exit)
 
         self.vboxlayout = QVBoxLayout()
         self.vboxlayout.addWidget(self.videoframe)
@@ -142,6 +146,10 @@ class UserVisionProcessingThread(QThread):
             # put the thread back to sleep for fps
             # sleeping shorter to ensure we stay caught up on frames
             time.sleep(1.0 / (3.0 * self.drone_vision.fps))
+
+        # exit when the vision thread ends
+        print("exiting user vision thread")
+        self.exit()
 
 class UserCodeToRun(QThread):
     def __init__(self, user_function, user_args, drone_vision):
@@ -279,7 +287,7 @@ class DroneVisionGUI:
         self.vlc_gui.resize(640, 480)
 
         # ensure that closing the window closes vision
-        app.aboutToQuit.connect(self.close_video)
+        app.aboutToQuit.connect(self.land_close_exit)
 
         if (self.user_vision_thread is not None):
             print("Starting user vision thread")
@@ -334,6 +342,32 @@ class DroneVisionGUI:
         :return: last valid image received from the Mambo
         """
         return self.buffer[self.buffer_index]
+
+    def close_exit(self):
+        """
+        Land, close the video, and exit the GUI
+        :return:
+        """
+        self.close_video()
+        sys.exit()
+
+    def land_close_exit(self):
+        """
+        Called if you Quit the GUI: lands the drone, stops vision, and exits the GUI
+        :return:
+        """
+        self.land()
+        self.close_exit()
+
+    def land(self):
+        """
+        Land the drone per the button
+
+        :return:
+        """
+        # land the drone
+        if (not self.drone_object.is_landed()):
+            self.drone_object.safe_land(5)
 
     def close_video(self):
         """

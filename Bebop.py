@@ -40,7 +40,8 @@ class BebopSensors:
 
         # some sensors are saved outside the dictionary for internal use (they are also in the dictionary)
         if (sensor_name == "FlyingStateChanged_state"):
-            self.flying_state = sensor_value
+            print("Flying state tuple in bebop is ")
+            self.flying_state = self.sensors_dict["FlyingStateChanged_state"]
 
         if (sensor_name == "PilotingEvent_moveByEnd"):
             self.RelativeMoveEnded = True
@@ -173,6 +174,16 @@ class Bebop:
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+    def is_landed(self):
+        """
+        Returns true if it is landed or emergency and False otherwise
+        :return:
+        """
+        if (self.sensors.flying_state in ("landed", "emergency")):
+            return True
+        else:
+            return False
 
     def safe_land(self, timeout):
         """
