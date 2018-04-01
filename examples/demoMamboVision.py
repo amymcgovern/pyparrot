@@ -17,7 +17,8 @@ class UserVision:
         self.vision = vision
 
     def save_pictures(self, args):
-        #print("in save pictures")
+        print("in save pictures on image %d " % self.index)
+
         img = self.vision.get_latest_valid_picture()
 
         if (img is not None):
@@ -46,10 +47,11 @@ if (success):
     mambo.smart_sleep(1)
 
     print("Preparing to open vision")
-    mamboVision = DroneVision(mambo, is_bebop=False, buffer_size=10)
+    mamboVision = DroneVision(mambo, is_bebop=False, buffer_size=30, use_libvlc=True)
     userVision = UserVision(mamboVision)
     mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
     success = mamboVision.open_video()
+    print("Success in opening vision is %s" % success)
 
     if (success):
         print("Vision successfully started!")
@@ -75,8 +77,8 @@ if (success):
             print("flying state is %s" % mambo.sensors.flying_state)
             mambo.safe_land(5)
         else:
-            print("Sleeeping for 30 seconds - move the mambo around")
-            mambo.smart_sleep(30)
+            print("Sleeeping for 15 seconds - move the mambo around")
+            mambo.smart_sleep(15)
 
         # done doing vision demo
         print("Ending the sleep and vision")
@@ -84,5 +86,5 @@ if (success):
 
         mambo.smart_sleep(5)
 
-    print("disconnect")
+    print("disconnecting")
     mambo.disconnect()

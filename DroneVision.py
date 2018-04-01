@@ -5,6 +5,12 @@ video stream.
 
 Note that this module relies on the opencv module and the ffmpeg program
 
+Ffmpeg write the images out to the images directory and then they are read in from the user thread.  The DroneVisionGUI
+does not save copies of the images and instead shows you the images on the screen (they are saved to memory only).
+While you can see the images in real-time from this program using VisionServer, if you need copies of the images,
+you will want to use the ffmpeg approach.  If you want a smaller delay on your image data for real-time control, you likely want
+to use libvlc and DroneVisionGUI.
+
 Author: Amy McGovern, dramymcgovern@gmail.com
 """
 import cv2
@@ -12,9 +18,9 @@ import threading
 import time
 import subprocess
 import os
-from utils.NonBlockingStreamReader import NonBlockingStreamReader
-import inspect
 from os.path import join
+import inspect
+from utils.NonBlockingStreamReader import NonBlockingStreamReader
 
 class DroneVision:
     def __init__(self, drone_object, is_bebop, buffer_size=200):
@@ -80,6 +86,7 @@ class DroneVision:
             self.drone_object.start_video_stream()
 
         # we have bypassed the old opencv VideoCapture method because it was unreliable for rtsp
+        # get the path for the config files
         fullPath = inspect.getfile(DroneVision)
         shortPathIndex = fullPath.rfind("/")
         if (shortPathIndex == -1):
@@ -107,7 +114,7 @@ class DroneVision:
 
         # immediately start the vision buffering (before we even know if it succeeded since waiting puts us behind)
         self._start_video_buffering()
-            
+
         # open non-blocking readers to look for errors or success
         print("Opening non-blocking readers")
         stderr_reader = NonBlockingStreamReader(self.ffmpeg_process.stderr)
@@ -158,7 +165,7 @@ class DroneVision:
         """
         If the video capture was successfully opened, then start the thread to buffer the stream
 
-        :return:
+        :return: Nothing
         """
         print("starting vision thread")
         self.vision_thread.start()
@@ -211,7 +218,7 @@ class DroneVision:
 
         # run forever, trying to grab the latest image
         while (self.vision_running):
-            # grab the latest image
+            # grab the latest image from the ffmpeg stream
             try:
                 # make the name for the next image
                 path = "%s/image_%03d.png" % (self.imagePath, self.image_index)
@@ -221,8 +228,8 @@ class DroneVision:
                     continue
 
                 img = cv2.imread(path,1)
-                # sometimes cv2 returns a None object so skip
-                # putting those in the array
+
+                # sometimes cv2 returns a None object so skip putting those in the array
                 if (img is not None):
                     self.image_index = self.image_index + 1
 
@@ -240,6 +247,7 @@ class DroneVision:
                 continue
 
             # put the thread back to sleep for faster than fps to ensure we stay on top of the frames
+            # coming in from ffmpeg
             time.sleep(1.0 / (2.0 * self.fps))
         
 
