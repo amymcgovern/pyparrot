@@ -20,7 +20,7 @@ from os.path import join
 import inspect
 import tempfile
 import sys
-import vlc
+import utils.vlc as vlc
 from PyQt5.QtCore import Qt, QTimer, QThread
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
