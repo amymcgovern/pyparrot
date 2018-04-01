@@ -25,7 +25,7 @@ class UserVision:
             self.index +=1
 
 
-def demo_user_code_after_vision_opened(args):
+def demo_user_code_after_vision_opened(bebopVision, args):
     bebop = args[0]
 
     print("Vision successfully started!")
@@ -40,11 +40,12 @@ def demo_user_code_after_vision_opened(args):
     print("Fly me around by hand!")
     bebop.smart_sleep(5)
 
-    print("Moving the camera using velocity")
-    bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
-    bebop.smart_sleep(5)
-    print("Finishing demo and stopping vision")
-    bebopVision.close_video()
+    if (bebopVision.vision_running):
+        print("Moving the camera using velocity")
+        bebop.pan_tilt_camera_velocity(pan_velocity=0, tilt_velocity=-2, duration=4)
+        bebop.smart_sleep(5)
+        print("Finishing demo and stopping vision")
+        bebopVision.close_video()
 
     # disconnect nicely so we don't need a reboot
     bebop.disconnect()
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     if (success):
         # start up the video
         bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=demo_user_code_after_vision_opened,
-                                     user_args=(bebop,))
+                                     user_args=(bebop, ))
 
         userVision = UserVision(bebopVision)
         bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)

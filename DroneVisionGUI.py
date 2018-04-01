@@ -166,7 +166,7 @@ class UserCodeToRun(QThread):
         self.wait()
 
     def run(self):
-        self.user_vision_function(self.user_args)
+        self.user_vision_function(self.drone_vision, self.user_args)
 
 
 class DroneVisionGUI:
