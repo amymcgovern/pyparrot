@@ -16,6 +16,7 @@ Author: Valentin Benke, valentin.benke@aon.at
 """
 import cv2
 import time
+from functools import partial
 from os.path import join
 import inspect
 import tempfile
@@ -94,7 +95,7 @@ class Player(QMainWindow):
         self.hbuttonbox = QHBoxLayout()
         self.playbutton = QPushButton("Run my program")
         self.hbuttonbox.addWidget(self.playbutton)
-        self.playbutton.clicked.connect(self.drone_vision.run_user_code)
+        self.playbutton.clicked.connect(partial(self.drone_vision.run_user_code, self.playbutton))
 
         self.landbutton = QPushButton("Land NOW")
         self.hbuttonbox.addWidget(self.landbutton)
@@ -212,11 +213,12 @@ class DroneVisionGUI:
         # in case we never setup a user callback function
         self.user_vision_thread = None
 
-    def run_user_code(self):
+    def run_user_code(self, button):
         """
         Start the thread to run the user code
         :return:
         """
+        button.setEnabled(False)
         self.user_thread.start()
 
 
