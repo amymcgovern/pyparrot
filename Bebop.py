@@ -40,7 +40,6 @@ class BebopSensors:
 
         # some sensors are saved outside the dictionary for internal use (they are also in the dictionary)
         if (sensor_name == "FlyingStateChanged_state"):
-            print("Flying state tuple in bebop is ")
             self.flying_state = self.sensors_dict["FlyingStateChanged_state"]
 
         if (sensor_name == "PilotingEvent_moveByEnd"):
