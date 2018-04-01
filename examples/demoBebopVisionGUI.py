@@ -1,5 +1,6 @@
 """
-Demo of the Bebop vision code (basically flies around and saves out photos as it flies)
+Demo of the Bebop vision using DroneVisionGUI.  It is a different
+multi-threaded approach than the DroneVision
 """
 from Bebop import Bebop
 from DroneVisionGUI import DroneVisionGUI
