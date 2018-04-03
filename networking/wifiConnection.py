@@ -432,6 +432,22 @@ class WifiConnection:
         color_print("sending packet on try %d", try_num)
         self.safe_send(packet)
 
+    def send_noparam_high_priority_command_packet(self, command_tuple):
+        """
+        Send a no parameter command packet on the high priority channel
+        :param command_tuple:
+        :return:
+        """
+        self.sequence_counter['SEND_HIGH_PRIORITY'] = (self.sequence_counter['SEND_HIGH_PRIORITY'] + 1) % 256
+
+        packet = struct.pack("<BBBIBBH", self.data_types_by_name['LOW_LATENCY_DATA'],
+                             self.buffer_ids['SEND_HIGH_PRIORITY'],
+                             self.sequence_counter['SEND_HIGH_PRIORITY'], 11,
+                             command_tuple[0], command_tuple[1], command_tuple[2])
+
+        self.safe_send(packet)
+
+
     def send_noparam_command_packet_ack(self, command_tuple):
         """
         Send a no parameter command packet on the ack channel

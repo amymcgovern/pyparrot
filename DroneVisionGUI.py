@@ -366,13 +366,18 @@ class DroneVisionGUI:
 
     def land(self):
         """
-        Land the drone per the button
+        Send the land command over the emergency channel when the user pushes the button
 
         :return:
         """
         # land the drone
-        if (not self.drone_object.is_landed()):
-            self.drone_object.safe_land(5)
+        if (self.is_bebop):
+            if (not self.drone_object.is_landed()):
+                self.drone_object.emergency_land()
+        else:
+            if (not self.drone_object.is_landed()):
+                self.drone_object.safe_land(5)
+
 
     def close_video(self):
         """

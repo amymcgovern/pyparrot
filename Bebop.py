@@ -166,13 +166,24 @@ class Bebop:
 
     def land(self):
         """
-        Sends the land command to the mambo.  Gets the codes for it from the xml files.  Ensures the
+        Sends the land command to the bebop.  Gets the codes for it from the xml files.  Ensures the
         packet was received or sends it again up to a maximum number of times.
 
         :return: True if the command was sent and False otherwise
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+    def emergency_land(self):
+        """
+        Sends the land command to the bebop on the high priority/emergency channel.
+        Gets the codes for it from the xml files.  Ensures the
+        packet was received or sends it again up to a maximum number of times.
+
+        :return: True if the command was sent and False otherwise
+        """
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "Landing")
+        return self.drone_connection.send_noparam_high_priority_command_packet(command_tuple)
 
     def is_landed(self):
         """

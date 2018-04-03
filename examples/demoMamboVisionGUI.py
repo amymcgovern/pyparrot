@@ -22,7 +22,8 @@ class UserVision:
 
         if (img is not None):
             filename = "test_image_%06d.png" % self.index
-            cv2.imwrite(filename, img)
+            # uncomment this if you want to write out images every time you get a new one
+            #cv2.imwrite(filename, img)
             self.index +=1
             #print(self.index)
 
@@ -43,7 +44,7 @@ def demo_mambo_user_vision_function(mamboVision, args):
         if (mambo.sensors.flying_state != "emergency"):
             print("flying state is %s" % mambo.sensors.flying_state)
             print("Flying direct: going up")
-            mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=1)
+            mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=15, duration=2)
 
             print("flip left")
             print("flying state is %s" % mambo.sensors.flying_state)
