@@ -47,7 +47,7 @@ if (success):
     mambo.smart_sleep(1)
 
     print("Preparing to open vision")
-    mamboVision = DroneVision(mambo, is_bebop=False, buffer_size=30, use_libvlc=True)
+    mamboVision = DroneVision(mambo, is_bebop=False, buffer_size=30)
     userVision = UserVision(mamboVision)
     mamboVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
     success = mamboVision.open_video()
