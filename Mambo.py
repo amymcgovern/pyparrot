@@ -3,6 +3,8 @@ Mambo class holds all of the methods needed to pilot the drone from python and t
 data back from the drone
 
 Author: Amy McGovern, dramymcgovern@gmail.com
+Author: Alexander Zach, https://github.com/alex-zach, groundcam support
+Author: Valentin Benke, https://github.com/Vabe7, groundcam support
 """
 import time
 from networking.wifiConnection import WifiConnection
