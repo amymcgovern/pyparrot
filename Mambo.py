@@ -16,6 +16,15 @@ from commandsandsensors.DroneCommandParser import DroneCommandParser
 from commandsandsensors.DroneSensorParser import DroneSensorParser
 import math
 
+#Groundcam Imports
+from ftplib import FTP
+import tempfile
+try:
+    import cv2
+    OpenCVAvailable = True
+except:
+    OpenCVAvailable = False
+
 class MamboSensors:
     """
     Store the mambo's last known sensor values
@@ -202,7 +211,57 @@ class MamboSensors:
         my_str += "extra sensors: %s," % self.sensors_dict
         return my_str
 
+    
+    
+class MamboGroundcam:
+    def __init__(self):
+        """
+        Initialises the FTP-Session for the picture-download.
+        Only works with WiFi.
+        """
+        self.MEDIA_PATH = '/internal_000/mambo/media' #Filepath on the Mambo
+        self.ftp = FTP('192.168.99.3') #IP-Address of the drone itself
+        self.ftp.login()
+        self.file = tempfile.NamedTemporaryFile()
 
+    def _close(self):
+        
+        self.ftp.close()
+
+    def _get_groundcam_pictures_names(self):
+        """
+        Retruns a list with the names of the pictures stored on the Mambo.
+        """
+        self.ftp.cwd(self.MEDIA_PATH)
+        return self.ftp.nlst()
+
+    def _get_groundcam_picture(self, filename, cv2):
+        """
+        Downloads the specified picture from the Mambo and stores it into a tempfile.
+        
+        :param filename: the name of the file which should be downloaded ON THE MAMBO.
+        :param cv2: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
+        """
+        self.ftp.cwd(self.MEDIA_PATH)
+        try:
+            self.ftp.retrbinary('RETR ' + filename, open(file.name, "wb").write)
+            if cv2 and OpenCVAvailable:
+                return cv2.imread(file.name, 0)
+            else:
+                return file.name
+        except
+            return False
+
+    def get_latest_groundcam_picture(self, cv2):
+        """
+        Automatically returns the last picture which has been stored on the Mambo.
+        
+        :param cv2: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
+        """
+        return self._get_groundcam_picture(self._get_groundcam_pictures_names()[-1], cv2)
+
+    
+    
 class Mambo:
     def __init__(self, address, use_wifi=False):
         """
@@ -219,6 +278,8 @@ class Mambo:
         self.use_wifi = use_wifi
         if (use_wifi):
             self.drone_connection = WifiConnection(self, drone_type="Mambo")
+            # initialize groundcam
+            self.groundcam = MamboGroundcam()
         else:
             if (BLEAvailable):
                 self.drone_connection = BLEConnection(address, self)
@@ -296,6 +357,8 @@ class Mambo:
         :return: void
         """
         self.drone_connection.disconnect()
+        if self.groundcam is not None:
+            self.groundcam._close()
 
 
     def takeoff(self):
@@ -450,6 +513,17 @@ class Mambo:
         """
         command_tuple = self.command_parser.get_command_tuple("minidrone", "MediaRecord", "PictureV2")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+    
+    def get_actual_groundcam_image(self, cv2):
+        """
+        Takes an image from the ground cam and returns it.
+        
+        :param cv2: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
+        """
+        old = self.groundcam._get_groundcam_pictures_names()[-1]
+        self.take_picture()
+        while self.groundcam._get_groundcam_pictures_names()[-1] == old: self.smart_sleep(0.1)
+        return self.groundcam.get_latest_groundcam_picture(cv2)
 
     def ask_for_state_update(self):
         """
