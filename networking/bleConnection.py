@@ -3,6 +3,7 @@ from utils.colorPrint import color_print
 import struct
 import time
 from commandsandsensors.DroneSensorParser import get_data_format_and_size
+from datetime import datetime
 
 class MamboDelegate(DefaultDelegate):
     """
@@ -574,11 +575,16 @@ class BLEConnection:
         :return:
         """
 
-        start_time = time.time()
-        while (time.time() - start_time < timeout):
+        start_time = datetime.now()
+        new_time = datetime.now()
+        diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
+        while (diff < timeout):
             try:
                 notify = self.drone_connection.waitForNotifications(0.1)
             except:
                 color_print("reconnecting to wait", "WARN")
                 self._reconnect(3)
 
+            new_time = datetime.now()
+            diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)

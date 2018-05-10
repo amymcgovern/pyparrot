@@ -5,6 +5,7 @@ Author: Amy McGovern, dramymcgovern@gmail.com
 """
 
 from zeroconf import ServiceBrowser, Zeroconf
+from datetime import datetime
 import time
 import socket
 import ipaddress
@@ -641,16 +642,21 @@ class WifiConnection:
         """
         Sleeps the requested number of seconds but wakes up for notifications
 
-        Note: NEVER use regular time.sleep!  It is a blocking sleep and it will likely
-        cause the WIFI to disconnect due to dropped notifications.  Always use smart_sleep instead!
+        Note: time.sleep misbehaves for the BLE connections but seems ok for wifi.
+        I encourage you to use smart_sleep since it handles the sleeping in a thread-safe way.
 
         :param timeout: number of seconds to sleep
         :return:
         """
 
-        start_time = time.time()
-        while (time.time() - start_time < timeout):
+        start_time = datetime.now()
+        new_time = datetime.now()
+        diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
+        while (diff < timeout):
             time.sleep(0.1)
+            new_time = datetime.now()
+            diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
 
     def ack_packet(self, buffer_id, packet_id):
         """
