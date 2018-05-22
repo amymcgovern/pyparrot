@@ -3,6 +3,8 @@ Mambo class holds all of the methods needed to pilot the drone from python and t
 data back from the drone
 
 Author: Amy McGovern, dramymcgovern@gmail.com
+Author: Alexander Zach, https://github.com/alex-zach, groundcam support
+Author: Valentin Benke, https://github.com/Vabe7, groundcam support
 """
 import time
 from networking.wifiConnection import WifiConnection
@@ -15,6 +17,15 @@ from utils.colorPrint import color_print
 from commandsandsensors.DroneCommandParser import DroneCommandParser
 from commandsandsensors.DroneSensorParser import DroneSensorParser
 import math
+
+#Groundcam Imports
+from ftplib import FTP
+import tempfile
+try:
+    import cv2
+    OpenCVAvailable = True
+except:
+    OpenCVAvailable = False
 
 class MamboSensors:
     """
@@ -202,7 +213,60 @@ class MamboSensors:
         my_str += "extra sensors: %s," % self.sensors_dict
         return my_str
 
+    
+    
+class MamboGroundcam:
+    def __init__(self):
+        """
+        Initialises the FTP-Session for the picture-download.
+        Only works with WiFi.
+        """
+        self.MEDIA_PATH = '/internal_000/mambo/media'  # Filepath on the Mambo
+        self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
+        self.ftp.login()
+        self.storageFile = tempfile.NamedTemporaryFile()
 
+    def _close(self):
+
+        self.ftp.close()
+
+    def get_groundcam_pictures_names(self):
+        """
+        Retruns a list with the names of the pictures stored on the Mambo.
+        :return The list as an array, if there isn't any file, the array is empty.
+        """
+        self.ftp.cwd(self.MEDIA_PATH)
+        list = self.ftp.nlst()
+        list = sorted(list)
+        return list
+
+    def get_groundcam_picture(self, filename, cv2):
+        """
+        Downloads the specified picture from the Mambo and stores it into a tempfile.
+
+        :param filename: the name of the file which should be downloaded ON THE MAMBO.
+        :param cv2: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
+        :return False if there was an error during download, if cv2 is True a cv2 frame or it just returns the file name of the temporary file
+        """
+        self.ftp.cwd(self.MEDIA_PATH)
+        try:
+            self.ftp.retrbinary('RETR ' + filename, open(self.storageFile.name, "wb").write) #download
+            if cv2 and OpenCVAvailable:
+                return opencv.imread(self.storageFile.name, 0)
+            else:
+                return file.name
+        except:
+            return False
+
+    def _delete_file(self, filename):
+        '''
+        Deletes a file on the drone
+        :param filename: Filename of the file you wnat to delete
+        '''
+        self.ftp.delete(filename)
+
+      
+    
 class Mambo:
     def __init__(self, address, use_wifi=False):
         """
@@ -219,6 +283,8 @@ class Mambo:
         self.use_wifi = use_wifi
         if (use_wifi):
             self.drone_connection = WifiConnection(self, drone_type="Mambo")
+            # initialize groundcam
+            self.groundcam = MamboGroundcam()
         else:
             if (BLEAvailable):
                 self.drone_connection = BLEConnection(address, self)
@@ -296,6 +362,8 @@ class Mambo:
         :return: void
         """
         self.drone_connection.disconnect()
+        if self.groundcam is not None:
+            self.groundcam._close()
 
 
     def takeoff(self):
@@ -442,12 +510,21 @@ class Mambo:
         return self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[1], param_type_tuple=["u8"])
 
 
-    def take_picture(self):
+        def take_picture(self):
         """
-        Ask the drone to take a picture
-
+        Ask the drone to take a picturealso checks how many frames are on there, if there are ore than 35 it deletes one
+        If connected via Wifi it
+        If it is connected via WiFi it also deletes all frames on the Mambo once there are more than 35,
+        since after there are 40 the next ones are ignored
         :return: True if the command was sent and False otherwise
         """
+        if self.use_wifi:
+            list = self.groundcam._get_groundcam_pictures_names()
+            if len(list) > 35: #if more than 35 pictures on the Mambo delete all
+                print "deleting"
+                for file in list:
+                    self.groundcam._delete_file(file)
+
         command_tuple = self.command_parser.get_command_tuple("minidrone", "MediaRecord", "PictureV2")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
