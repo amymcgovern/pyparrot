@@ -11,12 +11,14 @@ The GitHub [wiki page for pyparrot](https://github.com/amymcgovern/pyparrot/wiki
 This is a work in progress.  Planned extensions include:
 
 * **Mambo**
-   * Downloading pictures from the downward facing camera.  We can take photos from it (mambo.take_picture()) but I haven't figured out the protocol to download the photos remotely yet.  When I figure that out, I will update the code.
+   * Caught up unless there are user requests for specific functions
    
 * **Bebop**
    * Navigation: The Bebop has a lot of additional navigation commands available.  These are on my agenda soon. For example, the relative move command seems quite useful.  
 
 # Major updates and releases:
+* 5/23/2018: Updated function (contributed) to download pictures from Mambo's downward facing camera. 
+* 3/25/2018: Added DroneVisionGUI which is a version of the vision that shows the video stream (for Bebop or Mambo) in real time.
 * 2/22/2018: Version 1.3.2.  Updated DroneVision to make the vision processing faster.  Interface changed to only have the user call open_vision and close_vision (and not start_video_buffering)
 * 2/10/2018: Version 1.3.1. Updated DroneVision to work on Windows.
 * 2/8/2018: Version 1.3. Vision is working for both the Mambo and Bebop in a general interface called DroneVision.  Major documenation updates as well.
