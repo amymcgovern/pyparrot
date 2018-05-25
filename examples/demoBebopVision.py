@@ -1,8 +1,8 @@
 """
 Demo of the Bebop vision code (basically flies around and saves out photos as it flies)
 """
-from Bebop import Bebop
-from DroneVision import DroneVision
+from pyparrot.Bebop import Bebop
+from pyparrot.DroneVision import DroneVision
 import threading
 import cv2
 import time

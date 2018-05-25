@@ -1,4 +1,4 @@
-from Bebop import Bebop
+from pyparrot.Bebop import Bebop
 
 bebop = Bebop()
 

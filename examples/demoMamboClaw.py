@@ -2,7 +2,7 @@
 Demo the claw for the python interface
 """
 
-from Mambo import Mambo
+from pyparrot.Mambo import Mambo
 
 # you will need to change this to the address of YOUR mambo
 mamboAddr = "e0:14:d0:63:3d:d0"

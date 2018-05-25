@@ -20,7 +20,7 @@ import subprocess
 import os
 from os.path import join
 import inspect
-from utils.NonBlockingStreamReader import NonBlockingStreamReader
+from pyparrot.utils.NonBlockingStreamReader import NonBlockingStreamReader
 
 class DroneVision:
     def __init__(self, drone_object, is_bebop, buffer_size=200):

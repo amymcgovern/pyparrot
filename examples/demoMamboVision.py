@@ -1,8 +1,8 @@
 """
 Demo of the mambo vision code (basically flies around and saves out photos as it flies)
 """
-from Mambo import Mambo
-from DroneVision import DroneVision
+from pyparrot.Mambo import Mambo
+from pyparrot.DroneVision import DroneVision
 import threading
 import cv2
 import time

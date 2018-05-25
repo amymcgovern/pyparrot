@@ -7,15 +7,15 @@ Author: Alexander Zach, https://github.com/alex-zach, groundcam support
 Author: Valentin Benke, https://github.com/Vabe7, groundcam support
 """
 import time
-from networking.wifiConnection import WifiConnection
+from pyparrot.networking.wifiConnection import WifiConnection
 try:
-    from networking.bleConnection import BLEConnection
+    from pyparrot.networking.bleConnection import BLEConnection
     BLEAvailable = True
 except:
     BLEAvailable = False
-from utils.colorPrint import color_print
-from commandsandsensors.DroneCommandParser import DroneCommandParser
-from commandsandsensors.DroneSensorParser import DroneSensorParser
+from pyparrot.utils.colorPrint import color_print
+from pyparrot.commandsandsensors.DroneCommandParser import DroneCommandParser
+from pyparrot.commandsandsensors import DroneSensorParser
 import math
 
 #Groundcam Imports
@@ -510,7 +510,7 @@ class Mambo:
         return self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[1], param_type_tuple=["u8"])
 
 
-        def take_picture(self):
+    def take_picture(self):
         """
         Ask the drone to take a picturealso checks how many frames are on there, if there are ore than 35 it deletes one
         If connected via Wifi it

@@ -4,7 +4,7 @@ since it knows what to do with it.
 """
 import struct
 import untangle
-from utils.colorPrint import color_print
+from pyparrot.utils.colorPrint import color_print
 import os
 from os.path import join
 

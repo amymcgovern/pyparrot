@@ -2,8 +2,8 @@
 Demo of the Bebop vision using DroneVisionGUI.  It is a different
 multi-threaded approach than the DroneVision
 """
-from Bebop import Bebop
-from DroneVisionGUI import DroneVisionGUI
+from pyparrot.Bebop import Bebop
+from pyparrot.DroneVisionGUI import DroneVisionGUI
 import threading
 import cv2
 import time

@@ -1,8 +1,8 @@
 from bluepy.btle import Peripheral, UUID, DefaultDelegate, BTLEException
-from utils.colorPrint import color_print
+from pyparrot.utils.colorPrint import color_print
 import struct
 import time
-from commandsandsensors.DroneSensorParser import get_data_format_and_size
+from pyparrot.commandsandsensors import get_data_format_and_size
 from datetime import datetime
 
 class MamboDelegate(DefaultDelegate):

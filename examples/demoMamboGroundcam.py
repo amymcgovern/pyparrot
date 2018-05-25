@@ -3,7 +3,7 @@ Demo of the groundcam
 Mambo takes off, takes a picture and shows a RANDOM frame, not the last one
 Author: Valentin Benke, https://github.com/Vabe7
 '''
-from Mambo import Mambo
+from pyparrot.Mambo import Mambo
 import cv2
 import time
 

@@ -4,7 +4,7 @@ Note, the bebop will hurt your furniture if it hits it.  Be sure you are doing t
 and are prepared to catch!
 """
 
-from Bebop import Bebop
+from pyparrot.Bebop import Bebop
 
 bebop = Bebop()
 
