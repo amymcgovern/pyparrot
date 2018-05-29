@@ -252,9 +252,9 @@ class MamboGroundcam:
         try:
             self.ftp.retrbinary('RETR ' + filename, open(self.storageFile.name, "wb").write) #download
             if cv2 and OpenCVAvailable:
-                return opencv.imread(self.storageFile.name, 0)
+                return cv2.imread(self.storageFile.name, 0)
             else:
-                return file.name
+                return filename
         except:
             return False
 
@@ -521,7 +521,7 @@ class Mambo:
         if self.use_wifi:
             list = self.groundcam._get_groundcam_pictures_names()
             if len(list) > 35: #if more than 35 pictures on the Mambo delete all
-                print "deleting"
+                print("deleting")
                 for file in list:
                     self.groundcam._delete_file(file)
 
