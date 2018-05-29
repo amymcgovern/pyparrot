@@ -8,7 +8,7 @@ import time
 from pyparrot.networking.wifiConnection import WifiConnection
 from pyparrot.utils.colorPrint import color_print
 from pyparrot.commandsandsensors.DroneCommandParser import DroneCommandParser
-from pyparrot.commandsandsensors import DroneSensorParser
+from pyparrot.commandsandsensors.DroneSensorParser import DroneSensorParser
 
 class BebopSensors:
     def __init__(self):
