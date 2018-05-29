@@ -13,7 +13,7 @@ import json
 from pyparrot.utils.colorPrint import color_print
 import struct
 import threading
-from pyparrot.commandsandsensors import get_data_format_and_size
+from pyparrot.commandsandsensors.DroneSensorParser import get_data_format_and_size
 
 class mDNSListener(object):
     """
