@@ -7,7 +7,8 @@ pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using pyt
 The GitHub [wiki page for pyparrot](https://github.com/amymcgovern/pyparrot/wiki) has extensive documentation on installing and using pyparrot.  If you are looking for documenation, please read the wiki!  
 
 # Major updates and releases:
-* 5/25/2018: Version 1.4.3. Uploaded to pypi so pyparrot can now be installed directory from pip.  Updated documentation for new vision. 
+* 5/28/2018: Version 1.4.5 Fixed imports for new pypi structure and added xml files to pypi.
+* 5/25/2018: Version 1.4.3. Uploaded to pypi so pyparrot can now be installed directory from pip.  Updated documentation for new vision.
 * 5/23/2018: Updated function (contributed) to download pictures from Mambo's downward facing camera. 
 * 3/25/2018: Added DroneVisionGUI which is a version of the vision that shows the video stream (for Bebop or Mambo) in real time.
 * 2/22/2018: Version 1.3.2.  Updated DroneVision to make the vision processing faster.  Interface changed to only have the user call open_vision and close_vision (and not start_video_buffering)
