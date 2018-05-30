@@ -55,20 +55,20 @@ class BebopSensors:
         str = "Bebop sensors: %s" % self.sensors_dict
         return str
 
-class Bebop:
-    def __init__(self):
+class Bebop():
+    def __init__(self, drone_type="Bebop2"):
         """
         Create a new Bebop object.  Assumes you have connected to the Bebop's wifi
 
         """
-        self.drone_connection = WifiConnection(self, drone_type="Bebop")
+        self.drone_connection = WifiConnection(self, drone_type=drone_type)
 
         # intialize the command parser
         self.command_parser = DroneCommandParser()
 
         # initialize the sensors and the parser
         self.sensors = BebopSensors()
-        self.sensor_parser = DroneSensorParser(drone_type="Bebop")
+        self.sensor_parser = DroneSensorParser(drone_type=drone_type)
 
 
     def update_sensors(self, data_type, buffer_id, sequence_number, raw_data, ack):
