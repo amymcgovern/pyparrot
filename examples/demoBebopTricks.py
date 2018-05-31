@@ -1,3 +1,9 @@
+"""
+Demos the tricks on the bebop. Make sure you have enough room to perform them!
+
+Author: Amy McGovern
+"""
+
 from pyparrot.Bebop import Bebop
 
 bebop = Bebop()

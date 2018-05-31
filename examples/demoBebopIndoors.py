@@ -2,6 +2,8 @@
 Demo the Bebop indoors (takes off, turns about 90 degrees, lands)
 Note, the bebop will hurt your furniture if it hits it.  Be sure you are doing this in an open area
 and are prepared to catch!
+
+Author: Amy McGovern
 """
 
 from pyparrot.Bebop import Bebop

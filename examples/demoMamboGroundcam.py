@@ -1,11 +1,11 @@
-'''
+"""
 Demo of the groundcam
 Mambo takes off, takes a picture and shows a RANDOM frame, not the last one
 Author: Valentin Benke, https://github.com/Vabe7
-'''
+"""
+
 from pyparrot.Mambo import Mambo
 import cv2
-import time
 
 mambo = Mambo(None, use_wifi=True) #address is None since it only works with WiFi anyway
 print("trying to connect to mambo now")

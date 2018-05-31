@@ -1,6 +1,8 @@
 """
-Demo of the Bebop vision using DroneVisionGUI.  It is a different
-multi-threaded approach than the DroneVision
+Demo of the Bebop vision using DroneVisionGUI (relies on libVLC).  It is a different
+multi-threaded approach than DroneVision
+
+Author: Amy McGovern
 """
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVisionGUI import DroneVisionGUI

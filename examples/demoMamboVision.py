@@ -1,5 +1,7 @@
 """
-Demo of the mambo vision code (basically flies around and saves out photos as it flies)
+Demo of the ffmpeg based mambo vision code (basically flies around and saves out photos as it flies)
+
+Author: Amy McGovern
 """
 from pyparrot.Mambo import Mambo
 from pyparrot.DroneVision import DroneVision

@@ -1,6 +1,8 @@
 """
 Flies the bebop in a fairly wide arc.  You want to be sure you have room for this. (it is commented
 out but even what is here is still going to require a large space)
+
+Author: Amy McGovern
 """
 from pyparrot.Bebop import Bebop
 

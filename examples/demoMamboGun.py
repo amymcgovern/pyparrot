@@ -1,5 +1,7 @@
 """
 Demo the gun for the python interface
+
+Author: Amy McGovern
 """
 
 from pyparrot.Mambo import Mambo
