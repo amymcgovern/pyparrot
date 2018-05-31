@@ -25,7 +25,7 @@ class ScanDelegate(DefaultDelegate):
         elif isNewData:
             print("Received new data from", dev.addr)
 
-if __name__ == "__main__":
+def main():
     scanner = Scanner().withDelegate(ScanDelegate())
     devices = scanner.scan(10.0)
 
@@ -38,3 +38,7 @@ if __name__ == "__main__":
                     print("FOUND A MAMBO!")
                     print("Device %s (%s), RSSI=%d dB" % (dev.addr, dev.addrType, dev.rssi))
                     print("  %s = %s" % (desc, value))
+
+
+if __name__ == "__main__":
+    main()

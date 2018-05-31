@@ -355,7 +355,7 @@ class Bebop():
         """
         Send the command to tilt the camera by the specified number of degrees per second in pan/tilt.
         This function has two modes.  First, if duration is 0, the initial velocity is sent and
-        then the function returns (meaning the camera will keep moving).  If it is greater than 0,
+        then the function returns (meaning the camera will keep moving).  If duration is greater than 0,
         the command executes for that amount of time and then sends a stop command to the camera
         and then returns.
 

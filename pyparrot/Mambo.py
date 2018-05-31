@@ -512,7 +512,7 @@ class Mambo:
 
     def take_picture(self):
         """
-        Ask the drone to take a picturealso checks how many frames are on there, if there are ore than 35 it deletes one
+        Ask the drone to take a picture also checks how many frames are on there, if there are ore than 35 it deletes one
         If connected via Wifi it
         If it is connected via WiFi it also deletes all frames on the Mambo once there are more than 35,
         since after there are 40 the next ones are ignored

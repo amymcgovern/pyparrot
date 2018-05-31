@@ -7,7 +7,7 @@ pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using pyt
 The GitHub [wiki page for pyparrot](https://github.com/amymcgovern/pyparrot/wiki) has extensive documentation on installing and using pyparrot.  If you are looking for documenation, please read the wiki!  
 
 # Major updates and releases:
-* 5/30/2018: Version 1.4.7 fixed scripts location to release find_mambo script
+* 5/30/2018: Version 1.4.7 and 1.4.8 fixed scripts location to release find_mambo script and added readthedocs documents
 * 5/29/2018: Version 1.4.6 Accepted fixes for Bebop 1 compatibility
 * 5/28/2018: Version 1.4.5 Fixed imports for new pypi structure and added xml files to pypi.
 * 5/25/2018: Version 1.4.3. Uploaded to pypi so pyparrot can now be installed directory from pip.  Updated documentation for new vision.
