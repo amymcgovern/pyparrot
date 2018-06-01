@@ -91,9 +91,9 @@ Ground facing camera
 internally so this function deletes them after 35 have been taken.  Make sure you are downloading them either
 using the mobile interface or through the python code.
 
-``get_groundcam_pictures_names`` Get the names of the pictures stored internally from the groundcam.
+``get_groundcam_pictures_names()`` Returns the names of the pictures stored internally from the groundcam.
 
-``get_groundcam_picture()`` Get the picture with the specified name.
+``get_groundcam_picture(name)`` Returns the picture with the specified name.
 
 Sensor command
 ^^^^^^^

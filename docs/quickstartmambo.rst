@@ -23,11 +23,11 @@ BLE connection
 
 If you do not have a camera or want to use BLE for other reasons(e.g. swarm), you will first need to find the
 BLE address of your Mambo(s).  BLE permissions on linux require that this command run in sudo mode.
-To this this, from the directory where you installed the pyparrot code, type:
+To run this, from the bin directory for your python installation, type:
 
 ::
 
-    sudo python findMambo.py
+    sudo find_mambo
 
 
 This will identify all BLE devices within hearing of the Pi.  The Mambo's specific address will be printed at the end.

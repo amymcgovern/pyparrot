@@ -9,7 +9,7 @@ Using the pyparrot library on the Bebop
 ---------------------------------------
 
 Before running any of the sample code, you will need to connect to your drone.  To control the Bebop, you need to
-connect your controling device (laptop, computer, etc) to the wifi for the drone.  Look for the wifi network
+connect your controlling device (laptop, computer, etc) to the wifi for the drone.  Look for the wifi network
 named Bebop_number where number varies for each drone.
 
 Quick start:  Demo Code
