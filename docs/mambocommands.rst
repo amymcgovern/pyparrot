@@ -95,8 +95,8 @@ using the mobile interface or through the python code.
 
 ``get_groundcam_picture(name)`` Returns the picture with the specified name.
 
-Sensor command
-^^^^^^^
+Sensor related commands
+^^^^^^^^^^^^^^^^^^^^^^^
 
 ``ask_for_state_update()`` This sends a request to the mambo to send back ALL states
 (this includes the claw and gun states).  This really only needs to be called once at the start of the program
