@@ -8,7 +8,7 @@ About the pyparrot project
 About pyparrot
 -----------------
 
-Pyparrot was developed by `Amy McGovern <http://www.mcgovern-fagg.org/amy/>`_ with the support of
+Pyparrot was developed by `Dr. Amy McGovern <http://www.mcgovern-fagg.org/amy/>`_ with the support of
 the `University of Oklahoma <https://www.kipr.org>`_ and
 the `Kiss Institute for Practical Robotics <https://www.kipr.org>`_.  The original goal was to teach children to program
 using educational programs like `botball <http://www.botball.org>`_.  The pyparrot project has been adopted by groups

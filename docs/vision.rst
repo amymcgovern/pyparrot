@@ -31,7 +31,7 @@ live stream of the vision to the user but you can visualize the images using
 the `VisionServer.py <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/VisionServer.py>`_.
 
 One thing to note:  since ffmpeg requires the images to be written to a folder, it will save images to a
-directory named images inside the pyparrot package.  **You will want to clean this folder out each flight!**
+directory named images inside the pyparrot package.  **You will want to clean this folder out after each flight!**
 
 
 Mambo ffmpeg vision demo
