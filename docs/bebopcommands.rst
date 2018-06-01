@@ -104,7 +104,7 @@ saved outside of the dictionary.  The data is stored in the BebopSensors class.
 
 The sensors are:
 
-* flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml>`_.
+* flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_.
 
-* sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/ardrone3.xml) and [common.xml](https://github.com/amymcgovern/pyparrot/blob/master/commandsandsensors/common.xml>`_.
+* sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_ and `common.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/common.xml>`_.
 
