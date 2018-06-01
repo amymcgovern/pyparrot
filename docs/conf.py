@@ -29,7 +29,7 @@ class Mock(MagicMock):
 
 
 MOCK_MODULES = ['numpy', 'scipy', 'zeroconf', 'cv2', 'untangle', 'bluepy', 'bluepy.btle',
-                'ipaddress', 'queue', 'http.server']
+                'ipaddress', 'queue', 'http.server', 'PyQt5']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 sys.path.insert(0, os.path.abspath('..'))
