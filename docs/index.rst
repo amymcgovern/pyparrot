@@ -27,6 +27,7 @@ Main documentation
    contact.rst
    about.rst
    license.rst
+   modules.rst
 
 Indices and tables
 ==================
