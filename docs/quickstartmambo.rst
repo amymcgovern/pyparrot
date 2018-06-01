@@ -35,17 +35,24 @@ Save the address and use it in your connection code (discussed below).  If findM
 report "FOUND A MAMBO!", then be sure your Mambo is turned on when you run the findMambo code and that your Pi
 (or other linux box) has its BLE interface turned on.
 
-The output should look something like this.
+The output should look something like this.  I removed my own BLE addresses from my network for security but I am
+showing the address of the mambo that I use for all the demo scripts.
 
 .. code-block:: console
 
-    dumping object inventory... done
-    build succeeded, 43 warnings.
-
-    The HTML pages are in _build/html.
-    defiant:docs>
-
-    PUT ACTUAL OUTPUT HERE
+    ~/miniconda3/bin $ sudo ./find_mambo
+    Discovered device <address removed>
+    Discovered device <address removed>
+    Discovered device <address removed>
+    Discovered device e0:14:d0:63:3d:d0
+    Received new data from <address removed>
+    Discovered device <address removed>
+    Discovered device <address removed>
+    Received new data from <address removed>
+    Discovered device <address removed>
+    FOUND A MAMBO!
+    Device e0:14:d0:63:3d:d0 (random), RSSI=-60 dB
+      Complete Local Name = Mambo_<numbers>
 
 
 
