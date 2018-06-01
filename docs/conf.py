@@ -19,6 +19,18 @@
 #
 import os
 import sys
+# the mock stuff was borrowed from hagelslag to help make things work on readthedocs
+from mock import Mock as MagicMock
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+
+MOCK_MODULES = ['numpy', 'scipy', 'zeroconf', 'cv2', 'untangle', 'bluepy', 'bluepy.btle']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 sys.path.insert(0, os.path.abspath('..'))
 
 
