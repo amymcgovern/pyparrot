@@ -3,11 +3,13 @@ Python interface for Parrot Drones
 
 pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using python.  This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!   
 
-# Installation, Quick-start, Documenation, FAQs
-The GitHub [wiki page for pyparrot](https://github.com/amymcgovern/pyparrot/wiki) has extensive documentation on installing and using pyparrot.  If you are looking for documenation, please read the wiki!  
+# Installation, Quick-start, Documentation, FAQs
+
+Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
-* 5/30/2018: Version 1.4.7 and 1.4.8 fixed scripts location to release find_mambo script and added readthedocs documents
+5/31/2018: Version 1.4.10 Final version for readthedocs (documentation updated significantly and moved to readthedocs)
+* 5/30/2018: Version 1.4.7 and 1.4.8 and 1.4.9 fixed scripts location to release find_mambo script and added readthedocs documents
 * 5/29/2018: Version 1.4.6 Accepted fixes for Bebop 1 compatibility
 * 5/28/2018: Version 1.4.5 Fixed imports for new pypi structure and added xml files to pypi.
 * 5/25/2018: Version 1.4.3. Uploaded to pypi so pyparrot can now be installed directory from pip.  Updated documentation for new vision.
