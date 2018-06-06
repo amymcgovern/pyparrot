@@ -15,7 +15,7 @@ except:
     BLEAvailable = False
 from pyparrot.utils.colorPrint import color_print
 from pyparrot.commandsandsensors.DroneCommandParser import DroneCommandParser
-from pyparrot.commandsandsensors import DroneSensorParser
+from pyparrot.commandsandsensors.DroneSensorParser import DroneSensorParser
 import math
 
 #Groundcam Imports
