@@ -171,11 +171,9 @@ class WifiConnection:
         """
 
         print("starting listening at ")
-        lasttime = time.time()
         data = None
 
         while (self.is_listening):
-            lasttime = time.time()
             try:
                 (data, address) = self.udp_receive_sock.recvfrom(66000)
 
@@ -563,10 +561,16 @@ class WifiConnection:
         :param vertical_movement:
         :param duration:
         """
-        start_time = time.time()
-        while (time.time() - start_time < duration):
+        start_time = datetime.now()
+        new_time = datetime.now()
+        diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
+        while (diff < duration):
             self.send_single_pcmd_command(command_tuple, roll, pitch, yaw, vertical_movement)
             self.smart_sleep(0.1)
+            new_time = datetime.now()
+            diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
 
     def send_fly_relative_command(self, command_tuple, change_x, change_y, change_z, change_angle):
         """
