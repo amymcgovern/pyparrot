@@ -552,7 +552,7 @@ class Mambo:
         else:
             return int(value)
 
-    def fly_direct(self, roll, pitch, yaw, vertical_movement, duration):
+    def fly_direct(self, roll, pitch, yaw, vertical_movement, duration=None):
         """
         Direct fly commands using PCMD.  Each argument ranges from -100 to 100.  Numbers outside that are clipped
         to that range.
@@ -560,10 +560,18 @@ class Mambo:
         Note that the xml refers to gaz, which is apparently french for vertical movements:
         http://forum.developer.parrot.com/t/terminology-of-gaz/3146
 
-        :param roll:
-        :param pitch:
-        :param yaw:
-        :param vertical_movement:
+        duration is optional: if you want it to fly for a specified period of time, set this to the number of
+        seconds (fractions are fine) or use None to send the command once.  Note, if you do this, you will need
+        an outside loop that sends lots of commands or your drone will not fly very far.  The command is not repeated
+        inside the drone.  it executes once and goes back to hovering without new commands coming in.  But the option
+        of zero duration allows for smoother flying if you want to do the control loop yourself.
+
+
+        :param roll: roll speed in -100 to 100
+        :param pitch: pitch speed in -100 to 100
+        :param yaw: yaw speed in -100 to 100
+        :param vertical_movement: vertical speed in -100 to 100
+        :param duration: optional: seconds for a specified duration or None to send it once (see note above)
         :return:
         """
 
@@ -575,7 +583,11 @@ class Mambo:
         #print("roll is %d pitch is %d yaw is %d vertical is %d" % (my_roll, my_pitch, my_yaw, my_vertical))
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PCMD")
 
-        self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
+        if (duration is None):
+            self.drone_connection.send_single_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical)
+        else:
+            self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
+
 
 
     def open_claw(self):

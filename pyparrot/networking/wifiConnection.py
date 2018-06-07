@@ -529,6 +529,29 @@ class WifiConnection:
             return self.send_command_packet_noack(packet)
 
 
+    def send_single_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement):
+        """
+        Send a single PCMD command with the specified roll, pitch, and yaw.  Note
+        this will not make that command run forever.  Instead it sends ONCE.  This can be used
+        in a loop (in your agent) that makes more smooth control than using the duration option.
+
+        :param command_tuple: command tuple per the parser
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        """
+        self.sequence_counter['SEND_NO_ACK'] = (self.sequence_counter['SEND_NO_ACK'] + 1) % 256
+        packet = struct.pack("<BBBIBBHBbbbbI",
+                             self.data_types_by_name['DATA_NO_ACK'],
+                             self.buffer_ids['SEND_NO_ACK'],
+                             self.sequence_counter['SEND_NO_ACK'],
+                             20,
+                             command_tuple[0], command_tuple[1], command_tuple[2],
+                             1, roll, pitch, yaw, vertical_movement, 0)
+
+        self.safe_send(packet)
+
     def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
         """
         Send the PCMD command with the specified roll, pitch, and yaw
@@ -542,16 +565,7 @@ class WifiConnection:
         """
         start_time = time.time()
         while (time.time() - start_time < duration):
-            self.sequence_counter['SEND_NO_ACK'] = (self.sequence_counter['SEND_NO_ACK'] + 1) % 256
-            packet = struct.pack("<BBBIBBHBbbbbI",
-                                 self.data_types_by_name['DATA_NO_ACK'],
-                                 self.buffer_ids['SEND_NO_ACK'],
-                                 self.sequence_counter['SEND_NO_ACK'],
-                                 20,
-                                 command_tuple[0], command_tuple[1], command_tuple[2],
-                                 1, roll, pitch, yaw, vertical_movement, 0)
-
-            self.safe_send(packet)
+            self.send_single_pcmd_command(command_tuple, roll, pitch, yaw, vertical_movement)
             self.smart_sleep(0.1)
 
     def send_fly_relative_command(self, command_tuple, change_x, change_y, change_z, change_angle):

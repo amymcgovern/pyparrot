@@ -8,6 +8,7 @@ pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using pyt
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 6/7/2018: Version 1.4.12 Added an option to fly_direct to allow the command to be sent once
 * 6/6/2018: Version 1.4.11 Fixed a stray import statment not fixed from the move to pip
 * 5/31/2018: Version 1.4.10 Documentation updated significantly and moved to readthedocs
 * 5/30/2018: Version 1.4.7 and 1.4.8 and 1.4.9 fixed scripts location to release find_mambo script and added readthedocs documents
