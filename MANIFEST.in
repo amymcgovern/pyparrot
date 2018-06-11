@@ -1,1 +1,2 @@
 include pyparrot/commandsandsensors/*.xml
+include pyparrot/utils/*.sdp
