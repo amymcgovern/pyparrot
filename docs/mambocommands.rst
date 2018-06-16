@@ -33,16 +33,16 @@ You can specify a maximum number of re-tries.  Returns true if the connection su
 Takeoff and landing
 ^^^^^^^^^^^^^^^^^^^
 
-``takeoff()`` Sends a single takeoff command to the mambo.  This is not the recommended method.
-
 ``safe_takeoff(timeout)`` This is the recommended method for takeoff.  It sends a command and then checks the
 sensors (via flying state) to ensure the mambo is actually taking off.  Then it waits until the mambo is
 flying or hovering to return.  It will timeout and return if the time exceeds timeout seconds.
 
-``land()`` Sends a single land command to the mambo.  This is not the recommended method.
-
 ``safe_land(timeout)`` This is the recommended method to land the mambo.  Sends commands
 until the mambo has actually reached the landed state. It will timeout and return if the time exceeds timeout seconds.
+
+``takeoff()`` Sends a single takeoff command to the mambo.  This is not the recommended method.
+
+``land()`` Sends a single land command to the mambo.  This is not the recommended method.
 
 ``turn_on_auto_takeoff()`` This puts the mambo in throw mode.  When it is in throw mode, the eyes will blink.
 

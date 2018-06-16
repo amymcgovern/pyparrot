@@ -45,7 +45,10 @@ Software requirements are listed below by type of connection to the drone.
 
 
 
-* Vision:  If you intend to process the camera files, you will need to install opencv and ffmpeg.  I installed ffmpeg using brew for the mac but apt-get on linux should also work.
+* Vision:  If you intend to process the camera files, you will need to install opencv and then either ffmpeg
+or VLC.  I installed ffmpeg using brew for the mac but apt-get on linux should also work.  For VLC, you MUST install
+the actual `VLC <https://www.videolan.org/vlc/index.html`_ program (and not just the library in python)
+and it needs to be version 3.0.1 or greater.
 
 * Wifi connection: `zeroconf <https://pypi.python.org/pypi/zeroconf>`_ To install zeroconf software do the following:
 
@@ -85,6 +88,8 @@ First download pyparrot by cloning the repository from `<https://github.com/amym
     cd pyparrot
 
 
+Make sure you install the necessary other packages (wifi or BLE, vision, etc) as specified above.
+
 Installing From Pip
 -------------------
 
@@ -96,3 +101,4 @@ To install from pip, type
     pip install pyparrot
 
 
+Make sure you install the necessary other packages (wifi or BLE, vision, etc) as specified above.

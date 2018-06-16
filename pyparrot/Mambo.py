@@ -482,7 +482,9 @@ class Mambo:
 
     def turn_degrees(self, degrees):
         """
-        Turn the mambo the specified number of degrees (-180, 180)
+        Turn the mambo the specified number of degrees (-180, 180).  Degrees must be an integere
+        so it is cast to an integer here.  If you send it a float, it will be rounded according to
+        the rules of int()
 
         This is called cap in the xml but it means degrees per
         http://forum.developer.parrot.com/t/what-does-cap-stand-for/6213/2
@@ -490,6 +492,7 @@ class Mambo:
         :param degrees: degrees to turn (-180 to 180)
         :return: True if the command was sent and False otherwise
         """
+        degrees = int(degrees)
         if (degrees > 180):
             degrees = 180
             print("Degrees too large: setting to 180")
