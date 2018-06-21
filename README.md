@@ -1,7 +1,10 @@
 # pyparrot
 Python interface for Parrot Drones
 
-pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones using python.  This interface was developed to teach kids (K-12) STEM concepts (programming, math, and more) by having them program a drone to fly autonomously.  Anyone can use it who is interested in autonomous drone programming!   
+pyparrot was designed and implemented by Dr. Amy McGovern to program Parrot Mambo and Parrot Bebop 2
+drones using python.  This interface was developed to teach K-20 STEM concepts
+(programming, math, and more) by programming a drone to fly autonomously.
+Anyone can use it who is interested in autonomous drone programming!
 
 # Installation, Quick-start, Documentation, FAQs
 
