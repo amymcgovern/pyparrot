@@ -130,10 +130,16 @@ class Bebop():
         command_tuple = self.command_parser.get_command_tuple("common", "Common", "AllStates")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def flat_trim(self):
+        """
+        Sends the flat_trim command to the bebop. Gets the codes for it from the xml files.
+        """
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "FlatTrim")
+        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def takeoff(self):
         """
-        Sends the takeoff command to the mambo.  Gets the codes for it from the xml files.  Ensures the
+        Sends the takeoff command to the bebop.  Gets the codes for it from the xml files.  Ensures the
         packet was received or sends it again up to a maximum number of times.
 
         :return: True if the command was sent and False otherwise
