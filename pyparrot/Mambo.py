@@ -709,3 +709,10 @@ class Mambo:
         # now wait until it touches ground before returning
         while ((self.sensors.flying_state != "landed") and (time.time() - start_time < timeout)):
             self.smart_sleep(1)
+
+    def flat_trim(self):
+        """
+        Sends the flat_trim command to the mambo. Gets the codes for it from the xml files.
+        """
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
+        self.drone_connection.send_noparam_command_packet_ack(command_tuple)

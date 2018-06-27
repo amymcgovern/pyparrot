@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 6/16/2018: Version 1.4.17 Added flat trim to mambo also
 * 6/16/2018: Version 1.4.16 Added flat trim to bebop
 * 6/15/2018: Version 1.4.15 Removed a stray print, updated documentation, cast turn_degrees arguments to an int in Mambo.
 * 6/11/2018: Version 1.4.14 Added bebop sdp file to the release on pip
