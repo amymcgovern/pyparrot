@@ -213,6 +213,9 @@ class DroneVisionGUI:
         # in case we never setup a user callback function
         self.user_vision_thread = None
 
+        # has the land button been clicked - saved in case the user needs it in their code
+        self.land_button_clicked = False
+
     def run_user_code(self, button):
         """
         Start the thread to run the user code
@@ -370,6 +373,9 @@ class DroneVisionGUI:
 
         :return:
         """
+        # tell the user that the land button was clicked
+        self.land_button_clicked = True
+
         # land the drone
         if (self.is_bebop):
             if (not self.drone_object.is_landed()):
