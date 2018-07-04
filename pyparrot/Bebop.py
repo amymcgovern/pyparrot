@@ -385,3 +385,14 @@ class Bebop():
             # send the stop command
             self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[0, 0],
                                                             param_type_tuple=['float', 'float'], ack=False)
+
+    def set_max_altitude(self, altitude):
+        """
+        Set max altitude.
+
+        :param altitude:
+        :return:
+        """
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
+
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[altitude], param_type_tuple=['float'])
