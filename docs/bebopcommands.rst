@@ -57,8 +57,9 @@ Note there are currently no sensors reported back to the user to ensure that the
 that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.
 
 ``move_relative(dx, dy, dz, dradians)`` Moves the bebop a relative number of meters in x (forward/backward,
-forward is positive), y (right/left, right is positive), dz (DO NOT USE YET DUE TO FIRMWARE ISSUES MAKING
-BEBOP ACT UNRELIABLY WITH DZ, positive is down), and dradians.
+forward is positive), y (right/left, right is positive), dz (up/down, positive is down), and dradians.  DO NOT
+USE THIS COMMAND YET.  While it correctly executes the command, it also randomly flies at high speed in random
+directions after the command executes.  This seems to be a known bug in the forum.  DO NOT USE YET.
 
 Pausing or sleeping in a thread safe manner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
