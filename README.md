@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 7/4/2018: Version 1.4.19: Added move_relative command to the Bebop API.  For now, only dx, dy, and dradians should be used as there seems to be a bug internal to the firmware on dz.
 * 6/17/2018: Version 1.4.18 Added landed button status to the Drone Vision GUI for safety in user code
 * 6/16/2018: Version 1.4.17 Added flat trim to mambo also
 * 6/16/2018: Version 1.4.16 Added flat trim to bebop

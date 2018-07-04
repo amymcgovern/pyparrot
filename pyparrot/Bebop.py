@@ -42,7 +42,7 @@ class BebopSensors:
         if (sensor_name == "FlyingStateChanged_state"):
             self.flying_state = self.sensors_dict["FlyingStateChanged_state"]
 
-        if (sensor_name == "PilotingEvent_moveByEnd"):
+        if (sensor_name == "moveByEnd_dX"):
             self.RelativeMoveEnded = True
 
         if (sensor_name == "OrientationV2_tilt"):
@@ -80,12 +80,12 @@ class Bebop():
         """
         #print("data type is %d buffer id is %d sequence number is %d " % (data_type, buffer_id, sequence_number))
         sensor_list = self.sensor_parser.extract_sensor_values(raw_data)
+        #print(sensor_list)
         if (sensor_list is not None):
             for sensor in sensor_list:
                 (sensor_name, sensor_value, sensor_enum, header_tuple) = sensor
                 if (sensor_name is not None):
                     self.sensors.update(sensor_name, sensor_value, sensor_enum)
-                    #print(self.sensors)
                 else:
                     color_print("data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number), "WARN")
                     color_print("This sensor is missing (likely because we don't need it)", "WARN")
@@ -288,6 +288,35 @@ class Bebop():
         # print enum_tuple
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def move_relative(self, dx, dy, dz, dradians):
+        """
+        Move relative to our current position and pause until the command is done.  Note that
+        EVERY time we tested flying relative up (e.g. negative z) it did additional lateral moves
+        that were unnecessary.  I'll be posting this to the development board but, until then,
+        I recommend only using dx, dy, and dradians which all seem to work well.
+
+        :param dx: change in front axis (meters)
+        :param dy: change in right/left (positive is right) (meters)
+        :param dz: change in height (positive is DOWN) (meters)
+        :param dradians: change in heading in radians
+
+        :return: nothing
+        """
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "moveBy")
+        param_tuple = [dx, dy, dz, dradians]  # Enable
+        param_type_tuple = ['float', 'float', 'float', 'float']
+        #reset the bit that tells when the move ends
+        self.sensors.RelativeMoveEnded = False
+
+        # send the command
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple, param_type_tuple)
+
+        # sleep until it ends
+        while (not self.sensors.RelativeMoveEnded):
+            self.smart_sleep(0.01)
+
 
     def start_video_stream(self):
         """

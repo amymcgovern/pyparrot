@@ -56,6 +56,10 @@ specified roll, pitch, yaw, and vertical movements.  The commands are repeated f
 Note there are currently no sensors reported back to the user to ensure that these are working but hopefully
 that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.
 
+``move_relative(dx, dy, dz, dradians)`` Moves the bebop a relative number of meters in x (forward/backward,
+forward is positive), y (right/left, right is positive), dz (DO NOT USE YET DUE TO FIRMWARE ISSUES MAKING
+BEBOP ACT UNRELIABLY WITH DZ, positive is down), and dradians.
+
 Pausing or sleeping in a thread safe manner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
