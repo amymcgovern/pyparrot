@@ -267,6 +267,23 @@ class Bebop():
 
         self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
 
+    def move_by(self, dX, dY, dZ, dPsi):
+        """
+        Sends the move by command to the bebop.  Gets the codes for it from the xml files.
+        Move the drone to a relative position (m) and rotate heading by a given angle (rad).
+
+        :param dX:
+        :param dY:
+        :param dZ:
+        :param dPsi:
+        :return:
+        """
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "moveBy")
+
+        self.drone_connection.send_param_command_packet(command_tuple,
+                                                        param_tuple = [dX, dY, dZ, dPsi],
+                                                        param_type_tuple=['float', 'float', 'float', 'float'])
 
     def flip(self, direction):
         """
