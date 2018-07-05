@@ -90,14 +90,19 @@ the initial velocity is sent and then the function returns (meaning the camera w
 If duration is greater than 0, the command executes for that amount of time and then sends a stop command to
 the camera and then returns.
 
-Sensor command
-^^^^^^^^^^^^^^
+Sensor commands
+^^^^^^^^^^^^^^^
 
 ``ask_for_state_update()`` This sends a request to the bebop to send back ALL states.  The data returns
 fairly quickly although not instantly.  The bebop already has a sensor refresh rate of 10Hz but not all sensors are sent
 automatically.  If you are looking for a specific sensor that is not automatically sent, you can call this but I don't
 recommend sending it over and over.  Most of the sensors you need should be sent at either the 10Hz rate or as an event
 is called that triggers that sensor.
+
+``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters
+
+``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
+
 
 
 Bebop sensors

@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 7/5/2018: Version 1.4.21: Added max_tilt and max_altitude to the Bebop commands.
 * 7/4/2018: Version 1.4.20: While move_relative is implemented, it seems to have a firmware bug so DO NOT USE.
 * 7/4/2018: Version 1.4.19: Added move_relative command to the Bebop API.  For now, only dx, dy, and dradians should be used as there seems to be a bug internal to the firmware on dz.
 * 6/17/2018: Version 1.4.18 Added landed button status to the Drone Vision GUI for safety in user code

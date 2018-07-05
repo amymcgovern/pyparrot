@@ -417,9 +417,9 @@ class Bebop():
 
     def set_max_altitude(self, altitude):
         """
-        Set max altitude.
+        Set max altitude in meters.
 
-        :param altitude:
+        :param altitude: altitude in meters
         :return:
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
@@ -428,9 +428,9 @@ class Bebop():
 
     def set_max_tilt(self, tilt):
         """
-        Set max pitch/roll.
+        Set max pitch/roll in degrees
 
-        :param tilt:
+        :param tilt: max tilt for both pitch and roll in degrees
         :return:
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
