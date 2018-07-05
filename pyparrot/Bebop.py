@@ -422,8 +422,12 @@ class Bebop():
         :param altitude: altitude in meters
         :return:
         """
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
+        if (altitude < 1):
+            print("Error: %s is not valid altitude. The altitude must be higher than 1 meter" % altitude)
+            print("Ignoring command and returning")
+            return
 
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[altitude], param_type_tuple=['float'])
 
     def set_max_tilt(self, tilt):
@@ -433,6 +437,10 @@ class Bebop():
         :param tilt: max tilt for both pitch and roll in degrees
         :return:
         """
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
+        if (tilt < 5 or tilt > 30):
+            print("Error: %s is not valid tilt. The tilt must be between 5 and 30 degrees" % tilt)
+            print("Ignoring command and returning")
+            return
 
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt], param_type_tuple=['float'])

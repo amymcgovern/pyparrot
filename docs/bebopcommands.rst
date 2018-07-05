@@ -102,6 +102,7 @@ is called that triggers that sensor.
 ``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters
 
 ``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
+The tilt must be between 5 (very slow) and 30 (very fast) degrees.
 
 
 
