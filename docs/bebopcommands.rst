@@ -107,8 +107,11 @@ The tilt must be between 5 (very slow) and 30 (very fast) degrees.
 ``set_max_tilt_rotation_speed(speed)`` Set the maximum allowable tilt rotation speed in degree/s.
 The tilt rotation speed must be between 80 and 300 degree/s.
 
-``set_max_vertical_speed(speed)``Set the maximum allowable vertical speed in m/s.
+``set_max_vertical_speed(speed)`` Set the maximum allowable vertical speed in m/s.
 The vertical speed must be between 0.5 and 2.5 m/s.
+
+``set_max_rotation_speed(speed)`` Set the maximum allowable rotation speed in degree/s.
+The rotation speed must be between 10 and 200 degree/s.
 
 Bebop sensors
 -------------
