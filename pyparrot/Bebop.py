@@ -444,3 +444,18 @@ class Bebop():
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt], param_type_tuple=['float'])
+
+    def set_max_tilt_rotation_speed(self, speed):
+        """
+        Set max pitch/roll rotation speed in degree/s
+
+        :param speed: max rotation speed for both pitch and roll in degree/s
+        :return:
+        """
+        if (speed < 80 or speed > 300):
+            print("Error: %s is not valid speed. The speed must be between 80 and 300 degree/s" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "MaxPitchRollRotationSpeed")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[speed], param_type_tuple=['float'])

@@ -104,7 +104,8 @@ is called that triggers that sensor.
 ``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
 The tilt must be between 5 (very slow) and 30 (very fast) degrees.
 
-
+``set_max_tilt_rotation_speed(speed)`` Set the maximum allowable tilt rotation speed in degree/s.
+The tilt rotation speed must between 80 and 300 degree/s.
 
 Bebop sensors
 -------------
