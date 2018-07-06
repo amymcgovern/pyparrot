@@ -430,6 +430,38 @@ class Bebop():
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[altitude], param_type_tuple=['float'])
 
+    def set_max_distance(self, distance):
+        """
+        Set max distance between the takeoff and the drone in meters.
+
+        :param distance: distance in meters
+        :return:
+        """
+        if (distance < 10):
+            print("Error: %s is not valid altitude. The distance must be higher than 10 meters" % distance)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxDistance")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[distance], param_type_tuple=['float'])
+
+
+    def enable_geofence(self, value):
+        """
+	     If geofence is enabled, the drone won't fly over the given max distance.
+         1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done.
+
+        :param value:
+        :return:
+        """
+        if (value not in (0, 1)):
+            print("Error: %s is not valid value. Valid value: 1 to enable geofence/ 0 to disable geofence" % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "NoFlyOverMaxDistance")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['u8'])
+
     def set_max_tilt(self, tilt):
         """
         Set max pitch/roll in degrees
