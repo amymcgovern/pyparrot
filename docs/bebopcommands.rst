@@ -103,6 +103,7 @@ is called that triggers that sensor.
 
 ``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
 
+``set_flat_trim(duration=0)`` Tell the Bebop to run with a flat trim.  If duration > 0, waits for the comand to be acknowledged
 
 
 Bebop sensors
