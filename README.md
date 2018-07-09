@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 7/8/2018: Version 1.4.23: switched tempfile to SpooledTemporaryFile in DroneVisionGUI to make it faster (uses memory instead of disk)
 * 7/6/2018: Version 1.4.22: Added a wait in flat_trim for Bebop until it is received (optional)
 * 7/5/2018: Version 1.4.21: Added max_tilt and max_altitude to the Bebop commands.
 * 7/4/2018: Version 1.4.20: While move_relative is implemented, it seems to have a firmware bug so DO NOT USE.
