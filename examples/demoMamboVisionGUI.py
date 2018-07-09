@@ -10,7 +10,7 @@ import cv2
 
 
 # set this to true if you want to fly for the demo
-testFlying = True
+testFlying = False
 
 class UserVision:
     def __init__(self, vision):

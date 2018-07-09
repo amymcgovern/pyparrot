@@ -35,12 +35,12 @@ def demo_user_code_after_vision_opened(bebopVision, args):
     #bebopVision.start_video_buffering()
 
     # takeoff
-    bebop.safe_takeoff(5)
+    # bebop.safe_takeoff(5)
 
     # skipping actually flying for safety purposes indoors - if you want
     # different pictures, move the bebop around by hand
     print("Fly me around by hand!")
-    bebop.smart_sleep(5)
+    bebop.smart_sleep(15)
 
     if (bebopVision.vision_running):
         print("Moving the camera using velocity")

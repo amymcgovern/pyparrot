@@ -9,6 +9,7 @@ from pyparrot.networking.wifiConnection import WifiConnection
 from pyparrot.utils.colorPrint import color_print
 from pyparrot.commandsandsensors.DroneCommandParser import DroneCommandParser
 from pyparrot.commandsandsensors.DroneSensorParser import DroneSensorParser
+from datetime import datetime
 
 class BebopSensors:
     def __init__(self):
@@ -41,6 +42,9 @@ class BebopSensors:
         # some sensors are saved outside the dictionary for internal use (they are also in the dictionary)
         if (sensor_name == "FlyingStateChanged_state"):
             self.flying_state = self.sensors_dict["FlyingStateChanged_state"]
+
+        if (sensor_name == "PilotingState_FlatTrimChanged"):
+            self.flat_trim_changed = True
 
         if (sensor_name == "moveByEnd_dX"):
             self.RelativeMoveEnded = True
@@ -130,12 +134,31 @@ class Bebop():
         command_tuple = self.command_parser.get_command_tuple("common", "Common", "AllStates")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
-    def flat_trim(self):
+    def flat_trim(self, duration=0):
         """
         Sends the flat_trim command to the bebop. Gets the codes for it from the xml files.
+        :param duration: if duration is greater than 0, waits for the trim command to be finished or duration to be reached
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "FlatTrim")
+
+        self.sensors.flat_trim_changed = False
+
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+        if (duration > 0):
+            # wait for the specified duration
+            start_time = datetime.now()
+            new_time = datetime.now()
+            diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
+            while (not self.sensors.flat_trim_changed and diff < duration):
+                self.smart_sleep(0.1)
+
+                new_time = datetime.now()
+                diff = (new_time - start_time).seconds + ((new_time - start_time).microseconds / 1000000.0)
+
+
+
 
     def takeoff(self):
         """

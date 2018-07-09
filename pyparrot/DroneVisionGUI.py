@@ -329,6 +329,7 @@ class DroneVisionGUI:
         if (self.vision_running):
             # generate a temporary file, gets deleted after usage automatically
             self.file = tempfile.NamedTemporaryFile()
+            #self.file = tempfile.SpooledTemporaryFile(max_size=32768)
             # save the current picture from the stream
             self.player.video_take_snapshot(0, self.file.name, 0, 0)
             # read the picture into opencv
