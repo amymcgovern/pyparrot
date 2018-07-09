@@ -521,3 +521,19 @@ class Bebop():
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "MaxRotationSpeed")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[speed], param_type_tuple=['float'])
+
+    def set_hull_protection(self, present):
+        """
+        Set the presence of hull protection
+       	1 if present, 0 if not present
+
+        :param present:
+        :return:
+        """
+        if (present not in (0, 1)):
+            print("Error: %s is not valid value. The value must be 0 or 1" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "HullProtection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[present], param_type_tuple=['u8'])

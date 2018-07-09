@@ -118,6 +118,9 @@ The vertical speed must be between 0.5 and 2.5 m/s.
 ``set_max_rotation_speed(speed)`` Set the maximum allowable rotation speed in degree/s.
 The rotation speed must be between 10 and 200 degree/s.
 
+``set_hull_protection(present)`` Set the presence of hull protection.
+The value must be 1 if present or 0 if not present.
+
 Bebop sensors
 -------------
 
