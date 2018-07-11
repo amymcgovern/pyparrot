@@ -17,6 +17,8 @@ from pyparrot.utils.colorPrint import color_print
 from pyparrot.commandsandsensors.DroneCommandParser import DroneCommandParser
 from pyparrot.commandsandsensors.DroneSensorParser import DroneSensorParser
 import math
+from os.path import join
+import inspect
 
 #Groundcam Imports
 from ftplib import FTP
@@ -24,8 +26,10 @@ import tempfile
 try:
     import cv2
     OpenCVAvailable = True
+    print("OpenCVAvailable is %s" % OpenCVAvailable)
 except:
     OpenCVAvailable = False
+    print("OpenCVAvailable is %s" % OpenCVAvailable)
 
 class MamboSensors:
     """
@@ -223,8 +227,20 @@ class MamboGroundcam:
         """
         self.MEDIA_PATH = '/internal_000/mambo/media'  # Filepath on the Mambo
         self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
-        self.ftp.login()
-        self.storageFile = tempfile.NamedTemporaryFile()
+        login = self.ftp.login()
+        print("FTP login success is %s" % login)
+        # get the path for the config files
+        fullPath = inspect.getfile(Mambo)
+        shortPathIndex = fullPath.rfind("/")
+        if (shortPathIndex == -1):
+            # handle Windows paths
+            shortPathIndex = fullPath.rfind("\\")
+        print(shortPathIndex)
+        shortPath = fullPath[0:shortPathIndex]
+        self.imagePath = join(shortPath, "images")
+        self.storageFile = join(self.imagePath, "groundcam.jpg")
+        print(self.storageFile)
+        #self.storageFile = tempfile.NamedTemporaryFile()
 
     def _close(self):
 
@@ -240,22 +256,24 @@ class MamboGroundcam:
         list = sorted(list)
         return list
 
-    def get_groundcam_picture(self, filename, cv2):
+    def get_groundcam_picture(self, filename, cv2_flag):
         """
         Downloads the specified picture from the Mambo and stores it into a tempfile.
 
         :param filename: the name of the file which should be downloaded ON THE MAMBO.
-        :param cv2: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
+        :param cv2_flag: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
         :return False if there was an error during download, if cv2 is True a cv2 frame or it just returns the file name of the temporary file
         """
         self.ftp.cwd(self.MEDIA_PATH)
         try:
-            self.ftp.retrbinary('RETR ' + filename, open(self.storageFile.name, "wb").write) #download
-            if cv2 and OpenCVAvailable:
-                return cv2.imread(self.storageFile.name, 0)
+            self.ftp.retrbinary('RETR ' + filename, open(self.storageFile, "wb").write) #download
+            if cv2_flag and OpenCVAvailable:
+                img = cv2.imread(self.storageFile)
+                return img
             else:
                 return filename
-        except:
+        except Exception as e:
+            #print(e)
             return False
 
     def _delete_file(self, filename):
@@ -522,7 +540,7 @@ class Mambo:
         :return: True if the command was sent and False otherwise
         """
         if self.use_wifi:
-            list = self.groundcam._get_groundcam_pictures_names()
+            list = self.groundcam.get_groundcam_pictures_names()
             if len(list) > 35: #if more than 35 pictures on the Mambo delete all
                 print("deleting")
                 for file in list:

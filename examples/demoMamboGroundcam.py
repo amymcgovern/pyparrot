@@ -19,9 +19,13 @@ if (success):
     mambo.ask_for_state_update()
     mambo.smart_sleep(1)
     mambo.safe_takeoff(5)
-    mambo.take_picture()
-    list = mambo.groundcam.get_groundcam_pictures_names() #get list of availible files
-    frame = mambo.groundcam.get_groundcam_picture(list[0],True) #get frame which is the first in the array
+    pic_success = mambo.take_picture()
+
+    picture_names = mambo.groundcam.get_groundcam_pictures_names() #get list of availible files
+    print(picture_names)
+
+    frame = mambo.groundcam.get_groundcam_picture(picture_names[0],True) #get frame which is the first in the array
+
     if frame is not None:
         if frame is not False:
             cv2.imshow("Groundcam", frame)

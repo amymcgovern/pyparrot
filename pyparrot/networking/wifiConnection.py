@@ -465,7 +465,7 @@ class WifiConnection:
                              self.sequence_counter['SEND_WITH_ACK'], 11,
                              command_tuple[0], command_tuple[1], command_tuple[2])
 
-        self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
+        return self.send_command_packet_ack(packet, self.sequence_counter['SEND_WITH_ACK'])
 
     def send_param_command_packet(self, command_tuple, param_tuple=None, param_type_tuple=0,ack=True):
         """
