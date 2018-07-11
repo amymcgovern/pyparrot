@@ -100,8 +100,10 @@ recommend sending it over and over.  Most of the sensors you need should be sent
 is called that triggers that sensor.
 
 ``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters.
+The altitude must be between 0.5 and 150 meters.
 
 ``set_max_distance(distance)`` Set max distance between the takeoff and the drone in meters.
+The distance must be between 10 and 2000 meters.
 
 ``enable_geofence(value)`` If geofence is enabled, the drone won't fly over the given max distance.
 Valid value: 1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done.
