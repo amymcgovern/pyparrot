@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 7/12/2018: Version 1.4.26: added new Bebop commands (mostly setting max limits for the bebop)
 * 7/11/2018: Version 1.4.25: fixed groundcam pictures for Mambo
 * 7/8/2018: Version 1.4.24: switched tempfile to back to NamedTemporaryFile in DroneVisionGUI due to OS incompatibilities
 * 7/8/2018: Version 1.4.23: switched tempfile to SpooledTemporaryFile in DroneVisionGUI to make it faster (uses memory instead of disk)
