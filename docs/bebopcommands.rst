@@ -117,12 +117,10 @@ The tilt rotation speed must be between 80 and 300 degree/s.
 ``set_max_vertical_speed(speed)`` Set the maximum allowable vertical speed in m/s.
 The vertical speed must be between 0.5 and 2.5 m/s.
 
-<<<<<<< HEAD
 ``set_max_rotation_speed(speed)`` Set the maximum allowable rotation speed in degree/s.
 The rotation speed must be between 10 and 200 degree/s.
-=======
+
 ``set_flat_trim(duration=0)`` Tell the Bebop to run with a flat trim.  If duration > 0, waits for the comand to be acknowledged
->>>>>>> 27a564c33cafc9f866606289886b3e7bcfaf2fba
 
 ``set_hull_protection(present)`` Set the presence of hull protection.
 The value must be 1 if present or 0 if not present.
