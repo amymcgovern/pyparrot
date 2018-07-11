@@ -18,6 +18,15 @@ class BebopSensors:
         self.CameraMoveEnded_tilt = False
         self.CameraMoveEnded_pan = False
         self.flying_state = "unknown"
+        self.flat_trim_changed = False
+        self.max_altitude_changed = False
+        self.max_distance_changed = False
+        self.no_fly_over_max_distance = False
+        self.max_tilt_changed = False
+        self.max_pitch_roll_rotation_speed_changed = False
+        self.max_vertical_speed = False
+        self.max_rotation_speed = False
+        self.hull_protection_changed = False
 
     def update(self, sensor_name, sensor_value, sensor_enum):
         if (sensor_name is None):
@@ -54,6 +63,31 @@ class BebopSensors:
 
         if (sensor_name == "OrientationV2_pan"):
             self.CameraMoveEnded_pan = True
+
+        if (sensor_name == "MaxAltitudeChanged_current"):
+            self.max_altitude_changed = True
+
+        if (sensor_name == "MaxDistanceChanged_current"):
+            self.max_distance_changed = True
+
+        if (sensor_name == "NoFlyOverMaxDistanceChanged_shouldNotFlyOver"):
+            self.no_fly_over_max_distance_changed = True
+
+        if (sensor_name == "MaxTiltChanged_current"):
+            self.max_tilt_changed = True
+
+        if (sensor_name == "MaxPitchRollRotationSpeedChanged_current"):
+            self.max_pitch_roll_rotation_speed_changed = True
+
+        if (sensor_name == "MaxVerticalSpeedChanged_current"):
+            self.max_vertical_speed_changed = True
+
+        if (sensor_name == "MaxRotationSpeedChanged_current"):
+            self.max_rotation_speed_changed = True
+
+        if (sensor_name == "HullProtectionChanged_present"):
+            self.hull_protection_changed = True
+
 
     def __str__(self):
         str = "Bebop sensors: %s" % self.sensors_dict
@@ -140,9 +174,6 @@ class Bebop():
         :param duration: if duration is greater than 0, waits for the trim command to be finished or duration to be reached
         """
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "Piloting", "FlatTrim")
-
-        self.sensors.flat_trim_changed = False
-
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
         if (duration > 0):
@@ -445,9 +476,56 @@ class Bebop():
         :param altitude: altitude in meters
         :return:
         """
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
+        if (altitude < 0.5 or altitude > 150):
+            print("Error: %s is not valid altitude. The altitude must be between 0.5 and 150 meters" % altitude)
+            print("Ignoring command and returning")
+            return
 
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxAltitude")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[altitude], param_type_tuple=['float'])
+
+        while (not self.sensors.max_altitude_changed):
+            self.smart_sleep(0.1)
+
+    def set_max_distance(self, distance):
+        """
+        Set max distance between the takeoff and the drone in meters.
+
+        :param distance: distance in meters
+        :return:
+        """
+        if (distance < 10 or distance > 2000):
+            print("Error: %s is not valid altitude. The distance must be between 10 and 2000 meters" % distance)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxDistance")
+
+        self.sensors.max_distance_changed = False
+
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[distance], param_type_tuple=['float'])
+
+        while (not self.sensors.max_distance_changed):
+            self.smart_sleep(0.1)
+
+    def enable_geofence(self, value):
+        """
+	     If geofence is enabled, the drone won't fly over the given max distance.
+         1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done.
+
+        :param value:
+        :return:
+        """
+        if (value not in (0, 1)):
+            print("Error: %s is not valid value. Valid value: 1 to enable geofence/ 0 to disable geofence" % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "NoFlyOverMaxDistance")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['u8'])
+
+        while (not self.sensors.no_fly_over_max_distance_changed):
+            self.smart_sleep(0.1)
 
     def set_max_tilt(self, tilt):
         """
@@ -456,6 +534,86 @@ class Bebop():
         :param tilt: max tilt for both pitch and roll in degrees
         :return:
         """
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
+        if (tilt < 5 or tilt > 30):
+            print("Error: %s is not valid tilt. The tilt must be between 5 and 30 degrees" % tilt)
+            print("Ignoring command and returning")
+            return
 
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PilotingSettings", "MaxTilt")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt], param_type_tuple=['float'])
+
+        while (not self.sensors.max_tilt_changed):
+            self.smart_sleep(0.1)
+
+    def set_max_tilt_rotation_speed(self, speed):
+        """
+        Set max pitch/roll rotation speed in degree/s
+
+        :param speed: max rotation speed for both pitch and roll in degree/s
+        :return:
+        """
+        if (speed < 80 or speed > 300):
+            print("Error: %s is not valid speed. The speed must be between 80 and 300 degree/s" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "MaxPitchRollRotationSpeed")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[speed], param_type_tuple=['float'])
+
+        while (not self.sensors.max_pitch_roll_rotation_speed_changed):
+            self.smart_sleep(0.1)
+
+    def set_max_vertical_speed(self, speed):
+        """
+        Set max vertical speed in m/s
+
+        :param speed: max vertical speed in m/s
+        :return:
+        """
+        if (speed < 0.5 or speed > 2.5):
+            print("Error: %s is not valid speed. The speed must be between 0.5 and 2.5 m/s" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "MaxVerticalSpeed")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[speed], param_type_tuple=['float'])
+
+        while (not self.sensors.max_vertical_speed_changed):
+            self.smart_sleep(0.1)
+
+    def set_max_rotation_speed(self, speed):
+        """
+        Set max yaw rotation speed in degree/s
+
+        :param speed: max rotation speed for yaw in degree/s
+        :return:
+        """
+        if (speed < 10 or speed > 200):
+            print("Error: %s is not valid speed. The speed must be between 10 and 200 degree/s" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "MaxRotationSpeed")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[speed], param_type_tuple=['float'])
+
+        while (not self.sensors.max_rotation_speed_changed):
+            self.smart_sleep(0.1)
+
+    def set_hull_protection(self, present):
+        """
+        Set the presence of hull protection
+       	1 if present, 0 if not present
+
+        :param present:
+        :return:
+        """
+        if (present not in (0, 1)):
+            print("Error: %s is not valid value. The value must be 0 or 1" % speed)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "HullProtection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[present], param_type_tuple=['u8'])
+
+        while (not self.sensors.hull_protection_changed):
+            self.smart_sleep(0.1)
