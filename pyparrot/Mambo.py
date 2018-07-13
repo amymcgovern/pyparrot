@@ -286,16 +286,16 @@ class MamboGroundcam:
       
     
 class Mambo:
-    def __init__(self, address, use_wifi=False):
+    def __init__(self, address="", use_wifi=False):
         """
-        Initialize with its BLE address - if you don't know the address, call findMambo
+        If you need BLE: Initialize with its BLE address - if you don't know the address, call findMambo
         and that will discover it for you.
 
         You can also connect to the wifi on the FPV camera.  Do not use this if the camera is not connected.  Also,
         ensure you have connected your machine to the wifi on the camera before attempting this or it will not work.
 
-        :param address: unique address for this mambo
-        :param use_wifi: set to True to connect with wifi as well as the BLE
+        :param address: unique address for this mambo (can be ignored if you are using wifi)
+        :param use_wifi: set to True to connect with wifi instead of BLE
         """
         self.address = address
         self.use_wifi = use_wifi

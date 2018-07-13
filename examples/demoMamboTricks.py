@@ -6,7 +6,8 @@ Author: Amy McGovern
 
 from pyparrot.Mambo import Mambo
 
-# you will need to change this to the address of YOUR mambo
+# If you are using BLE: you will need to change this to the address of YOUR mambo
+# if you are using Wifi, this can be ignored
 mamboAddr = "e0:14:d0:63:3d:d0"
 
 # make my mambo object

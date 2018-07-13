@@ -15,11 +15,11 @@ All of the functions preceeded with an underscore are intended to be internal fu
 Creating a Mambo object
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-``Mambo(address, use_wifi=True/False)``
+``Mambo(address="", use_wifi=True/False)``
 create a mambo object with the specific harware address (found using findMambo). The use_wifi argument defaults to
 False (which means BLE is the default).  Set to True to use wifi. You can only use wifi if you have a FPV camera
-installed on your Mambo!  If you are using wifi, the hardware address argument
-is irrelevant and can be set to None.
+installed on your Mambo!  If you are using wifi, the hardware address argument can be ignored (it defaults to an empty
+string).
 
 Connecting and disconnecting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
