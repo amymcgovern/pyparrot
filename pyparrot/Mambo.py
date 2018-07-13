@@ -273,7 +273,7 @@ class MamboGroundcam:
             else:
                 return filename
         except Exception as e:
-            #print(e)
+            print(e)
             return False
 
     def _delete_file(self, filename):

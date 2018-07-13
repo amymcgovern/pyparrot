@@ -2,6 +2,7 @@
 Demo of the groundcam
 Mambo takes off, takes a picture and shows a RANDOM frame, not the last one
 Author: Valentin Benke, https://github.com/Vabe7
+Author: Amy McGovern
 """
 
 from pyparrot.Mambo import Mambo
@@ -19,7 +20,12 @@ if (success):
     mambo.ask_for_state_update()
     mambo.smart_sleep(1)
     mambo.safe_takeoff(5)
+
+    # take the photo
     pic_success = mambo.take_picture()
+
+    # need to wait a bit for the photo to show up
+    mambo.smart_sleep(0.5)
 
     picture_names = mambo.groundcam.get_groundcam_pictures_names() #get list of availible files
     print(picture_names)
