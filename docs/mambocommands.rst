@@ -60,9 +60,11 @@ internal mambo sensors (which are not sent out right now) so it is more accurate
 ``fly_direct(roll, pitch, yaw, vertical_movement, duration)`` Fly the mambo directly using the
 specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.
 Note there are currently no sensors reported back to the user to ensure that these are working but hopefully
-that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.
+that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100 and is essentially a percentage
+and direction of the max_tilt (for roll/pitch) or max_vertical_speed (for vertical movement).
 
-``set_max_tilt(degrees)`` Set the maximum tilt in degrees.  Be careful as this makes your drone go faster!
+``set_max_tilt(degrees)`` Set the maximum tilt in degrees.  Be careful as this makes your drone go slower or faster!
+It is important to note that the fly_direct command uses this value in conjunction with the -100 to 100 percentages.
 
 ``set_max_vertical_speed(speed)`` Set the maximum vertical speed in m/s.  Be careful as this makes your drone go up/down faster!
 

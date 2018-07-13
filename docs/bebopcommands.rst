@@ -54,12 +54,40 @@ internal mambo sensors (which are not sent out right now) so it is more accurate
 ``fly_direct(roll, pitch, yaw, vertical_movement, duration)`` Fly the bebop directly using the
 specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.
 Note there are currently no sensors reported back to the user to ensure that these are working but hopefully
-that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100.
+that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100 and is essentially a percentage
+and direction of the max_tilt (for roll/pitch) or max_vertical_speed (for vertical movement).
 
 ``move_relative(dx, dy, dz, dradians)`` Moves the bebop a relative number of meters in x (forward/backward,
 forward is positive), y (right/left, right is positive), dz (up/down, positive is down), and dradians.  DO NOT
 USE THIS COMMAND YET.  While it correctly executes the command, it also randomly flies at high speed in random
 directions after the command executes.  This seems to be a known bug in the forum.  DO NOT USE YET.
+
+``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters.
+The altitude must be between 0.5 and 150 meters.
+
+``set_max_distance(distance)`` Set max distance between the takeoff and the drone in meters.
+The distance must be between 10 and 2000 meters.
+
+``enable_geofence(value)`` If geofence is enabled, the drone won't fly over the given max distance.
+Valid value: 1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done.
+
+``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
+The tilt must be between 5 (very slow) and 30 (very fast) degrees.
+
+``set_max_tilt_rotation_speed(speed)`` Set the maximum allowable tilt rotation speed in degree/s.
+The tilt rotation speed must be between 80 and 300 degree/s.
+
+``set_max_vertical_speed(speed)`` Set the maximum allowable vertical speed in m/s.
+The vertical speed must be between 0.5 and 2.5 m/s.
+
+``set_max_rotation_speed(speed)`` Set the maximum allowable rotation speed in degree/s.
+The rotation speed must be between 10 and 200 degree/s.
+
+``set_flat_trim(duration=0)`` Tell the Bebop to run with a flat trim.  If duration > 0, waits for the comand to be acknowledged
+
+``set_hull_protection(present)`` Set the presence of hull protection.
+The value must be 1 if present or 0 if not present.  This is only useful for the bebop 1.
+
 
 Pausing or sleeping in a thread safe manner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,32 +126,6 @@ fairly quickly although not instantly.  The bebop already has a sensor refresh r
 automatically.  If you are looking for a specific sensor that is not automatically sent, you can call this but I don't
 recommend sending it over and over.  Most of the sensors you need should be sent at either the 10Hz rate or as an event
 is called that triggers that sensor.
-
-``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters.
-The altitude must be between 0.5 and 150 meters.
-
-``set_max_distance(distance)`` Set max distance between the takeoff and the drone in meters.
-The distance must be between 10 and 2000 meters.
-
-``enable_geofence(value)`` If geofence is enabled, the drone won't fly over the given max distance.
-Valid value: 1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done.
-
-``set_max_tilt(tilt)`` Set the maximum allowable tilt in degrees for the drone (this limits speed).
-The tilt must be between 5 (very slow) and 30 (very fast) degrees.
-
-``set_max_tilt_rotation_speed(speed)`` Set the maximum allowable tilt rotation speed in degree/s.
-The tilt rotation speed must be between 80 and 300 degree/s.
-
-``set_max_vertical_speed(speed)`` Set the maximum allowable vertical speed in m/s.
-The vertical speed must be between 0.5 and 2.5 m/s.
-
-``set_max_rotation_speed(speed)`` Set the maximum allowable rotation speed in degree/s.
-The rotation speed must be between 10 and 200 degree/s.
-
-``set_flat_trim(duration=0)`` Tell the Bebop to run with a flat trim.  If duration > 0, waits for the comand to be acknowledged
-
-``set_hull_protection(present)`` Set the presence of hull protection.
-The value must be 1 if present or 0 if not present.
 
 Bebop sensors
 -------------
