@@ -30,6 +30,20 @@ class BebopSensors:
         # default to full battery
         self.battery = 100
 
+        # this is optionally set elsewhere
+        self.user_callback_function = None
+
+    def set_user_callback_function(self, function, args):
+        """
+        Sets the user callback function (called everytime the sensors are updated)
+
+        :param function: name of the user callback function
+        :param args: arguments (tuple) to the function
+        :return:
+        """
+        self.user_callback_function = function
+        self.user_callback_function_args = args
+
     def update(self, sensor_name, sensor_value, sensor_enum):
         if (sensor_name is None):
             print("Error empty sensor")
@@ -93,6 +107,10 @@ class BebopSensors:
         if (sensor_name == "BatteryStateChanged_battery_percent"):
             self.battery = sensor_value
 
+        # call the user callback if it isn't None
+        if (self.user_callback_function is not None):
+            self.user_callback_function(self.user_callback_function_args)
+
 
     def __str__(self):
         str = "Bebop sensors: %s" % self.sensors_dict
@@ -113,6 +131,16 @@ class Bebop():
         self.sensors = BebopSensors()
         self.sensor_parser = DroneSensorParser(drone_type=drone_type)
 
+    def set_user_sensor_callback(self, function, args):
+        """
+        Set the (optional) user callback function for sensors.  Every time a sensor
+        is updated, it calls this function.
+
+        :param function: name of the function
+        :param args: tuple of arguments to the function
+        :return: nothing
+        """
+        self.sensors.set_user_callback_function(function, args)
 
     def update_sensors(self, data_type, buffer_id, sequence_number, raw_data, ack):
         """

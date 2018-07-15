@@ -130,13 +130,18 @@ is called that triggers that sensor.
 Bebop sensors
 -------------
 
-All of the sensor data that is passed back to the Bebop is saved in a python dictionary.
-Since the Bebop code is still under active development, there will eventually be extra variables
-saved outside of the dictionary.  The data is stored in the BebopSensors class.
+All of the sensor data that is passed back to the Bebop is saved in a python dictionary.  As needed, other variables
+are stored outside the dictionary but you can get everything you need from the dictionary itself.  All of the data
+is stored in the BebopSensors class.
+
+The easiest way to interact with the sensors is to call:
+
+``bebop.set_user_sensor_callback(function, args)``. This sets a user callback function with optional
+arguments that is called each time a sensor is updated.  The refresh rate on wifi is 10Hz.
 
 The sensors are:
 
+* battery (defaults to 100 and stays at that level until a real reading is received from the drone)
 * flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_.
-
 * sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_ and `common.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/common.xml>`_.
 
