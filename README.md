@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 7/15/2018: Version 1.4.28: added bebop battery state to default state variables (was in the dictionary only before)
 * 7/13/2018: Version 1.4.27: updated Mambo() initialization to not require address for wifi mode and also updated groundcam demo for Mambo
 * 7/12/2018: Version 1.4.26: added new Bebop commands (mostly setting max limits for the bebop)
 * 7/11/2018: Version 1.4.25: fixed groundcam pictures for Mambo

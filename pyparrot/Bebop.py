@@ -27,6 +27,8 @@ class BebopSensors:
         self.max_vertical_speed = False
         self.max_rotation_speed = False
         self.hull_protection_changed = False
+        # default to full battery
+        self.battery = 100
 
     def update(self, sensor_name, sensor_value, sensor_enum):
         if (sensor_name is None):
@@ -87,6 +89,9 @@ class BebopSensors:
 
         if (sensor_name == "HullProtectionChanged_present"):
             self.hull_protection_changed = True
+
+        if (sensor_name == "BatteryStateChanged_battery_percent"):
+            self.battery = sensor_value
 
 
     def __str__(self):
