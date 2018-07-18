@@ -746,3 +746,35 @@ class Swing(Minidrone):
         :return: void
         """
         self.drone_connection.disconnect()
+
+
+    def set_flying_mode(self, mode):
+        """
+        Set drone flying mode
+
+        :param state:
+        :return:
+        """
+        if (mode not in ('quadricopter', 'plane_forward', 'plane_backward')):
+            print("Error; %s is not a valid value. The value must be: gear_1, gear_2, gear_3")
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlyingMode")
+        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+
+    def set_plane_gear_box(self, state):
+        """
+        Set plane gear box
+
+        :param state:
+        :return:
+        """
+        if (state not in ('gear_1', 'gear_2', 'gear_3'))
+            print("Error; %s is not a valid value. The value must be: gear_1, gear_2, gear_3")
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PlaneGearBox")
+        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
