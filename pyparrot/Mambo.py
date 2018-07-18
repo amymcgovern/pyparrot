@@ -31,9 +31,9 @@ except:
     OpenCVAvailable = False
     print("OpenCVAvailable is %s" % OpenCVAvailable)
 
-class MamboSensors:
+class MinidroneSensors:
     """
-    Store the mambo's last known sensor values
+    Store the minidrone's last known sensor values
     """
 
     def __init__(self):
@@ -150,7 +150,7 @@ class MamboSensors:
         # call the user callback if it isn't None
         if (self.user_callback_function is not None):
             self.user_callback_function(self.user_callback_function_args)
-            
+
     def get_estimated_z_orientation(self):
         """
         Uses the quaternions to return an estimated orientation
@@ -162,7 +162,7 @@ class MamboSensors:
         NOTE: This is not a real compass heading.  0 degrees is where you are facing when
         the mambo turns on!
 
-        :return: 
+        :return:
         """
 
         (X, Y, Z) = self.quaternion_to_euler_angle(self.quaternion_w, self.quaternion_x,
@@ -217,8 +217,8 @@ class MamboSensors:
         my_str += "extra sensors: %s," % self.sensors_dict
         return my_str
 
-    
-    
+
+
 class MamboGroundcam:
     def __init__(self):
         """
@@ -283,17 +283,15 @@ class MamboGroundcam:
         '''
         self.ftp.delete(filename)
 
-      
-    
-class Mambo:
+
+
+class Minidrone:
     def __init__(self, address="", use_wifi=False):
         """
         If you need BLE: Initialize with its BLE address - if you don't know the address, call findMambo
         and that will discover it for you.
-
         You can also connect to the wifi on the FPV camera.  Do not use this if the camera is not connected.  Also,
         ensure you have connected your machine to the wifi on the camera before attempting this or it will not work.
-
         :param address: unique address for this mambo (can be ignored if you are using wifi)
         :param use_wifi: set to True to connect with wifi instead of BLE
         """
@@ -315,8 +313,9 @@ class Mambo:
         self.command_parser = DroneCommandParser()
 
         # initialize the sensors and the parser
-        self.sensors = MamboSensors()
-        self.sensor_parser = DroneSensorParser(drone_type="Mambo")
+        self.sensors = MinidroneSensors()
+        self.sensor_parser = DroneSensorParser(drone_type="Minidrone")
+
 
     def set_user_sensor_callback(self, function, args):
         """
@@ -353,7 +352,6 @@ class Mambo:
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
 
-
     def connect(self, num_retries):
         """
         Connects to the drone and re-tries in case of failure the specified number of times.  Seamlessly
@@ -370,18 +368,6 @@ class Mambo:
 
         connected = self.drone_connection.connect(num_retries)
         return connected
-
-
-    def disconnect(self):
-        """
-        Disconnect the BLE connection.  Always call this at the end of your programs to
-        cleanly disconnect.
-
-        :return: void
-        """
-        self.drone_connection.disconnect()
-        if self.groundcam is not None:
-            self.groundcam._close()
 
 
     def takeoff(self):
@@ -646,24 +632,6 @@ class Mambo:
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.claw_id)
 
-    def fire_gun(self):
-        """
-        Fire the gun (assumes it is attached) - note not supposed under wifi since the camera takes the place of the gun
-
-        :return: True if the command was sent and False otherwise (can include errors or asking to do this using wifi)
-        """
-
-        # not supposed under wifi since the camera takes the place of the gun
-        if (self.use_wifi):
-            return False
-
-        # print "firing gun"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "GunControl", "FIRE")
-        # print command_tuple
-        # print enum_tuple
-
-        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.gun_id)
-
 
     def set_max_vertical_speed(self, value):
         """
@@ -734,3 +702,47 @@ class Mambo:
         """
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+
+class Mambo(Minidrone):
+
+    def disconnect(self):
+        """
+        Disconnect the BLE connection.  Always call this at the end of your programs to
+        cleanly disconnect.
+
+        :return: void
+        """
+        self.drone_connection.disconnect()
+        if self.groundcam is not None:
+            self.groundcam._close()
+
+
+    def fire_gun(self):
+        """
+        Fire the gun (assumes it is attached) - note not supposed under wifi since the camera takes the place of the gun
+
+        :return: True if the command was sent and False otherwise (can include errors or asking to do this using wifi)
+        """
+
+        # not supposed under wifi since the camera takes the place of the gun
+        if (self.use_wifi):
+            return False
+
+        # print "firing gun"
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "GunControl", "FIRE")
+        # print command_tuple
+        # print enum_tuple
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.gun_id)
+
+class Swing(Minidrone):
+
+    def disconnect(self):
+        """
+        Disconnect the BLE connection.  Always call this at the end of your programs to
+        cleanly disconnect.
+
+        :return: void
+        """
+        self.drone_connection.disconnect()

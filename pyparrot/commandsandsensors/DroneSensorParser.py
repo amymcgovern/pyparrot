@@ -20,7 +20,7 @@ def get_data_format_and_size(data, data_type):
                  it is used to calculate the data size.
     :param data_type: a string representing the data type
     :return: a tuple of a string representing the struct.pack format for the data type and an int representing
-             the number of bytes 
+             the number of bytes
     """
 
     if data_type == "u8" or data_type == "enum":
@@ -71,7 +71,7 @@ class DroneSensorParser:
 
         self.common_sensors = untangle.parse(join(dir_path, 'common.xml'))
 
-        if (drone_type == "Mambo"):
+        if (drone_type == "Minidrone"):
             self.drone_sensors = untangle.parse(join(dir_path, 'minidrone.xml'))
         else:
             self.drone_sensors = untangle.parse(join(dir_path, 'ardrone3.xml'))
@@ -132,9 +132,9 @@ class DroneSensorParser:
                 #print("%s %s %s" % (name,idx,sensor_data))
                 #color_print("updating the sensor!", "NONE")
                 sensor_list.append([name, sensor_data, self.sensor_tuple_cache, header_tuple])
-                
+
             return sensor_list
-        
+
         else:
             color_print("Could not find sensor in list - ignoring for now.  Packet info below.", "ERROR")
             print(header_tuple)
