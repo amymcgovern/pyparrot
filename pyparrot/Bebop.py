@@ -710,3 +710,19 @@ class Bebop():
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "SaturationSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
+
+    def set_timelapse(self, enable, interval):
+        """
+        Set timelapse mode
+
+        :param enable:
+        :param interval:
+        :return:
+        """
+        if (enable not in (0, 1) or interval < 0):
+            print("Error: %s or %s is not valid value." % (enable, interval))
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "TimelapseSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[enable, interval], param_type_tuple=['u8', 'float'])
