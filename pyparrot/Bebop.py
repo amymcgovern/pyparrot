@@ -680,3 +680,18 @@ class Bebop():
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", type)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def set_exposition(self, value):
+        """
+        Set image exposure
+
+        :param value:
+        :return:
+        """
+        if (value < -3 or value > 3):
+            print("Error: %s is not valid image exposure. The value must be between -3 and 3." % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "ExpositionSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
