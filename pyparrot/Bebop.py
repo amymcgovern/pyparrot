@@ -695,3 +695,18 @@ class Bebop():
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "ExpositionSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
+
+    def set_saturation(self, value):
+        """
+        Set image saturation
+
+        :param value:
+        :return:
+        """
+        if (value < -100 or value > 100):
+            print("Error: %s is not valid image saturation. The value must be between -100 and 100." % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "SaturationSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
