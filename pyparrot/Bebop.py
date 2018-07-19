@@ -741,3 +741,18 @@ class Bebop():
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoStabilizationMode", mode)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def set_video_recording(self, mode):
+        """
+        Set video recording mode
+
+        :param mode:
+        :return:
+        """
+        if (mode not in ('quality', 'time')):
+            print("Error: %s is not valid value. The value must be : quality, time" % mode)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoRecordingMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
