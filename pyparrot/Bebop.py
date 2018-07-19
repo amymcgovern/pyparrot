@@ -665,3 +665,18 @@ class Bebop():
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", format)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def set_white_balance(self, type):
+        """
+        Set picture format
+
+        :param type:
+        :return:
+        """
+        if (type not in ('auto', 'tungsten', 'daylight', 'cloudy', 'cool_white')):
+            print("Error: %s is not valid value. The value must be :(auto, tungsten, daylight, cloudy, cool_white))" % type)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", type)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
