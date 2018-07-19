@@ -659,7 +659,7 @@ class Bebop():
         :return:
         """
         if (format not in ('raw', 'jpeg', 'snapshot', 'jpeg_fisheye')):
-            print("Error: %s is not valid value. The value must be :(raw, jpeg, snapshot, jpeg_fisheye)" % format)
+            print("Error: %s is not valid value. The value must be : raw, jpeg, snapshot, jpeg_fisheye" % format)
             print("Ignoring command and returning")
             return
 
@@ -674,7 +674,7 @@ class Bebop():
         :return:
         """
         if (type not in ('auto', 'tungsten', 'daylight', 'cloudy', 'cool_white')):
-            print("Error: %s is not valid value. The value must be :(auto, tungsten, daylight, cloudy, cool_white))" % type)
+            print("Error: %s is not valid value. The value must be : auto, tungsten, daylight, cloudy, cool_white" % type)
             print("Ignoring command and returning")
             return
 
@@ -726,3 +726,18 @@ class Bebop():
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "TimelapseSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[enable, interval], param_type_tuple=['u8', 'float'])
+
+    def set_video_stabilization(self, mode):
+        """
+        Set video stabilization mode
+
+        :param mode:
+        :return:
+        """
+        if (mode not in ('roll_pitch', 'pitch', 'roll', 'none')):
+            print("Error: %s is not valid value. The value must be : roll_pitch, pitch, roll, none" % mode)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoStabilizationMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
