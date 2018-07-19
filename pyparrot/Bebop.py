@@ -414,7 +414,7 @@ class Bebop():
 
         :return: nothing
         """
-        
+
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
         param_tuple = [1] # Enable
         param_type_tuple = ['u8']
@@ -428,18 +428,18 @@ class Bebop():
 
         :return: nothing
         """
-        
+
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
         param_tuple = [0] # Disable
         param_type_tuple = ['u8']
         self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
-        
+
 
     def set_video_stream_mode(self,mode='low_latency'):
         """
         Set the video mode for the RTP stream.
         :param: mode: one of 'low_latency', 'high_reliability' or 'high_reliability_low_framerate'
-  
+
         :return: True if the command was sent and False otherwise
         """
 
@@ -451,10 +451,10 @@ class Bebop():
             print("Ignoring command and returning")
             return False
 
-        
+
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
                                                                                       "MediaStreaming", "VideoStreamMode", mode)
-        
+
         return self.drone_connection.send_enum_command_packet_ack(command_tuple,enum_tuple)
 
     def pan_tilt_camera(self, tilt_degrees, pan_degrees):
@@ -650,3 +650,18 @@ class Bebop():
 
         while (not self.sensors.hull_protection_changed):
             self.smart_sleep(0.1)
+
+    def set_picture_format(self, format):
+        """
+        Set picture format
+
+        :param format:
+        :return:
+        """
+        if (format not in ('raw', 'jpeg', 'snapshot', 'jpeg_fisheye')):
+            print("Error: %s is not valid value. The value must be :(raw, jpeg, snapshot, jpeg_fisheye)" % format)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", format)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
