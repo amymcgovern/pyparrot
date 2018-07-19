@@ -771,3 +771,18 @@ class Bebop():
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoFramerate", framerate)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def set_video_resolutions(self, type):
+        """
+        Set video resolutions
+
+        :param type:
+        :return:
+        """
+        if (type not in ('rec1080_stream480', 'rec720_stream720')):
+            print("Error: %s is not valid value. The value must be : rec1080_stream480, rec720_stream720" % type)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoResolutions", type)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
