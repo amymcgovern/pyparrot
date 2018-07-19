@@ -756,3 +756,18 @@ class Bebop():
 
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoRecordingMode", mode)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def set_video_framerate(self, framerate):
+        """
+        Set video framerate
+
+        :param framerate:
+        :return:
+        """
+        if (framerate not in ('24_FPS', '25_FPS', '30_FPS')):
+            print("Error: %s is not valid value. The value must be : 24_FPS, 25_FPS, 30_FPS" % framerate)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoFramerate", framerate)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
