@@ -771,7 +771,7 @@ class Swing(Minidrone):
         :param state:
         :return:
         """
-        if (state not in ('gear_1', 'gear_2', 'gear_3'))
+        if (state not in ('gear_1', 'gear_2', 'gear_3')):
             print("Error; %s is not a valid value. The value must be: gear_1, gear_2, gear_3")
             print("Ignoring command and returning")
             return
