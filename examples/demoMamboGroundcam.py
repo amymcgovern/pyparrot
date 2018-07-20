@@ -5,7 +5,7 @@ Author: Valentin Benke, https://github.com/Vabe7
 Author: Amy McGovern
 """
 
-from pyparrot.Mambo import Mambo
+from pyparrot.Minidrone import Mambo
 import cv2
 
 mambo = Mambo(None, use_wifi=True) #address is None since it only works with WiFi anyway

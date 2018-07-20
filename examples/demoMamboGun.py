@@ -4,7 +4,7 @@ Demo the gun for the python interface
 Author: Amy McGovern
 """
 
-from pyparrot.Mambo import Mambo
+from pyparrot.Minidrone import Mambo
 
 # you will need to change this to the address of YOUR mambo
 mamboAddr = "e0:14:d0:63:3d:d0"
@@ -31,4 +31,3 @@ mambo.smart_sleep(15)
 
 print("disconnect")
 mambo.disconnect()
-

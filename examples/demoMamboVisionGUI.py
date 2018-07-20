@@ -4,7 +4,7 @@ multi-threaded approach than DroneVision
 
 Author: Amy McGovern
 """
-from pyparrot.Mambo import Mambo
+from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
 import cv2
 
