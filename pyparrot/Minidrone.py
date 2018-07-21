@@ -756,12 +756,12 @@ class Swing(Minidrone):
         :return:
         """
         if (mode not in ('quadricopter', 'plane_forward', 'plane_backward')):
-            print("Error; %s is not a valid value. The value must be: gear_1, gear_2, gear_3")
+            print("Error; %s is not a valid value. The value must be: quadricopter, plane_forward, plane_backward")
             print("Ignoring command and returning")
             return
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlyingMode")
-        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Piloting", "FlyingMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
 
 
     def set_plane_gear_box(self, state):
@@ -776,5 +776,5 @@ class Swing(Minidrone):
             print("Ignoring command and returning")
             return
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PlaneGearBox")
-        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Piloting", "PlaneGearBox", state)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)

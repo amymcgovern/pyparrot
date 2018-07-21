@@ -74,7 +74,7 @@
 		</cmd>
 		<cmd name="FlyingMode" id="6">
 			Set drone FlyingMode. Only supported by WingX
-			<arg name="mode" type="u8">
+			<arg name="mode" type="enum">
 				Drone Flying Mode
 				<enum name="quadricopter">
 					Fly as a quadrictopter
