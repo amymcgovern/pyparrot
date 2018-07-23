@@ -27,6 +27,16 @@ class BebopSensors:
         self.max_vertical_speed = False
         self.max_rotation_speed = False
         self.hull_protection_changed = False
+        self.picture_format_changed = False
+        self.auto_white_balance_changed = False
+        self.exposition_changed = False
+        self.saturation_changed = False
+        self.timelapse_changed = False
+        self.video_stabilization_changed = False
+        self.video_recording_changed = False
+        self.video_framerate_changed = False
+        self.video_resolutions_changed = False
+
         # default to full battery
         self.battery = 100
 
@@ -106,6 +116,33 @@ class BebopSensors:
 
         if (sensor_name == "BatteryStateChanged_battery_percent"):
             self.battery = sensor_value
+
+        if (sensor_name == "PictureFormatChanged_type"):
+            self.picture_format_changed = True
+
+        if (sensor_name == "AutoWhiteBalanceChanged_type"):
+            self.auto_white_balance_changed = True
+
+        if (sensor_name == "ExpositionChanged_value"):
+            self.exposition_changed = True
+
+        if (sensor_name == "SaturationChanged_value"):
+            self.saturation_changed = True
+
+        if (sensor_name == "TimelapseChanged_enabled"):
+            self.timelapse_changed = True
+
+        if (sensor_name == "VideoStabilizationModeChanged_mode"):
+            self.video_stabilization_changed = True
+
+        if (sensor_name == "VideoRecordingModeChanged_mode"):
+            self.video_recording_changed = True
+
+        if (sensor_name == "VideoFramerateChanged_framerate"):
+            self.video_framerate_changed = True
+
+        if (sensor_name == "VideoResolutionsChanged_type"):
+            self.video_resolutions_changed = True
 
         # call the user callback if it isn't None
         if (self.user_callback_function is not None):
@@ -663,8 +700,11 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", format)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "PictureFormatSelection", format)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.picture_format_changed):
+            self.smart_sleep(0.1)
 
     def set_white_balance(self, type):
         """
@@ -678,8 +718,11 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "PictureFormatSelection", type)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "AutoWhiteBalanceSelection", type)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.auto_white_balance_changed):
+            self.smart_sleep(0.1)
 
     def set_exposition(self, value):
         """
@@ -688,13 +731,16 @@ class Bebop():
         :param value:
         :return:
         """
-        if (value < -3 or value > 3):
-            print("Error: %s is not valid image exposure. The value must be between -3 and 3." % value)
+        if (value < -1.5 or value > 1.5):
+            print("Error: %s is not valid image exposure. The value must be between -1.5 and 1.5." % value)
             print("Ignoring command and returning")
             return
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "ExpositionSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
+
+        while (not self.sensors.exposition_changed):
+            self.smart_sleep(0.1)
 
     def set_saturation(self, value):
         """
@@ -711,6 +757,9 @@ class Bebop():
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "SaturationSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
 
+        while (not self.sensors.saturation_changed):
+            self.smart_sleep(0.1)
+
     def set_timelapse(self, enable, interval):
         """
         Set timelapse mode
@@ -719,13 +768,16 @@ class Bebop():
         :param interval:
         :return:
         """
-        if (enable not in (0, 1) or interval < 0):
+        if (enable not in (0, 1) or interval < 8 or interval > 300):
             print("Error: %s or %s is not valid value." % (enable, interval))
             print("Ignoring command and returning")
             return
 
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "TimelapseSelection")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[enable, interval], param_type_tuple=['u8', 'float'])
+
+        while (not self.sensors.timelapse_changed):
+            self.smart_sleep(0.1)
 
     def set_video_stabilization(self, mode):
         """
@@ -739,8 +791,11 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoStabilizationMode", mode)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoStabilizationMode", mode)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_stabilization_changed):
+            self.smart_sleep(0.1)
 
     def set_video_recording(self, mode):
         """
@@ -754,8 +809,11 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoRecordingMode", mode)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoRecordingMode", mode)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_recording_changed):
+            self.smart_sleep(0.1)
 
     def set_video_framerate(self, framerate):
         """
@@ -769,8 +827,11 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoFramerate", framerate)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoFramerate", framerate)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_framerate_changed):
+            self.smart_sleep(0.1)
 
     def set_video_resolutions(self, type):
         """
@@ -784,5 +845,8 @@ class Bebop():
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "VideoResolutions", type)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoResolutions", type)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_resolutions_changed):
+            self.smart_sleep(0.1)
