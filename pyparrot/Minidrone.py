@@ -53,6 +53,9 @@ class MinidroneSensors:
         self.claw_id = 0
         self.claw_state = None
 
+        self.flying_mode = "quadricopter"
+        self.plane_gear_box = "gear_1"
+
         # new SDK sends speed, altitude, and quaternions
         self.speed_x = 0
         self.speed_y = 0
@@ -143,6 +146,10 @@ class MinidroneSensors:
             self.quaternion_z = value
         elif (name == "DroneQuaternion_ts"):
             self.quaternion_ts = value
+        elif (name == "FlyingModeChanged_mode"):
+            self.flying_mode = value
+        elif (name == "PlaneGearBoxChanged_state"):
+            self.plane_gear_box = value
         else:
             #print "new sensor - add me to the struct but saving in the dict for now"
             self.sensors_dict[name] = value
