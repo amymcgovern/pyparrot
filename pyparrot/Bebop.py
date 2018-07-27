@@ -708,7 +708,7 @@ class Bebop():
 
     def set_white_balance(self, type):
         """
-        Set picture format
+        Set white balance
 
         :param type:
         :return:
@@ -760,7 +760,7 @@ class Bebop():
         while (not self.sensors.saturation_changed):
             self.smart_sleep(0.1)
 
-    def set_timelapse(self, enable, interval):
+    def set_timelapse(self, enable, interval=8):
         """
         Set timelapse mode
 
