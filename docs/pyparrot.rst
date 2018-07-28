@@ -38,10 +38,10 @@ pyparrot.DroneVisionGUI module
     :undoc-members:
     :show-inheritance:
 
-pyparrot.Mambo module
+pyparrot.Minidrone module
 ---------------------
 
-.. automodule:: pyparrot.Mambo
+.. automodule:: pyparrot.Minidrone
     :members:
     :undoc-members:
     :show-inheritance:
