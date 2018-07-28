@@ -1,14 +1,14 @@
-.. title:: Mambo Commands and Sensors
+.. title:: Minidrone Commands and Sensors
 
-.. mambocommands:
+.. minidronecommands:
 
-Mambo Commands and Sensors
+Minidrone Commands and Sensors
 ==============================
 
-Mambo commands
+Minidrone commands
 --------------
 
-Each of the public commands available to control the mambo is listed below with its documentation.
+Each of the public commands available to control the minidrone is listed below with its documentation.
 The code is also well documented and you can also look at the API through readthedocs.
 All of the functions preceeded with an underscore are intended to be internal functions and are not listed below.
 
@@ -16,15 +16,21 @@ Creating a Mambo object
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Mambo(address="", use_wifi=True/False)``
-create a mambo object with the specific harware address (found using findMambo). The use_wifi argument defaults to
+create a mambo object with the specific harware address (found using findMinidrone). The use_wifi argument defaults to
 False (which means BLE is the default).  Set to True to use wifi. You can only use wifi if you have a FPV camera
 installed on your Mambo!  If you are using wifi, the hardware address argument can be ignored (it defaults to an empty
 string).
 
+Creating a Swing object
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``Swing(address="")``
+create a Swing object with the specific harware address (found using findMinidrone).
+
 Connecting and disconnecting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``connect(num_retries)`` connect to the Mambo either using BLE services and characteristics or wifi
+``connect(num_retries)`` connect to the Minidrone either using BLE services and characteristics or wifi
 (specified when you created the Mambo object).  This can take several seconds to ensure the connection is working.
 You can specify a maximum number of re-tries.  Returns true if the connection suceeded or False otherwise.
 
@@ -34,30 +40,30 @@ Takeoff and landing
 ^^^^^^^^^^^^^^^^^^^
 
 ``safe_takeoff(timeout)`` This is the recommended method for takeoff.  It sends a command and then checks the
-sensors (via flying state) to ensure the mambo is actually taking off.  Then it waits until the mambo is
+sensors (via flying state) to ensure the minidrone is actually taking off.  Then it waits until the minidrone is
 flying or hovering to return.  It will timeout and return if the time exceeds timeout seconds.
 
-``safe_land(timeout)`` This is the recommended method to land the mambo.  Sends commands
-until the mambo has actually reached the landed state. It will timeout and return if the time exceeds timeout seconds.
+``safe_land(timeout)`` This is the recommended method to land the minidrone.  Sends commands
+until the minidrone has actually reached the landed state. It will timeout and return if the time exceeds timeout seconds.
 
-``takeoff()`` Sends a single takeoff command to the mambo.  This is not the recommended method.
+``takeoff()`` Sends a single takeoff command to the minidrone.  This is not the recommended method.
 
-``land()`` Sends a single land command to the mambo.  This is not the recommended method.
+``land()`` Sends a single land command to the minidrone.  This is not the recommended method.
 
-``turn_on_auto_takeoff()`` This puts the mambo in throw mode.  When it is in throw mode, the eyes will blink.
+``turn_on_auto_takeoff()`` This puts the minidrone in throw mode.  When it is in throw mode, the eyes will blink.
 
 Flying
 ^^^^^^
 
-``hover()`` Puts the mambo into hover mode.  This is the default mode if it is not receiving commands.
+``hover()`` Puts the minidrone into hover mode.  This is the default mode if it is not receiving commands.
 
-``flip(direction)`` Sends the flip command to the mambo. Valid directions to flip are: front, back, right, left.
+``flip(direction)`` Sends the flip command to the minidrone. Valid directions to flip are: front, back, right, left.
 
-``turn_degrees(degrees)`` Turns the mambo in place the specified number of degrees.
+``turn_degrees(degrees)`` Turns the minidrone in place the specified number of degrees.
 The range is -180 to 180.  This can be accomplished in direct_fly() as well but this one uses the
-internal mambo sensors (which are not sent out right now) so it is more accurate.
+internal minidrone sensors (which are not sent out right now) so it is more accurate.
 
-``fly_direct(roll, pitch, yaw, vertical_movement, duration)`` Fly the mambo directly using the
+``fly_direct(roll, pitch, yaw, vertical_movement, duration)`` Fly the minidrone directly using the
 specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.
 Note there are currently no sensors reported back to the user to ensure that these are working but hopefully
 that is addressed in a future firmware upgrade.  Each value ranges from -100 to 100 and is essentially a percentage
@@ -87,20 +93,28 @@ The id is obtained from a prior ``ask_for_state_update()`` call.  Note that you 
 ``fire_gun()`` Fires the gun.  Note that the gun should be attached for this to work.
 The id is obtained from a prior ``ask_for_state_update()`` call.  Note that you cannot use the gun with the FPV camera attached.
 
+Swing specific commands
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``set_plane_gear_box(state)`` Choose the swing angle in plane mode. There are 3 tilt modes: gear_1, gear_2, gear_3.
+Warning gear_3 is very fast.
+
+``set_flying_mode(mode)`` Choose flight mode between: quadricopter, plane_forward, plane_backward.
+Before using this command you must use set_plane_gear_box.
+
 Ground facing camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``take_picture()``` The mambo will take a picture with the downward facing camera.  It only stores up to 40 pictures
+``take_picture()``` The minidrone will take a picture with the downward facing camera.  It only stores up to 40 pictures
 internally so this function deletes them after 35 have been taken.  Make sure you are downloading them either
 using the mobile interface or through the python code.
 
-``get_groundcam_pictures_names()`` Returns the names of the pictures stored internally from the groundcam.
+``get_groundcam_pictures_names()`` Returns the names of the pictures stored internally from the groundcam. Only for the mambo.
 
-``get_groundcam_picture(name)`` Returns the picture with the specified name.
+``get_groundcam_picture(name)`` Returns the picture with the specified name. Only for the mambo.
 
 Sensor related commands
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-``ask_for_state_update()`` This sends a request to the mambo to send back ALL states
+``ask_for_state_update()`` This sends a request to the minidrone to send back ALL states
 (this includes the claw and gun states).  This really only needs to be called once at the start of the program
 to initialize some of the state variables.  If you are on wifi, many of the other variables are sent at 2Hz. If you are
 on BLE, you will want to use this command to get more state information but keep in mind it will be slow.
@@ -112,12 +126,12 @@ Mambo sensors
 -------------
 
 All of the sensor data that is passed back to the program is saved.  Note that Parrot sends back more
-information via wifi than via BLE, due to the limited BLE bandwidth.  The sensors are saved in Mambo.sensors.
-This is an instance of a MamboSensors class, which can be seen at the top of the Mambo.py file.
+information via wifi than via BLE, due to the limited BLE bandwidth.  The sensors are saved in Minidrone.sensors.
+This is an instance of a MamboSensors class, which can be seen at the top of the Minidrone.py file.
 
 The easiest way to interact with the sensors is to call:
 
-``mambo.set_user_sensor_callback(function, args)``. This sets a user callback function with optional
+``minidrone.set_user_sensor_callback(function, args)``. This sets a user callback function with optional
 arguments that is called each time a sensor is updated.  The refresh rate on wifi is 2Hz.
 
 The sensors are:
