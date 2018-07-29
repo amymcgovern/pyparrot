@@ -376,6 +376,11 @@ below takes off, takes a picture, and then grabs a random picture from the groun
 
 Demo of the flying mode on the swing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`demoSwingDirectFlight.py <https://github.com/amymcgovern/pyparrot/blob/master/examples/demoSwingDirectFlight.py>`_
+You can see how to use the set_flying_mode command. I advise you to have enough space to use this script.
+
+.. code-block:: python
+
 """
 Demo the direct flying for the python interface
 
@@ -412,7 +417,7 @@ if (success):
 
     print("quadricopter")
     swing.set_flying_mode("quadricopter")
-    
+
     print("landing")
     swing.safe_land(5)
     swing.smart_sleep(5)
