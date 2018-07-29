@@ -75,8 +75,7 @@ to perform the flips!  The highlighted lines need to change for YOUR mambo and c
 
 
 .. code-block:: python
-    :emphasize-lines: 10,14
-
+    
     """
     Demo the trick flying for the python interface
 
@@ -156,7 +155,6 @@ This code is provided in
 and is also shown below.  Again, the highlighted lines must be changed to the parameters for your mambo and connection.
 
 .. code-block:: python
-    :emphasize-lines: 10,14
 
     """
     Demo the direct flying for the python interface
@@ -230,7 +228,6 @@ show how to use the claw accessory. The highlighted line must be changed to the 
 parameter must stay at False.  In this demo program, the mambo takes off, opens and closes the claw, and lands again.
 
 .. code-block:: python
-    :emphasize-lines: 10
 
     """
     Demo the claw for the python interface
@@ -284,7 +281,6 @@ show how to use the gun accessory. The highlighted line must be changed to the B
 parameter must stay at False.  In this demo program, the mambo takes off, fires the gun, and lands again.
 
 .. code-block:: python
-    :emphasize-lines: 10
 
     """
     Demo the gun for the python interface
