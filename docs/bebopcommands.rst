@@ -118,6 +118,25 @@ the initial velocity is sent and then the function returns (meaning the camera w
 If duration is greater than 0, the command executes for that amount of time and then sends a stop command to
 the camera and then returns.
 
+``set_picture_format(format)``: Change the picture format to raw, jpeg, snapshot or jpeg_fisheye.
+
+``set_white_balance(type)``: Change the type of white balance between: auto, tungsten, daylight, cloudy or cool_white.
+
+``set_exposition(value)``: Change the image exposition between -1.5 and 1.5.
+
+``set_saturation(value)``: Change the image saturation between -100 and 100.
+
+``set_timelapse(enable, interval)``: To start a timelapse set enable at 1 and an interval between 8 and 300 sec.
+To stop the  timelapse just set enable to 0.
+
+``set_video_stabilization(mode)``: Change the video stabilization between 4 modes: roll_pitch, pitch, roll, none.
+
+``set_video_recording(mode)``: Change the video recording mode between quality and time.
+
+``set_video_framerate(framerate)``: Change the video framerate between: 24_FPS, 25_FPS or 30_FPS.
+
+``set_video_resolutions(type)``: Change the video resolutions for stream and rec between rec1080_stream480, rec720_stream720.
+
 Sensor commands
 ^^^^^^^^^^^^^^^
 
@@ -144,4 +163,3 @@ The sensors are:
 * battery (defaults to 100 and stays at that level until a real reading is received from the drone)
 * flying_state: This is updated as frequently as the drone sends it out and can be one of "landed", "takingoff", "hovering", "flying", "landing", "emergency", "usertakeoff", "motor_ramping", "emergency_landing".  These are the values as specified in `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_.
 * sensors_dict: all other sensors are saved by name in a dictionary.  The names come from the `ardrone3.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/ardrone3.xml>`_ and `common.xml <https://github.com/amymcgovern/pyparrot/blob/master/pyparrot/commandsandsensors/common.xml>`_.
-

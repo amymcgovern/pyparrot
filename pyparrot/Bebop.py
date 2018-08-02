@@ -27,6 +27,16 @@ class BebopSensors:
         self.max_vertical_speed = False
         self.max_rotation_speed = False
         self.hull_protection_changed = False
+        self.picture_format_changed = False
+        self.auto_white_balance_changed = False
+        self.exposition_changed = False
+        self.saturation_changed = False
+        self.timelapse_changed = False
+        self.video_stabilization_changed = False
+        self.video_recording_changed = False
+        self.video_framerate_changed = False
+        self.video_resolutions_changed = False
+
         # default to full battery
         self.battery = 100
 
@@ -106,6 +116,33 @@ class BebopSensors:
 
         if (sensor_name == "BatteryStateChanged_battery_percent"):
             self.battery = sensor_value
+
+        if (sensor_name == "PictureFormatChanged_type"):
+            self.picture_format_changed = True
+
+        if (sensor_name == "AutoWhiteBalanceChanged_type"):
+            self.auto_white_balance_changed = True
+
+        if (sensor_name == "ExpositionChanged_value"):
+            self.exposition_changed = True
+
+        if (sensor_name == "SaturationChanged_value"):
+            self.saturation_changed = True
+
+        if (sensor_name == "TimelapseChanged_enabled"):
+            self.timelapse_changed = True
+
+        if (sensor_name == "VideoStabilizationModeChanged_mode"):
+            self.video_stabilization_changed = True
+
+        if (sensor_name == "VideoRecordingModeChanged_mode"):
+            self.video_recording_changed = True
+
+        if (sensor_name == "VideoFramerateChanged_framerate"):
+            self.video_framerate_changed = True
+
+        if (sensor_name == "VideoResolutionsChanged_type"):
+            self.video_resolutions_changed = True
 
         # call the user callback if it isn't None
         if (self.user_callback_function is not None):
@@ -414,7 +451,7 @@ class Bebop():
 
         :return: nothing
         """
-        
+
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
         param_tuple = [1] # Enable
         param_type_tuple = ['u8']
@@ -428,18 +465,18 @@ class Bebop():
 
         :return: nothing
         """
-        
+
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "MediaStreaming", "VideoEnable")
         param_tuple = [0] # Disable
         param_type_tuple = ['u8']
         self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
-        
+
 
     def set_video_stream_mode(self,mode='low_latency'):
         """
         Set the video mode for the RTP stream.
         :param: mode: one of 'low_latency', 'high_reliability' or 'high_reliability_low_framerate'
-  
+
         :return: True if the command was sent and False otherwise
         """
 
@@ -451,10 +488,10 @@ class Bebop():
             print("Ignoring command and returning")
             return False
 
-        
+
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3",
                                                                                       "MediaStreaming", "VideoStreamMode", mode)
-        
+
         return self.drone_connection.send_enum_command_packet_ack(command_tuple,enum_tuple)
 
     def pan_tilt_camera(self, tilt_degrees, pan_degrees):
@@ -649,4 +686,167 @@ class Bebop():
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[present], param_type_tuple=['u8'])
 
         while (not self.sensors.hull_protection_changed):
+            self.smart_sleep(0.1)
+
+    def set_picture_format(self, format):
+        """
+        Set picture format
+
+        :param format:
+        :return:
+        """
+        if (format not in ('raw', 'jpeg', 'snapshot', 'jpeg_fisheye')):
+            print("Error: %s is not valid value. The value must be : raw, jpeg, snapshot, jpeg_fisheye" % format)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "PictureFormatSelection", format)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.picture_format_changed):
+            self.smart_sleep(0.1)
+
+    def set_white_balance(self, type):
+        """
+        Set white balance
+
+        :param type:
+        :return:
+        """
+        if (type not in ('auto', 'tungsten', 'daylight', 'cloudy', 'cool_white')):
+            print("Error: %s is not valid value. The value must be : auto, tungsten, daylight, cloudy, cool_white" % type)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "AutoWhiteBalanceSelection", type)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.auto_white_balance_changed):
+            self.smart_sleep(0.1)
+
+    def set_exposition(self, value):
+        """
+        Set image exposure
+
+        :param value:
+        :return:
+        """
+        if (value < -1.5 or value > 1.5):
+            print("Error: %s is not valid image exposure. The value must be between -1.5 and 1.5." % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "ExpositionSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
+
+        while (not self.sensors.exposition_changed):
+            self.smart_sleep(0.1)
+
+    def set_saturation(self, value):
+        """
+        Set image saturation
+
+        :param value:
+        :return:
+        """
+        if (value < -100 or value > 100):
+            print("Error: %s is not valid image saturation. The value must be between -100 and 100." % value)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "SaturationSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[value], param_type_tuple=['float'])
+
+        while (not self.sensors.saturation_changed):
+            self.smart_sleep(0.1)
+
+    def set_timelapse(self, enable, interval=8):
+        """
+        Set timelapse mode
+
+        :param enable:
+        :param interval:
+        :return:
+        """
+        if (enable not in (0, 1) or interval < 8 or interval > 300):
+            print("Error: %s or %s is not valid value." % (enable, interval))
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "PictureSettings", "TimelapseSelection")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[enable, interval], param_type_tuple=['u8', 'float'])
+
+        while (not self.sensors.timelapse_changed):
+            self.smart_sleep(0.1)
+
+    def set_video_stabilization(self, mode):
+        """
+        Set video stabilization mode
+
+        :param mode:
+        :return:
+        """
+        if (mode not in ('roll_pitch', 'pitch', 'roll', 'none')):
+            print("Error: %s is not valid value. The value must be : roll_pitch, pitch, roll, none" % mode)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoStabilizationMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_stabilization_changed):
+            self.smart_sleep(0.1)
+
+    def set_video_recording(self, mode):
+        """
+        Set video recording mode
+
+        :param mode:
+        :return:
+        """
+        if (mode not in ('quality', 'time')):
+            print("Error: %s is not valid value. The value must be : quality, time" % mode)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoRecordingMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_recording_changed):
+            self.smart_sleep(0.1)
+
+    def set_video_framerate(self, framerate):
+        """
+        Set video framerate
+
+        :param framerate:
+        :return:
+        """
+        if (framerate not in ('24_FPS', '25_FPS', '30_FPS')):
+            print("Error: %s is not valid value. The value must be : 24_FPS, 25_FPS, 30_FPS" % framerate)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoFramerate", framerate)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_framerate_changed):
+            self.smart_sleep(0.1)
+
+    def set_video_resolutions(self, type):
+        """
+        Set video resolutions
+
+        :param type:
+        :return:
+        """
+        if (type not in ('rec1080_stream480', 'rec720_stream720')):
+            print("Error: %s is not valid value. The value must be : rec1080_stream480, rec720_stream720" % type)
+            print("Ignoring command and returning")
+            return
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("ardrone3", "PictureSettings", "VideoResolutions", type)
+        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+        while (not self.sensors.video_resolutions_changed):
             self.smart_sleep(0.1)
