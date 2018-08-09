@@ -330,12 +330,13 @@ class DroneVisionGUI:
         # run forever, trying to grab the latest image
         if (self.vision_running):
             # generate a temporary file, gets deleted after usage automatically
-            self.file = tempfile.NamedTemporaryFile(dir=self.imagePath)
+            #self.file = tempfile.NamedTemporaryFile(dir=self.imagePath)
+            self.file = join(self.imagePath, "visionStream.jpg")
             #self.file = tempfile.SpooledTemporaryFile(max_size=32768)
             # save the current picture from the stream
-            self.player.video_take_snapshot(0, self.file.name, 0, 0)
+            self.player.video_take_snapshot(0, self.file, 0, 0)
             # read the picture into opencv
-            img = cv2.imread(self.file.name)
+            img = cv2.imread(self.file)
 
             # sometimes cv2 returns a None object so skip putting those in the array
             if (img is not None):

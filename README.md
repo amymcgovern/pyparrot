@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 8/9/2018: Version 1.4.31: hard-coded name for vision stream on windows
 * 8/9/2018: Version 1.4.30: fixed vision bug in windows using VLC (tempfile issues) and also made fps a parameter for VLC vision
 * 7/16/2018: Version 1.4.29: added bebop user sensor callback function to match mambo
 * 7/15/2018: Version 1.4.28: added bebop battery state to default state variables (was in the dictionary only before)
