@@ -171,7 +171,7 @@ class UserCodeToRun(QThread):
 
 
 class DroneVisionGUI:
-    def __init__(self, drone_object, is_bebop, user_code_to_run, user_args, buffer_size=200, network_caching=200):
+    def __init__(self, drone_object, is_bebop, user_code_to_run, user_args, buffer_size=200, network_caching=200, fps=20):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -183,8 +183,10 @@ class DroneVisionGUI:
         :param user_args: arguments to the user code
         :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
         :param network_caching: buffering time in milli-seconds, 200 should be enough, 150 works on some devices
+        :param fps: frame rate for the vision
         """
-        self.fps = 30
+        self.fps = fps
+        self.vision_interval = int(1000 * 1.0 / self.fps)
         self.buffer_size = buffer_size
         self.drone_object = drone_object
         self.is_bebop = is_bebop
@@ -303,7 +305,7 @@ class DroneVisionGUI:
 
         # setup the timer for snapshots
         self.timer = QTimer(self.vlc_gui)
-        self.timer.setInterval(100)
+        self.timer.setInterval(self.vision_interval)
         self.timer.timeout.connect(self._buffer_vision)
         self.timer.start()
 
@@ -328,7 +330,7 @@ class DroneVisionGUI:
         # run forever, trying to grab the latest image
         if (self.vision_running):
             # generate a temporary file, gets deleted after usage automatically
-            self.file = tempfile.NamedTemporaryFile()
+            self.file = tempfile.NamedTemporaryFile(dir=self.imagePath)
             #self.file = tempfile.SpooledTemporaryFile(max_size=32768)
             # save the current picture from the stream
             self.player.video_take_snapshot(0, self.file.name, 0, 0)

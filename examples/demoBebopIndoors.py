@@ -8,7 +8,7 @@ Author: Amy McGovern
 
 from pyparrot.Bebop import Bebop
 
-bebop = Bebop()
+bebop = Bebop(drone_type="Bebop")
 
 print("connecting")
 success = bebop.connect(10)
@@ -30,7 +30,7 @@ if (success):
     bebop.set_max_vertical_speed(1)
 
     # trying out the new hull protector parameters - set to 1 for a hull protection and 0 without protection
-    bebop.set_hull_protection(1)
+    #bebop.set_hull_protection(1)
 
     print("Flying direct: Slow move for indoors")
     bebop.fly_direct(roll=0, pitch=20, yaw=0, vertical_movement=0, duration=2)
@@ -42,4 +42,5 @@ if (success):
     print("DONE - disconnecting")
     bebop.stop_video_stream()
     bebop.smart_sleep(5)
+    print(bebop.sensors.battery)
     bebop.disconnect()
