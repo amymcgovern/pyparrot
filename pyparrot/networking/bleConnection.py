@@ -5,21 +5,21 @@ import time
 from pyparrot.commandsandsensors.DroneSensorParser import get_data_format_and_size
 from datetime import datetime
 
-class MamboDelegate(DefaultDelegate):
+class MinidroneDelegate(DefaultDelegate):
     """
     Handle BLE notififications
     """
-    def __init__(self, handle_map, mambo, ble_connection):
+    def __init__(self, handle_map, minidrone, ble_connection):
         DefaultDelegate.__init__(self)
         self.handle_map = handle_map
-        self.mambo = mambo
+        self.minidrone = minidrone
         self.ble_connection = ble_connection
         color_print("initializing notification delegate", "INFO")
 
     def handleNotification(self, cHandle, data):
         #print "handling notificiation from channel %d" % cHandle
         #print "handle map is %s " % self.handle_map[cHandle]
-        #print "channel map is %s " % self.mambo.characteristic_receive_uuids[self.handle_map[cHandle]]
+        #print "channel map is %s " % self.minidrone.characteristic_receive_uuids[self.handle_map[cHandle]]
         #print "data is %s " % data
 
         channel = self.ble_connection.characteristic_receive_uuids[self.handle_map[cHandle]]
@@ -30,11 +30,11 @@ class MamboDelegate(DefaultDelegate):
         if channel == 'ACK_DRONE_DATA':
             # data received from drone (needs to be ack on 1e)
             #color_print("calling update sensors ack true", "WARN")
-            self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=True)
+            self.minidrone.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=True)
         elif channel == 'NO_ACK_DRONE_DATA':
             # data from drone (including battery and others), no ack
             #color_print("drone data - no ack needed")
-            self.mambo.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=False)
+            self.minidrone.update_sensors(packet_type, None, packet_seq_num, raw_data, ack=False)
         elif channel == 'ACK_COMMAND_SENT':
             # ack 0b channel, SEND_WITH_ACK
             #color_print("Ack!  command received!")
@@ -49,19 +49,19 @@ class MamboDelegate(DefaultDelegate):
 
 
 class BLEConnection:
-    def __init__(self, address, mambo):
+    def __init__(self, address, minidrone):
         """
-             Initialize with its BLE address - if you don't know the address, call findMambo
+             Initialize with its BLE address - if you don't know the address, call findMinidrone
              and that will discover it for you.
 
-             :param address: unique address for this mambo
-             :param mambo: the Mambo object for this mambo (needed for callbacks for sensors)
+             :param address: unique address for this minidrone
+             :param minidrone: the Minidrone object for this minidrone (needed for callbacks for sensors)
              """
         self.address = address
         self.drone_connection = Peripheral()
-        self.mambo = mambo
+        self.minidrone = minidrone
 
-        # the following UUID segments come from the Mambo and from the documenation at
+        # the following UUID segments come from the Minidrone and from the documenation at
         # http://forum.developer.parrot.com/t/minidrone-characteristics-uuid/4686/3
         # the 3rd and 4th bytes are used to identify the service
         self.service_uuids = {
@@ -188,7 +188,7 @@ class BLEConnection:
         success = False
         while (try_num < num_retries and not success):
             try:
-                color_print("trying to re-connect to the mambo at address %s" % self.address, "WARN")
+                color_print("trying to re-connect to the minidrone at address %s" % self.address, "WARN")
                 self.drone_connection.connect(self.address, "random")
                 color_print("connected!  Asking for services and characteristics", "SUCCESS")
                 success = True
@@ -204,12 +204,12 @@ class BLEConnection:
 
     def _connect(self):
         """
-        Connect to the mambo to prepare for flying - includes getting the services and characteristics
+        Connect to the minidrone to prepare for flying - includes getting the services and characteristics
         for communication
 
         :return: throws an error if the drone connection failed.  Returns void if nothing failed.
         """
-        color_print("trying to connect to the mambo at address %s" % self.address, "INFO")
+        color_print("trying to connect to the minidrone at address %s" % self.address, "INFO")
         self.drone_connection.connect(self.address, "random")
         color_print("connected!  Asking for services and characteristics", "SUCCESS")
 
@@ -294,7 +294,7 @@ class BLEConnection:
         self._perform_handshake()
 
         # initialize the delegate to handle notifications
-        self.drone_connection.setDelegate(MamboDelegate(handle_map, self.mambo, self))
+        self.drone_connection.setDelegate(MinidroneDelegate(handle_map, self.minidrone, self))
 
     def _perform_handshake(self):
         """

@@ -1,16 +1,16 @@
-.. title:: Quick Start with a Mambo
+.. title:: Quick Start with a Minidrone
 
 .. quickstartmambo:
 
-Quick Start Guide with a Mambo
+Quick Start Guide with a Minidrone
 ==============================
 
-Using the pyparrot library on the Mambo
+Using the pyparrot library on the Minidrone
 ---------------------------------------
 
 Before running any of the sample code, you will need to connect to your drone.  If you have a Mambo FPV, I highly
 recommend using the wifi connection since it sends much more information using wifi than BLE.  If you have a Mambo Code
-or a Mambo Fly (neither of which has a camera), then you need to use the BLE connection.
+or a Mambo Fly or Swing(neither of which has a camera), then you need to use the BLE connection.
 
 wifi connection
 ^^^^^^^^^^^^^^^
@@ -22,17 +22,17 @@ BLE connection
 ^^^^^^^^^^^^^^
 
 If you do not have a camera or want to use BLE for other reasons(e.g. swarm), you will first need to find the
-BLE address of your Mambo(s).  BLE permissions on linux require that this command run in sudo mode.
+BLE address of your Minidrone(s).  BLE permissions on linux require that this command run in sudo mode.
 To run this, from the bin directory for your python installation, type:
 
 ::
 
-    sudo find_mambo
+    sudo findMinidrone
 
 
-This will identify all BLE devices within hearing of the Pi.  The Mambo's specific address will be printed at the end.
-Save the address and use it in your connection code (discussed below).  If findMambo does not
-report "FOUND A MAMBO!", then be sure your Mambo is turned on when you run the findMambo code and that your Pi
+This will identify all BLE devices within hearing of the Pi.  The Minidrone's specific address will be printed at the end.
+Save the address and use it in your connection code (discussed below).  If findMinidrone does not
+report "FOUND A MAMBO!" or "FOUND A SWING!", then be sure your minidrone is turned on when you run the findMambo code and that your Pi
 (or other linux box) has its BLE interface turned on.
 
 The output should look something like this.  I removed my own BLE addresses from my network for security but I am
@@ -60,7 +60,7 @@ Quick start:  Demo Code
 -----------------------
 
 I have provided a set of `example <https://github.com/amymcgovern/pyparrot/tree/master/examples>`_ scripts for both the
-Mambo and the Bebop.  Note that you will need to edit the mambo scripts to either use your own BLE address or to
+Mambo and the Bebop.  Note that you will need to edit the minidrone scripts to either use your own BLE address or to
 ensure that use_wifi=True is set, so that it connects using wifi.
 **Note that you do not need to run any of the other code in sudo mode!**  That was only for discovery.
 
@@ -75,15 +75,14 @@ to perform the flips!  The highlighted lines need to change for YOUR mambo and c
 
 
 .. code-block:: python
-    :emphasize-lines: 10,14
-
+    
     """
     Demo the trick flying for the python interface
 
     Author: Amy McGovern
     """
 
-    from pyparrot.Mambo import Mambo
+    from pyparrot.Minidrone import Mambo
 
     # you will need to change this to the address of YOUR mambo
     mamboAddr = "e0:14:d0:63:3d:d0"
@@ -156,7 +155,6 @@ This code is provided in
 and is also shown below.  Again, the highlighted lines must be changed to the parameters for your mambo and connection.
 
 .. code-block:: python
-    :emphasize-lines: 10,14
 
     """
     Demo the direct flying for the python interface
@@ -164,7 +162,7 @@ and is also shown below.  Again, the highlighted lines must be changed to the pa
     Author: Amy McGovern
     """
 
-    from pyparrot.Mambo import Mambo
+    from pyparrot.Minidrone import Mambo
 
     # you will need to change this to the address of YOUR mambo
     mamboAddr = "e0:14:d0:63:3d:d0"
@@ -230,7 +228,6 @@ show how to use the claw accessory. The highlighted line must be changed to the 
 parameter must stay at False.  In this demo program, the mambo takes off, opens and closes the claw, and lands again.
 
 .. code-block:: python
-    :emphasize-lines: 10
 
     """
     Demo the claw for the python interface
@@ -238,7 +235,7 @@ parameter must stay at False.  In this demo program, the mambo takes off, opens 
     Author: Amy McGovern
     """
 
-    from pyparrot.Mambo import Mambo
+    from pyparrot.Minidrone import Mambo
 
     # you will need to change this to the address of YOUR mambo
     mamboAddr = "e0:14:d0:63:3d:d0"
@@ -284,7 +281,6 @@ show how to use the gun accessory. The highlighted line must be changed to the B
 parameter must stay at False.  In this demo program, the mambo takes off, fires the gun, and lands again.
 
 .. code-block:: python
-    :emphasize-lines: 10
 
     """
     Demo the gun for the python interface
@@ -292,7 +288,7 @@ parameter must stay at False.  In this demo program, the mambo takes off, fires 
     Author: Amy McGovern
     """
 
-    from pyparrot.Mambo import Mambo
+    from pyparrot.Minidrone import Mambo
 
     # you will need to change this to the address of YOUR mambo
     mamboAddr = "e0:14:d0:63:3d:d0"
@@ -339,7 +335,7 @@ below takes off, takes a picture, and then grabs a random picture from the groun
     Author: Amy McGovern
     """
 
-    from pyparrot.Mambo import Mambo
+    from pyparrot.Minidrone import Mambo
     import cv2
 
     mambo = Mambo(None, use_wifi=True) #address is None since it only works with WiFi anyway
@@ -373,3 +369,54 @@ below takes off, takes a picture, and then grabs a random picture from the groun
 
         mambo.safe_land(5)
         mambo.disconnect()
+
+Demo of the flying mode on the swing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`demoSwingDirectFlight.py <https://github.com/amymcgovern/pyparrot/blob/master/examples/demoSwingDirectFlight.py>`_
+You can see how to use the set_flying_mode command. I advise you to have enough space to use this script.
+
+.. code-block:: python
+
+    """
+    Demo the direct flying for the python interface
+
+    Author: Victor804
+    """
+
+    from pyparrot.Minidrone import Swing
+
+    # you will need to change this to the address of YOUR swing
+    swingAddr = "e0:14:04:a7:3d:cb"
+
+    # make my swing object
+    swing = Swing(swingAddr)
+
+    print("trying to connect")
+    success = swing.connect(num_retries=3)
+    print("connected: %s" % success)
+
+    if (success):
+        # get the state information
+        print("sleeping")
+        swing.smart_sleep(2)
+        swing.ask_for_state_update()
+        swing.smart_sleep(2)
+
+        print("taking off!")
+        swing.safe_takeoff(5)
+
+        print("plane forward")
+        swing.set_plane_gear_box("gear_1")
+        swing.set_flying_mode("plane_forward")
+
+        swing.smart_sleep(1)
+
+        print("quadricopter")
+        swing.set_flying_mode("quadricopter")
+
+        print("landing")
+        swing.safe_land(5)
+       swing.smart_sleep(5)
+
+       print("disconnect")
+       swing.disconnect()

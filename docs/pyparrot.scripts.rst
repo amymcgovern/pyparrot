@@ -4,10 +4,10 @@ pyparrot.scripts package
 Submodules
 ----------
 
-pyparrot.scripts.findMambo module
+pyparrot.scripts.findMinidrone module
 ---------------------------------
 
-.. automodule:: pyparrot.scripts.findMambo
+.. automodule:: pyparrot.scripts.findMinidrone
     :members:
     :undoc-members:
     :show-inheritance:

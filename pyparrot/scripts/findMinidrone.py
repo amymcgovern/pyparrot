@@ -39,6 +39,11 @@ def main():
                     print("Device %s (%s), RSSI=%d dB" % (dev.addr, dev.addrType, dev.rssi))
                     print("  %s = %s" % (desc, value))
 
+                elif ("Swing" in value):
+                    print("FOUND A SWING!")
+                    print("Device %s (%s), RSSI=%d dB" % (dev.addr, dev.addrType, dev.rssi))
+                    print("  %s = %s" % (desc, value))
+
 
 if __name__ == "__main__":
     main()

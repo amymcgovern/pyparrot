@@ -4,7 +4,7 @@ Demo the trick flying for the python interface
 Author: Amy McGovern
 """
 
-from pyparrot.Mambo import Mambo
+from pyparrot.Minidrone import Mambo
 
 # If you are using BLE: you will need to change this to the address of YOUR mambo
 # if you are using Wifi, this can be ignored
@@ -64,4 +64,3 @@ if (success):
 
     print("disconnect")
     mambo.disconnect()
-

@@ -3,7 +3,7 @@ Demo of the ffmpeg based mambo vision code (basically flies around and saves out
 
 Author: Amy McGovern
 """
-from pyparrot.Mambo import Mambo
+from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVision import DroneVision
 import threading
 import cv2

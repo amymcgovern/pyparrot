@@ -7,11 +7,11 @@ Frequently Asked Questions
 
 Below is a list of common errors and how to fix them.
 
-Vision isn't showing anything on the mambo
+Vision isn't showing anything on the minidrone
 ------------------------------------------
 
-The Mambo camera puts itself into a "resting" state after not flying for several minutes.  To solve this, you
-either need to fly again (a simple takeoff and landing will suffice) or reboot the mambo and reconnect.
+The Minidrone camera puts itself into a "resting" state after not flying for several minutes.  To solve this, you
+either need to fly again (a simple takeoff and landing will suffice) or reboot the minidrone and reconnect.
 
 
 My drone does takeoff and landing but nothing else
@@ -51,7 +51,6 @@ The second common error is about the address being in use, as shown below.
 
 
 There are two ways to fix this, depending on the issue.  It is possible you tried to run a second program while
-you still had a first program running.  If this is the case, make sure you stop all of your mambo programs and then
-restart only one.  If you are not running a second mambo program, then the solution is to reboot.  This sometimes
+you still had a first program running.  If this is the case, make sure you stop all of your minidrone programs and then
+restart only one.  If you are not running a second minidrone program, then the solution is to reboot.  This sometimes
 happens due to the program crashing before it releases the socket.
-

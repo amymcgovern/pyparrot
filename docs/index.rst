@@ -5,7 +5,7 @@
 
 Welcome to pyparrot's documentation!
 ====================================
-pyparrot is designed to program Parrot Mambo and Parrot Bebop 2 drones
+pyparrot is designed to program Parrot Minidrone and Parrot Bebop 2 drones
 using python.  This interface was developed to teach kids of all ages (K-20) STEM
 concepts (programming, math, and more) by having them program a drone
 to fly autonomously.  Anyone can use it who is interested in
@@ -18,9 +18,9 @@ Main documentation
    :maxdepth: 3
 
    installation.rst
-   quickstartmambo.rst
+   quickstartminidrone.rst
    quickstartbebop.rst
-   mambocommands.rst
+   minidronecommands.rst
    bebopcommands.rst
    vision.rst
    faq.rst

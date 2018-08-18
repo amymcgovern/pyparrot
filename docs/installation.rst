@@ -12,7 +12,7 @@ programs is improved in python 3.
 Requirements
 ------------
 
-The choice of related packages is dependent on your choice of drone (Mambo, Mambo FPV, Beebop 2) and
+The choice of related packages is dependent on your choice of drone (Mambo, Mambo FPV, Beebop 2, Swing) and
 to the operating system that you will be using to develop.
 
 Hardware/Drone requirements
@@ -22,9 +22,11 @@ Hardware/Drone requirements
 
 * **Parrot Mambo Fly or Code**: If you have a Mambo without the camera, you will use the BLE interface. pyparrot currently only supports Linux for BLE.  The BLE interface was developed on a Raspberry Pi 3 Model B but it has been tested on other Linux machines.
 
+* **Parrot Swing**: To use the Swing you will use the BLE interface.
+
 * **Parrot Bebop 2**: The Bebop interface was tested on a Bebop 2 using a laptop with wifi (any wifi enabled device should work).
 
-* **Parrot Bebop**: A Bebop one will also work with any wifi enabled device
+* **Parrot Bebop**: A Bebop one will also work with any wifi enabled device.
 
 
 Software requirements
