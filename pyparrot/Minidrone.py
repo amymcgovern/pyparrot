@@ -763,7 +763,7 @@ class Swing(Minidrone):
         :return:
         """
         if (mode not in ('quadricopter', 'plane_forward', 'plane_backward')):
-            print("Error; %s is not a valid value. The value must be: quadricopter, plane_forward, plane_backward")
+            print("Error: %s is not a valid value. The value must be: quadricopter, plane_forward, plane_backward" % mode)
             print("Ignoring command and returning")
             return
 
@@ -779,7 +779,7 @@ class Swing(Minidrone):
         :return:
         """
         if (state not in ('gear_1', 'gear_2', 'gear_3')):
-            print("Error; %s is not a valid value. The value must be: gear_1, gear_2, gear_3")
+            print("Error: %s is not a valid value. The value must be: gear_1, gear_2, gear_3" % state)
             print("Ignoring command and returning")
             return
 
