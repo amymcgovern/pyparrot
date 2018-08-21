@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 8/21/2018: Version 1.5.1: fixed small fix for typo in minidrones (for swing)
 * 8/18/2018: Version 1.5.0: major update to suppport parrot swing drones (thank you Victor804).  This does break a small backwards compatibility in that you need to import Mambo from Minidrone instead of Mambo.  Everything else remains the same.
 * 8/9/2018: Version 1.4.31: hard-coded name for vision stream on windows
 * 8/9/2018: Version 1.4.30: fixed vision bug in windows using VLC (tempfile issues) and also made fps a parameter for VLC vision
