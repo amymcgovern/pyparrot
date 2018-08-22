@@ -75,7 +75,7 @@ to perform the flips!  The highlighted lines need to change for YOUR mambo and c
 
 
 .. code-block:: python
-    
+
     """
     Demo the trick flying for the python interface
 
@@ -406,7 +406,6 @@ You can see how to use the set_flying_mode command. I advise you to have enough 
         swing.safe_takeoff(5)
 
         print("plane forward")
-        swing.set_plane_gear_box("gear_1")
         swing.set_flying_mode("plane_forward")
 
         swing.smart_sleep(1)

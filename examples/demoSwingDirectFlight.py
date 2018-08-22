@@ -27,7 +27,6 @@ if (success):
     swing.safe_takeoff(5)
 
     print("plane forward")
-    swing.set_plane_gear_box("gear_1")
     swing.set_flying_mode("plane_forward")
 
     swing.smart_sleep(1)

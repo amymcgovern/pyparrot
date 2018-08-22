@@ -99,7 +99,6 @@ Swing specific commands
 Warning gear_3 is very fast.
 
 ``set_flying_mode(mode)`` Choose flight mode between: quadricopter, plane_forward, plane_backward.
-Before using this command you must use set_plane_gear_box.
 
 Ground facing camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
