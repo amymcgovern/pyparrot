@@ -31,6 +31,7 @@ def joystick_init():
 
     return joystick
 
+
 def mapping_button(joystick, drone_commands):
     mapping = {}
 
@@ -40,10 +41,12 @@ def mapping_button(joystick, drone_commands):
         while not done:
             for event in pygame.event.get():
                 if event.type == pygame.JOYBUTTONDOWN:
-                    mapping[command] = event.button
-                    done = True
+                    if event.button not in (value for value in mapping.values()):
+                        mapping[command] = event.button
+                        done = True
 
     return mapping
+
 
 def mapping_axis(joystick, axes):
     mapping = {}
@@ -59,6 +62,42 @@ def mapping_axis(joystick, axes):
                         done = True
 
     return mapping
+
+
+def parse_button(drone_commands, button):
+    commands = drone_commands[button][0]
+    args = drone_commands[button][-1]
+
+    len_commands = len(commands)
+    len_args = len(args)
+
+    command = commands[0]
+    arg = args[0]
+    if len_commands == 1:
+        if len_args == 1:
+            command(arg)
+
+        else:
+            command(arg)
+
+            _args = args[1:]
+            drone_commands[button][-1] = _args+[arg]
+
+    else:
+        if len_args == 1:
+            command(arg)
+
+            _commands = commands[1:]
+            drone_commands[button][0] = _commands+[command]
+        else:
+            command(arg)
+
+            _commands = commands[1:]
+            drone_commands[button][0] = _commands+[command]
+
+            _args = args[1:]
+            drone_commands[button][-1] = _arg+[arg]
+
 
 def main_loop(joystick, drone_commands, mapping_button, mapping_axis):
     while True:
@@ -77,44 +116,30 @@ def main_loop(joystick, drone_commands, mapping_button, mapping_axis):
 
         for button, value in mapping_button.items():
             if joystick.get_button(value):
-                if button == "takeoff":
-                    drone_commands[button](5)
+                parse_button(drone_commands, button)
 
-                if button == "landing":
-                    drone_commands[button](5)
 
-                if button == "fly_mode":
-                    if drone_commands[button][-1] == 1:
-                        drone_commands[button][0]([drone_commands[button][-1]])
-                        drone_commands[button][-1] = 2
-
-                    elif drone_commands[button][-1] == 2:
-                        drone_commands[button][0]([drone_commands[button][-1]])
-                        drone_commands[button][-1] = 1
-
-                if button == "plane_gear_box_up":
-                    if swing.sensors.plane_gear_box[-1] == 3:
-                        pass
-
-                    else:
-                         drone_commands[button](swing.sensors.plane_gear_box+str(int(swing.sensors.plane_gear_box[-1])+1))
-
-                if button == "plane_gear_box_down":
-                    if swing.sensors.plane_gear_box[-1] == 1:
-                        pass
-
-                    else:
-                        drone_commands[button](swing.sensors.plane_gear_box+str(int(swing.sensors.plane_gear_box[-1])-1))
 
 if __name__ == "__main__":
     swing = Swing("e0:14:04:a7:3d:cb")
 
     drone_commands = {
-                        "takeoff": swing.safe_takeoff,
-                        "landing":swing.safe_land,
-                        "fly_mode": [swing.set_flying_mode, "quadricopter", "plane_forward", 1],
-                        "plane_gear_box_up": swing.set_plane_gear_box,
-                        "plane_gear_box_down": swing.set_plane_gear_box,
+                        "takeoff_landing":[
+                                            [swing.safe_takeoff, swing.safe_land],
+                                            [5]
+                                           ],
+                        "fly_mode":[
+                                    [swing.set_flying_mode],
+                                    ["quadricopter", "plane_forward"]
+                                   ],
+                        "plane_gear_box_up":[
+                                             [swing.set_plane_gear_box],
+                                             [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])+1)) if swing.sensors.plane_gear_box[-1] != "3" else "gear_3")]
+                                            ],
+                        "plane_gear_box_down":[
+                                               [swing.set_plane_gear_box],
+                                               [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])-1)) if swing.sensors.plane_gear_box[-1] != "1" else "gear_1")]
+                                            ]
                     }
 
     axes = ["pitch", "roll", "yaw", "vertical"]
@@ -126,4 +151,5 @@ if __name__ == "__main__":
 
     swing.connect(10)
     swing.flat_trim()
+
     main_loop(joystick, drone_commands, mapping_button, mapping_axis)
