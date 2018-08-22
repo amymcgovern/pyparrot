@@ -3,6 +3,13 @@ import sys
 from pyparrot.Minidrone import Swing
 
 def joystick_init():
+    """
+    Initializes the controller, allows the choice of the controller.
+    If no controller is detected returns an error.
+
+    :param:
+    :return joystick:
+    """
     pygame.init()
     pygame.joystick.init()
 
@@ -32,10 +39,16 @@ def joystick_init():
     return joystick
 
 
-def mapping_button(joystick, drone_commands):
+def mapping_button(joystick, dict_commands):
+    """
+    Associating a controller key with a command in dict_commands.
+
+    :param joystick, dict_commands:
+    :return mapping:
+    """
     mapping = {}
 
-    for command in drone_commands:
+    for command in dict_commands:
         print("Press the key", command)
         done = False
         while not done:
@@ -48,7 +61,13 @@ def mapping_button(joystick, drone_commands):
     return mapping
 
 
-def mapping_axis(joystick, axes):
+def mapping_axis(joystick, axes=["pitch", "roll", "yaw", "vertical"]):
+    """
+    Associating the analog thumbsticks of the controller with a command in dict commands
+
+    :param joystick, dict_commands:
+    :return mapping:
+    """
     mapping = {}
 
     for i in axes:
@@ -64,48 +83,53 @@ def mapping_axis(joystick, axes):
     return mapping
 
 
-def parse_button(drone_commands, button):
-    commands = drone_commands[button][0]
-    args = drone_commands[button][-1]
+def _parse_button(dict_commands, button):
+    """
+    Send the commands to the drone.
+    If multiple commands are assigned to a key each command will be sent one by one to each press.
 
-    len_commands = len(commands)
-    len_args = len(args)
+    :param dict_commands, button:
+    :return:
+    """
+    commands = dict_commands[button][0]
+    args = dict_commands[button][-1]
 
     command = commands[0]
     arg = args[0]
-    if len_commands == 1:
-        if len_args == 1:
+
+    if len(commands) == 1:
+        if len(args) == 1:
             command(arg)
 
         else:
             command(arg)
-
-            _args = args[1:]
-            drone_commands[button][-1] = _args+[arg]
+            dict_commands[button][-1] = args[1:]+[arg]
 
     else:
-        if len_args == 1:
+        if len(commands) == 1:
             command(arg)
+            dict_commands[button][0] = commands[1:]+[command]
 
-            _commands = commands[1:]
-            drone_commands[button][0] = _commands+[command]
         else:
             command(arg)
-
-            _commands = commands[1:]
-            drone_commands[button][0] = _commands+[command]
-
-            _args = args[1:]
-            drone_commands[button][-1] = _arg+[arg]
+            dict_commands[button][0] = commands[1:]+[command]
+            dict_commands[button][-1] = args[1:]+[arg]
 
 
-def main_loop(joystick, drone_commands, mapping_button, mapping_axis):
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.JOYBUTTONDOWN:
-                pass
-            if event.type == pygame.JOYBUTTONUP:
-                pass
+def main_loop(joystick, dict_commands, mapping_button, mapping_axis):
+    """
+    First connects to the drone and makes a flat trim.
+    Then in a loop read the events of the controller to send commands to the drone.
+
+    :param joystick, dict_commands, mapping_button, mapping_axis:
+    :return:
+    """
+    swing.connect(10)
+    swing.flat_trim()
+
+    done = False
+    while not done:
+        pygame.event.get()
 
         pitch = round((joystick.get_axis(mapping_axis["pitch"])+0.0001)*-100,0)
         roll = round((joystick.get_axis(mapping_axis["roll"])+0.0001)*100,0)
@@ -116,17 +140,18 @@ def main_loop(joystick, drone_commands, mapping_button, mapping_axis):
 
         for button, value in mapping_button.items():
             if joystick.get_button(value):
-                parse_button(drone_commands, button)
+                _parse_button(dict_commands, button)
 
-
+    swing.disconnect()
 
 if __name__ == "__main__":
     swing = Swing("e0:14:04:a7:3d:cb")
 
-    drone_commands = {
-                        "takeoff_landing":[
-                                            [swing.safe_takeoff, swing.safe_land],
-                                            [5]
+    #Example of dict_commands
+    dict_commands = {
+                        "takeoff_landing":[ #Name of the button
+                                            [swing.safe_takeoff, swing.safe_land],#Commands execute one by one
+                                            [5]#Argument for executing the function
                                            ],
                         "fly_mode":[
                                     [swing.set_flying_mode],
@@ -134,22 +159,17 @@ if __name__ == "__main__":
                                    ],
                         "plane_gear_box_up":[
                                              [swing.set_plane_gear_box],
-                                             [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])+1)) if swing.sensors.plane_gear_box[-1] != "3" else "gear_3")]
+                                             [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])+1)) if swing.sensors.plane_gear_box[-1] != "3" else "gear_3")]#"gear_1" => "gear_2" => "gear_3"
                                             ],
                         "plane_gear_box_down":[
                                                [swing.set_plane_gear_box],
-                                               [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])-1)) if swing.sensors.plane_gear_box[-1] != "1" else "gear_1")]
+                                               [((swing.sensors.plane_gear_box[:-1]+str(int(swing.sensors.plane_gear_box[-1])-1)) if swing.sensors.plane_gear_box[-1] != "1" else "gear_1")]#"gear_3" => "gear_2" => "gear_1"
                                             ]
                     }
 
-    axes = ["pitch", "roll", "yaw", "vertical"]
-
     joystick = joystick_init()
 
-    mapping_button = mapping_button(joystick, drone_commands)
-    mapping_axis = mapping_axis(joystick, axes)
+    mapping_button = mapping_button(joystick, dict_commands)
+    mapping_axis = mapping_axis(joystick)
 
-    swing.connect(10)
-    swing.flat_trim()
-
-    main_loop(joystick, drone_commands, mapping_button, mapping_axis)
+    main_loop(joystick, dict_commands, mapping_button, mapping_axis)
