@@ -127,14 +127,13 @@ def main_loop(joystick, dict_commands, mapping_button, mapping_axis):
     swing.connect(10)
     swing.flat_trim()
 
-    done = False
-    while not done:
+    while True:
         pygame.event.get()
 
-        pitch = round((joystick.get_axis(mapping_axis["pitch"])+0.0001)*-100,0)
-        roll = round((joystick.get_axis(mapping_axis["roll"])+0.0001)*100,0)
-        yaw = round((joystick.get_axis(mapping_axis["yaw"])+0.0001)*100,0)
-        vertical = round((joystick.get_axis(mapping_axis["vertical"])+0.0001)*-100,0)
+        pitch = joystick.get_axis(mapping_axis["pitch"])*-100
+        roll = joystick.get_axis(mapping_axis["roll"])*100
+        yaw = joystick.get_axis(mapping_axis["yaw"])*100
+        vertical = joystick.get_axis(mapping_axis["vertical"])*-100
 
         swing.fly_direct(roll, pitch, yaw, vertical, 0.1)
 
@@ -142,7 +141,6 @@ def main_loop(joystick, dict_commands, mapping_button, mapping_axis):
             if joystick.get_button(value):
                 _parse_button(dict_commands, button)
 
-    swing.disconnect()
 
 if __name__ == "__main__":
     swing = Swing("e0:14:04:a7:3d:cb")
