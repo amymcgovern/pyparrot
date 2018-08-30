@@ -159,6 +159,8 @@ class Bebop():
         Create a new Bebop object.  Assumes you have connected to the Bebop's wifi
 
         """
+        self.drone_type = drone_type
+
         self.drone_connection = WifiConnection(self, drone_type=drone_type)
 
         # intialize the command parser
@@ -505,10 +507,16 @@ class Bebop():
         :param pan_degrees: pan degrees
         :return:
         """
-        command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
+        if(self.drone_type == "Bebop2"):
+            command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "OrientationV2")
 
-        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt_degrees, pan_degrees],
-                                                        param_type_tuple=['float', 'float'], ack=False)
+            self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt_degrees, pan_degrees],
+                                                            param_type_tuple=['float', 'float'], ack=False)
+        else:
+            command_tuple = self.command_parser.get_command_tuple("ardrone3", "Camera", "Orientation")
+
+            self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[tilt_degrees, pan_degrees],
+                                                            param_type_tuple=['i8', 'i8'], ack=False)
 
     def pan_tilt_camera_velocity(self, tilt_velocity, pan_velocity, duration=0):
         """
