@@ -85,9 +85,11 @@ The rotation speed must be between 10 and 200 degree/s.
 
 ``set_flat_trim(duration=0)`` Tell the Bebop to run with a flat trim.  If duration > 0, waits for the comand to be acknowledged
 
-``set_hull_protection(present)`` Set the presence of hull protection.
-The value must be 1 if present or 0 if not present.  This is only useful for the bebop 1.
+``set_hull_protection(present)`` Set the presence of hull protection (only for bebop 1).
+The value must be 1 if hull protection is present or 0 if not present.  This is only useful for the bebop 1.
 
+``set_indoor(is_outdoor)`` Set the bebop 1 (ignored on bebop 2) to indoor or outdoor mode.
+The value must be 1 if bebop 1 is outdoors or 0 if it is indoors.  This is only useful for the bebop 1.
 
 Pausing or sleeping in a thread safe manner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

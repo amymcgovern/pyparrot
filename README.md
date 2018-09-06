@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 09/06/2018: Version 1.5.3: Added indoor mode for bebop 1
 * 8/30/2018: Version 1.5.2: Updated camera pan_tilt for Bebop 1 (thanks Victor804)
 * 8/21/2018: Version 1.5.1: fixed small fix for typo in minidrones (for swing)
 * 8/18/2018: Version 1.5.0: major update to suppport parrot swing drones (thank you Victor804).  This does break a small backwards compatibility in that you need to import Mambo from Minidrone instead of Mambo.  Everything else remains the same.

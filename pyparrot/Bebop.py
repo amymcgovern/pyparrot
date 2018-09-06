@@ -27,6 +27,7 @@ class BebopSensors:
         self.max_vertical_speed = False
         self.max_rotation_speed = False
         self.hull_protection_changed = False
+        self.outdoor_mode_changed = False
         self.picture_format_changed = False
         self.auto_white_balance_changed = False
         self.exposition_changed = False
@@ -113,6 +114,9 @@ class BebopSensors:
 
         if (sensor_name == "HullProtectionChanged_present"):
             self.hull_protection_changed = True
+
+        if (sensor_name == "OutdoorChanged_present"):
+            self.outdoor_mode_changed = True
 
         if (sensor_name == "BatteryStateChanged_battery_percent"):
             self.battery = sensor_value
@@ -679,14 +683,14 @@ class Bebop():
 
     def set_hull_protection(self, present):
         """
-        Set the presence of hull protection
+        Set the presence of hull protection - this is only needed for bebop 1
        	1 if present, 0 if not present
 
         :param present:
         :return:
         """
         if (present not in (0, 1)):
-            print("Error: %s is not valid value. The value must be 0 or 1" % speed)
+            print("Error: %s is not valid value. The value must be 0 or 1" % present)
             print("Ignoring command and returning")
             return
 
@@ -694,6 +698,25 @@ class Bebop():
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[present], param_type_tuple=['u8'])
 
         while (not self.sensors.hull_protection_changed):
+            self.smart_sleep(0.1)
+
+    def set_indoor(self, is_outdoor):
+        """
+        Set bebop 1 to indoor mode (not used in bebop 2!!)
+       	1 if outdoor, 0 if indoor
+
+        :param present:
+        :return:
+        """
+        if (is_outdoor not in (0, 1)):
+            print("Error: %s is not valid value. The value must be 0 or 1" % is_outdoor)
+            print("Ignoring command and returning")
+            return
+
+        command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "Outdoor")
+        self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[is_outdoor], param_type_tuple=['u8'])
+
+        while (not self.sensors.outdoor_mode_changed):
             self.smart_sleep(0.1)
 
     def set_picture_format(self, format):
