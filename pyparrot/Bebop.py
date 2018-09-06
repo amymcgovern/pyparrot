@@ -716,8 +716,8 @@ class Bebop():
         command_tuple = self.command_parser.get_command_tuple("ardrone3", "SpeedSettings", "Outdoor")
         self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[is_outdoor], param_type_tuple=['u8'])
 
-        while (not self.sensors.outdoor_mode_changed):
-            self.smart_sleep(0.1)
+        #while (not self.sensors.outdoor_mode_changed):
+        #    self.smart_sleep(0.1)
 
     def set_picture_format(self, format):
         """
