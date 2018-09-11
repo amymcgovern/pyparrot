@@ -20,16 +20,11 @@ import math
 from os.path import join
 import inspect
 
-#Groundcam Imports
+# Groundcam Imports
 from ftplib import FTP
 import tempfile
-try:
-    import cv2
-    OpenCVAvailable = True
-    print("OpenCVAvailable is %s" % OpenCVAvailable)
-except:
-    OpenCVAvailable = False
-    print("OpenCVAvailable is %s" % OpenCVAvailable)
+import cv2
+
 
 class MinidroneSensors:
     """
@@ -74,6 +69,7 @@ class MinidroneSensors:
 
         # this is optionally set elsewhere
         self.user_callback_function = None
+        self.user_callback_function_args = None
 
     def set_user_callback_function(self, function, args):
         """
@@ -95,12 +91,11 @@ class MinidroneSensors:
         :param sensor_enum: enum list for the sensors that use enums so that we can translate from numbers to strings
         :return:
         """
-        #print("updating sensor %s" % name)
-        #print(value)
+        # print("updating sensor %s" % name)
+        # print(value)
         if (name is None):
             print("Error empty sensor")
             return
-
 
         if (name, "enum") in sensor_enum:
             # grab the string value
@@ -109,7 +104,6 @@ class MinidroneSensors:
             else:
                 enum_value = sensor_enum[(name, "enum")][value]
                 value = enum_value
-
 
         # add it to the sensors
         if (name == "BatteryStateChanged_battery_percent"):
@@ -151,12 +145,13 @@ class MinidroneSensors:
         elif (name == "PlaneGearBoxChanged_state"):
             self.plane_gear_box = value
         else:
-            #print "new sensor - add me to the struct but saving in the dict for now"
+            # print "new sensor - add me to the struct but saving in the dict for now"
             self.sensors_dict[name] = value
 
         # call the user callback if it isn't None
         if (self.user_callback_function is not None):
-            self.user_callback_function(self.user_callback_function_args)
+            self.user_callback_function(
+                self, name, value, self.user_callback_function_args)
 
     def get_estimated_z_orientation(self):
         """
@@ -212,9 +207,11 @@ class MinidroneSensors:
         """
         my_str = "mambo state: battery %d, " % self.battery
         my_str += "flying state is %s, " % self.flying_state
-        my_str += "speed (x, y, z) and ts is (%f, %f, %f) at %f " % (self.speed_x, self.speed_y, self.speed_z, self.speed_ts)
+        my_str += "speed (x, y, z) and ts is (%f, %f, %f) at %f " % (
+            self.speed_x, self.speed_y, self.speed_z, self.speed_ts)
         if (self.altitude_ts > -1):
-            my_str += "altitude (m) %f and ts is %f " % (self.altitude, self.altitude_ts)
+            my_str += "altitude (m) %f and ts is %f " % (self.altitude,
+                                                         self.altitude_ts)
 
         if (self.quaternion_ts > -1):
             my_str += "quaternion (w, x, y, z) and ts is (%f, %f, %f, %f) at %f " % (
@@ -225,15 +222,14 @@ class MinidroneSensors:
         return my_str
 
 
-
 class MamboGroundcam:
-    def __init__(self):
+    def __init__(self, drone_addr='192.168.99.3'):
         """
         Initialises the FTP-Session for the picture-download.
         Only works with WiFi.
         """
         self.MEDIA_PATH = '/internal_000/mambo/media'  # Filepath on the Mambo
-        self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
+        self.ftp = FTP(drone_addr)  # IP-Address of the drone itself
         login = self.ftp.login()
         print("FTP login success is %s" % login)
         # get the path for the config files
@@ -247,7 +243,7 @@ class MamboGroundcam:
         self.imagePath = join(shortPath, "images")
         self.storageFile = join(self.imagePath, "groundcam.jpg")
         print(self.storageFile)
-        #self.storageFile = tempfile.NamedTemporaryFile()
+        # self.storageFile = tempfile.NamedTemporaryFile()
 
     def _close(self):
 
@@ -268,17 +264,15 @@ class MamboGroundcam:
         Downloads the specified picture from the Mambo and stores it into a tempfile.
 
         :param filename: the name of the file which should be downloaded ON THE MAMBO.
-        :param cv2_flag: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
-        :return False if there was an error during download, if cv2 is True a cv2 frame or it just returns the file name of the temporary file
+        :param cv2_flag: ASSUMED TO BE TRUE
+        :return False if there was an error during download, otherwise a cv2 frame
         """
         self.ftp.cwd(self.MEDIA_PATH)
         try:
-            self.ftp.retrbinary('RETR ' + filename, open(self.storageFile, "wb").write) #download
-            if cv2_flag and OpenCVAvailable:
-                img = cv2.imread(self.storageFile)
-                return img
-            else:
-                return filename
+            self.ftp.retrbinary('RETR ' + filename,
+                                open(self.storageFile, "wb").write)  # download
+            img = cv2.imread(self.storageFile)
+            return img
         except Exception as e:
             print(e)
             return False
@@ -289,7 +283,6 @@ class MamboGroundcam:
         :param filename: Filename of the file you wnat to delete
         '''
         self.ftp.delete(filename)
-
 
 
 class Minidrone:
@@ -304,7 +297,9 @@ class Minidrone:
         """
         self.address = address
         self.use_wifi = use_wifi
+        self.groundcam = None
         if (use_wifi):
+            # TODO: ability to specify drone IP, assuming many drones and ability to connect to AP instead of hosting AP
             self.drone_connection = WifiConnection(self, drone_type="Mambo")
             # initialize groundcam
             self.groundcam = MamboGroundcam()
@@ -313,7 +308,8 @@ class Minidrone:
                 self.drone_connection = BLEConnection(address, self)
             else:
                 self.drone_connection = None
-                color_print("ERROR: you are trying to use a BLE connection on a system that doesn't have BLE installed.", "ERROR")
+                color_print(
+                    "ERROR: you are trying to use a BLE connection on a system that doesn't have BLE installed.", "ERROR")
                 return
 
         # intialize the command parser
@@ -322,7 +318,6 @@ class Minidrone:
         # initialize the sensors and the parser
         self.sensors = MinidroneSensors()
         self.sensor_parser = DroneSensorParser(drone_type="Minidrone")
-
 
     def set_user_sensor_callback(self, function, args):
         """
@@ -352,9 +347,11 @@ class Minidrone:
                     # print(self.sensors)
                 else:
                     color_print(
-                        "data type %d buffer id %d sequence number %d" % (data_type, buffer_id, sequence_number),
+                        "data type %d buffer id %d sequence number %d" % (
+                            data_type, buffer_id, sequence_number),
                         "WARN")
-                    color_print("This sensor is missing (likely because we don't need it)", "WARN")
+                    color_print(
+                        "This sensor is missing (likely because we don't need it)", "WARN")
 
         if (ack):
             self.drone_connection.ack_packet(buffer_id, sequence_number)
@@ -376,7 +373,6 @@ class Minidrone:
         connected = self.drone_connection.connect(num_retries)
         return connected
 
-
     def takeoff(self):
         """
         Sends the takeoff command to the mambo.  Gets the codes for it from the xml files.  Ensures the
@@ -384,9 +380,9 @@ class Minidrone:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "TakeOff")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "TakeOff")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
-
 
     def safe_takeoff(self, timeout):
         """
@@ -405,7 +401,7 @@ class Minidrone:
 
         # now wait until it finishes takeoff before returning
         while ((self.sensors.flying_state not in ("flying", "hovering") and
-                   (time.time() - start_time < timeout))):
+                (time.time() - start_time < timeout))):
             if (self.sensors.flying_state == "emergency"):
                 return
             self.smart_sleep(1)
@@ -417,7 +413,8 @@ class Minidrone:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Landing")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "Landing")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def is_landed(self):
@@ -448,7 +445,6 @@ class Minidrone:
                 return
             self.smart_sleep(1)
 
-
     def smart_sleep(self, timeout):
         """
         Don't call time.sleep directly as it will mess up BLE and miss WIFI packets!  Use this
@@ -466,7 +462,8 @@ class Minidrone:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "FlatTrim")
         # print command_tuple
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
@@ -480,7 +477,8 @@ class Minidrone:
         """
         fixed_direction = direction.lower()
         if (fixed_direction not in ("front", "back", "right", "left")):
-            print("Error: %s is not a valid direction.  Must be one of %s" % direction, "front, back, right, or left")
+            print("Error: %s is not a valid direction.  Must be one of %s" %
+                  direction, "front, back, right, or left")
             print("Ignoring command and returning")
             return
 
@@ -493,7 +491,7 @@ class Minidrone:
 
     def turn_degrees(self, degrees):
         """
-        Turn the mambo the specified number of degrees (-180, 180).  Degrees must be an integere
+        Turn the mambo the specified number of degrees (-180, 180).  Degrees must be an integer
         so it is cast to an integer here.  If you send it a float, it will be rounded according to
         the rules of int()
 
@@ -511,7 +509,8 @@ class Minidrone:
             degrees = -180
             print("Degrees too large and negative: setting to -180")
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Animations", "Cap")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Animations", "Cap")
         return self.drone_connection.send_turn_command(command_tuple, degrees)
 
     def turn_on_auto_takeoff(self):
@@ -519,14 +518,14 @@ class Minidrone:
         Turn on the auto take off (throw mode)
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "AutoTakeOffMode")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "AutoTakeOffMode")
 
         return self.drone_connection.send_param_command_packet(command_tuple, param_tuple=[1], param_type_tuple=["u8"])
 
-
     def take_picture(self):
         """
-        Ask the drone to take a picture also checks how many frames are on there, if there are ore than 35 it deletes one
+        Ask the drone to take a picture also checks how many frames are on there, if there are more than 35 it deletes one
         If connected via Wifi it
         If it is connected via WiFi it also deletes all frames on the Mambo once there are more than 35,
         since after there are 40 the next ones are ignored
@@ -534,12 +533,13 @@ class Minidrone:
         """
         if self.use_wifi:
             list = self.groundcam.get_groundcam_pictures_names()
-            if len(list) > 35: #if more than 35 pictures on the Mambo delete all
+            if len(list) > 35:  # if more than 35 pictures on the Mambo delete all
                 print("deleting")
                 for file in list:
                     self.groundcam._delete_file(file)
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "MediaRecord", "PictureV2")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "MediaRecord", "PictureV2")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def ask_for_state_update(self):
@@ -549,7 +549,8 @@ class Minidrone:
 
         :return: nothing but it will eventually fill the MamboSensors with all of the state variables as they arrive
         """
-        command_tuple = self.command_parser.get_command_tuple("common", "Common", "AllStates")
+        command_tuple = self.command_parser.get_command_tuple(
+            "common", "Common", "AllStates")
         return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
     def _ensure_fly_command_in_range(self, value):
@@ -594,15 +595,16 @@ class Minidrone:
         my_yaw = self._ensure_fly_command_in_range(yaw)
         my_vertical = self._ensure_fly_command_in_range(vertical_movement)
 
-        #print("roll is %d pitch is %d yaw is %d vertical is %d" % (my_roll, my_pitch, my_yaw, my_vertical))
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "PCMD")
+        # print("roll is %d pitch is %d yaw is %d vertical is %d" % (my_roll, my_pitch, my_yaw, my_vertical))
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "PCMD")
 
         if (duration is None):
-            self.drone_connection.send_single_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical)
+            self.drone_connection.send_single_pcmd_command(
+                command_tuple, my_roll, my_pitch, my_yaw, my_vertical)
         else:
-            self.drone_connection.send_pcmd_command(command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
-
-
+            self.drone_connection.send_pcmd_command(
+                command_tuple, my_roll, my_pitch, my_yaw, my_vertical, duration)
 
     def open_claw(self):
         """
@@ -615,7 +617,8 @@ class Minidrone:
             return False
 
         # print "open claw"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "OPEN")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum(
+            "minidrone", "UsbAccessory", "ClawControl", "OPEN")
         # print command_tuple
         # print enum_tuple
 
@@ -633,12 +636,12 @@ class Minidrone:
             return False
 
         # print "close claw"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "ClawControl", "CLOSE")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum(
+            "minidrone", "UsbAccessory", "ClawControl", "CLOSE")
         # print command_tuple
         # print enum_tuple
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.claw_id)
-
 
     def set_max_vertical_speed(self, value):
         """
@@ -653,10 +656,11 @@ class Minidrone:
             print("Can't set a negative max vertical speed.  Setting to 1 m/s instead.")
             value = 1
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "SpeedSettings", "MaxVerticalSpeed")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "SpeedSettings", "MaxVerticalSpeed")
         param_tuple = [value]
         param_type_tuple = ['float']
-        return self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+        return self.drone_connection.send_param_command_packet(command_tuple, param_tuple, param_type_tuple)
 
     def set_max_tilt(self, value):
         """
@@ -670,10 +674,11 @@ class Minidrone:
             print("Can't set a negative max horizontal speed.  Setting to 1 m/s instead.")
             value = 1
 
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "PilotingSettings", "MaxTilt")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "PilotingSettings", "MaxTilt")
         param_tuple = [value]
         param_type_tuple = ['float']
-        return self.drone_connection.send_param_command_packet(command_tuple,param_tuple,param_type_tuple)
+        return self.drone_connection.send_param_command_packet(command_tuple, param_tuple, param_type_tuple)
 
     def emergency(self):
         """
@@ -682,13 +687,13 @@ class Minidrone:
 
         :return: True if the command was sent and False otherwise
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "Emergency")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "Emergency")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
-
 
     def safe_emergency(self, timeout):
         """
-        Sends emergency stop command  until the Mambo reports it is not flying anymore
+        Sends emergency stop command until the Mambo reports it is not flying anymore
 
         :param timeout: quit trying to emergency stop if it takes more than timeout seconds
         """
@@ -707,7 +712,8 @@ class Minidrone:
         """
         Sends the flat_trim command to the mambo. Gets the codes for it from the xml files.
         """
-        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
+        command_tuple = self.command_parser.get_command_tuple(
+            "minidrone", "Piloting", "FlatTrim")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
 
@@ -724,7 +730,6 @@ class Mambo(Minidrone):
         if self.groundcam is not None:
             self.groundcam._close()
 
-
     def fire_gun(self):
         """
         Fire the gun (assumes it is attached) - note not supposed under wifi since the camera takes the place of the gun
@@ -737,11 +742,13 @@ class Mambo(Minidrone):
             return False
 
         # print "firing gun"
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "UsbAccessory", "GunControl", "FIRE")
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum(
+            "minidrone", "UsbAccessory", "GunControl", "FIRE")
         # print command_tuple
         # print enum_tuple
 
         return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple, self.sensors.gun_id)
+
 
 class Swing(Minidrone):
 
@@ -753,7 +760,6 @@ class Swing(Minidrone):
         :return: void
         """
         self.drone_connection.disconnect()
-
 
     def set_flying_mode(self, mode):
         """
@@ -767,9 +773,10 @@ class Swing(Minidrone):
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Piloting", "FlyingMode", mode)
-        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
-
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum(
+            "minidrone", "Piloting", "FlyingMode", mode)
+        self.drone_connection.send_enum_command_packet_ack(
+            command_tuple, enum_tuple)
 
     def set_plane_gear_box(self, state):
         """
@@ -779,9 +786,12 @@ class Swing(Minidrone):
         :return:
         """
         if (state not in ('gear_1', 'gear_2', 'gear_3')):
-            print("Error: %s is not a valid value. The value must be: gear_1, gear_2, gear_3" % state)
+            print(
+                "Error: %s is not a valid value. The value must be: gear_1, gear_2, gear_3" % state)
             print("Ignoring command and returning")
             return
 
-        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Piloting", "PlaneGearBox", state)
-        self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum(
+            "minidrone", "Piloting", "PlaneGearBox", state)
+        self.drone_connection.send_enum_command_packet_ack(
+            command_tuple, enum_tuple)
