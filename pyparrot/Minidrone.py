@@ -767,6 +767,8 @@ class Swing(Minidrone):
             print("Ignoring command and returning")
             return
 
+        self.set_plane_gear_box(self.sensors.plane_gear_box)
+
         (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "Piloting", "FlyingMode", mode)
         self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
 
