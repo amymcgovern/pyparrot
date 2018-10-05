@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 10/05/2018: Version 1.5.6: Removed a bug in the library on pypi where an old file was hanging around
 * 09/19/2018: Version 1.5.5: Added joystink demo for swing (thanks Victor804)
 * 09/06/2018: Version 1.5.4: Removed wait in indoor mode for bebop 1
 * 09/06/2018: Version 1.5.3: Added indoor mode for bebop 1
