@@ -106,6 +106,9 @@ Ground facing camera
 internally so this function deletes them after 35 have been taken.  Make sure you are downloading them either
 using the mobile interface or through the python code.
 
+**Note**: Parrot broke the ability to access the groundcam in their latest (3.0.25) firmware upgrade.  We will reenable these
+functions as soon as parrot fixes the firmware but for now, they will only work in versions 3.0.24 and below.
+
 ``get_groundcam_pictures_names()`` Returns the names of the pictures stored internally from the groundcam. Only for the mambo.
 
 ``get_groundcam_picture(name)`` Returns the picture with the specified name. Only for the mambo.

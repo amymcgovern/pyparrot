@@ -233,9 +233,14 @@ class MamboGroundcam:
         Only works with WiFi.
         """
         self.MEDIA_PATH = '/internal_000/mambo/media'  # Filepath on the Mambo
-        self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
-        login = self.ftp.login()
-        print("FTP login success is %s" % login)
+        try:
+            self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
+            login = self.ftp.login()
+            print("FTP login success is %s" % login)
+        except:
+            print("ERROR: ftp login is disabled by parrot firmware 3.0.25.  Groundcam will not work.")
+            self.ftp = None
+
         # get the path for the config files
         fullPath = inspect.getfile(Mambo)
         shortPathIndex = fullPath.rfind("/")
@@ -250,18 +255,21 @@ class MamboGroundcam:
         #self.storageFile = tempfile.NamedTemporaryFile()
 
     def _close(self):
-
-        self.ftp.close()
+        if (self.ftp is not None):
+            self.ftp.close()
 
     def get_groundcam_pictures_names(self):
         """
         Retruns a list with the names of the pictures stored on the Mambo.
         :return The list as an array, if there isn't any file, the array is empty.
         """
-        self.ftp.cwd(self.MEDIA_PATH)
-        list = self.ftp.nlst()
-        list = sorted(list)
-        return list
+        if (self.ftp is None):
+            return list()
+        else:
+            self.ftp.cwd(self.MEDIA_PATH)
+            list = self.ftp.nlst()
+            list = sorted(list)
+            return list
 
     def get_groundcam_picture(self, filename, cv2_flag):
         """
@@ -271,6 +279,11 @@ class MamboGroundcam:
         :param cv2_flag: if true this function will return a cv2 image object, if false the name of the temporary file will be returned
         :return False if there was an error during download, if cv2 is True a cv2 frame or it just returns the file name of the temporary file
         """
+        # handle the broken firmware upgrade
+        if (self.ftp is None):
+            return False
+
+        # otherwise return the photos
         self.ftp.cwd(self.MEDIA_PATH)
         try:
             self.ftp.retrbinary('RETR ' + filename, open(self.storageFile, "wb").write) #download
@@ -288,8 +301,8 @@ class MamboGroundcam:
         Deletes a file on the drone
         :param filename: Filename of the file you wnat to delete
         '''
-        self.ftp.delete(filename)
-
+        if (self.ftp is not None):
+            self.ftp.delete(filename)
 
 
 class Minidrone:
