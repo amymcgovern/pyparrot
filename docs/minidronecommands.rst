@@ -55,7 +55,8 @@ until the minidrone has actually reached the landed state. It will timeout and r
 Flying
 ^^^^^^
 
-``hover()`` Puts the minidrone into hover mode.  This is the default mode if it is not receiving commands.
+``hover()`` and ``set_flat_trim()`` both tell the drone to assume the current configuration is a flat trim and it will
+use this as the default when not receiving commands.  This enables good hovering when not sending commands.
 
 ``flip(direction)`` Sends the flip command to the minidrone. Valid directions to flip are: front, back, right, left.
 
