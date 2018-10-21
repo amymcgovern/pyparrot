@@ -233,13 +233,14 @@ class MamboGroundcam:
         Only works with WiFi.
         """
         self.MEDIA_PATH = '/internal_000/mambo/media'  # Filepath on the Mambo
-        try:
-            self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
-            login = self.ftp.login()
-            print("FTP login success is %s" % login)
-        except:
-            print("ERROR: ftp login is disabled by parrot firmware 3.0.25.  Groundcam will not work.")
-            self.ftp = None
+        # groundcam remains broken on 3.0.26 and now it times out
+        #try:
+        #    self.ftp = FTP('192.168.99.3')  # IP-Address of the drone itself
+        #    login = self.ftp.login()
+        #    print("FTP login success is %s" % login)
+        #except:
+        print("ERROR: ftp login is disabled by parrot firmware 3.0.25 and 26.  Groundcam will not work.")
+        self.ftp = None
 
         # get the path for the config files
         fullPath = inspect.getfile(Mambo)

@@ -11,6 +11,8 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 10/21/2018: Version 1.5.9: Fixed the wifiConnection without mDNS to work for Bebop (mDNS still works on bebop!).  Verified that mambo and bebop work now with latest firmware.
+* 10/19/2018: Version 1.5.8: Parrot broke mDNS in firmware 3.0.26 (and ftp is still broken).  Disabled the groundcam and hard-coded the IP address and ports for the mambo.  Long term we want mDNS back.  tested backwards compatiblity on older firmware and it works.
 * 10/13/2018: Version 1.5.7: Parrot released a security update/firmware upgrade to 3.0.25 that breaks ftp login for Mambo.  pyparrot now allows the mambo to still connect without errors but the groundcam will not work until we hear from parrot.  Also added example for joystick for the parrot swing from victor804
 * 10/05/2018: Version 1.5.6: Removed a bug in the library on pypi where an old file was hanging around
 * 09/19/2018: Version 1.5.5: Added joystink demo for swing (thanks Victor804)

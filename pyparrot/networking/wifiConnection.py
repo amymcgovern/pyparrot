@@ -51,21 +51,21 @@ class WifiConnection:
         self.drone = drone
 
         self.drone_type = drone_type
-        self.udp_send_port = 0 # defined during the handshake
+        self.udp_send_port = 44444 # defined during the handshake except not on Mambo after 3.0.26 firmware
         self.udp_receive_port = 43210
         self.is_listening = True  # for the UDP listener
 
-        if (drone_type == "Bebop"):
+        if (drone_type is "Bebop"):
             self.mdns_address = "_arsdk-0901._udp.local."
             #Bebop video streaming
             self.stream_port = 55004
             self.stream_control_port = 55005
-        elif (drone_type == "Bebop2"):
+        elif (drone_type is "Bebop2"):
             self.mdns_address = "_arsdk-090c._udp.local."
             #Bebop video streaming
             self.stream_port = 55004
             self.stream_control_port = 55005
-        elif (drone_type == "Mambo"):
+        elif (drone_type is "Mambo"):
             self.mdns_address = "_arsdk-090b._udp.local."
 
         # map of the data types by name (for outgoing packets)
@@ -133,23 +133,29 @@ class WifiConnection:
         :return: True if the connection succeeded and False otherwise
         """
 
-        zeroconf = Zeroconf()
-        listener = mDNSListener(self)
+        if ("Mambo" not in self.drone_type):
+            print("Setting up mDNS listener since this is not a Mambo")
+            #parrot's latest mambo firmware (3.0.26 broke all of the mDNS services so this is (temporarily) commented
+            #out but it is backwards compatible and will work with the hard-coded addresses for now.
+            zeroconf = Zeroconf()
+            listener = mDNSListener(self)
 
-        browser = ServiceBrowser(zeroconf, self.mdns_address , listener)
+            print("Making a browser for %s" % self.mdns_address)
 
-        # basically have to sleep until the info comes through on the listener
-        num_tries = 0
-        while (num_tries < num_retries and not self.is_connected):
-            time.sleep(1)
-            num_tries += 1
+            browser = ServiceBrowser(zeroconf, self.mdns_address , listener)
 
-        # if we didn't hear the listener, return False
-        if (not self.is_connected):
-            color_print("connection failed: did you remember to connect your machine to the Drone's wifi network?", "ERROR")
-            return False
-        else:
-            browser.cancel()
+            # basically have to sleep until the info comes through on the listener
+            num_tries = 0
+            while (num_tries < num_retries and not self.is_connected):
+                time.sleep(1)
+                num_tries += 1
+
+            # if we didn't hear the listener, return False
+            if (not self.is_connected):
+                color_print("connection failed: did you remember to connect your machine to the Drone's wifi network?", "ERROR")
+                return False
+            else:
+                browser.cancel()
 
         # perform the handshake and get the UDP info
         handshake = self._handshake(num_retries)
@@ -291,10 +297,15 @@ class WifiConnection:
         tcp_sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
         #print (self.connection_info.address, self.connection_info.port)
         #print(ipaddress.IPv4Address(self.connection_info.address))
-        self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
 
         # connect
-        tcp_sock.connect((self.drone_ip, self.connection_info.port))
+        # handle the broken mambo firmware by hard-coding the port and IP address
+        if ("Mambo" in self.drone_type):
+            self.drone_ip = "192.168.99.3"
+            tcp_sock.connect(("192.168.99.3", 44444))
+        else:
+            self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
+            tcp_sock.connect((self.drone_ip, self.connection_info.port))
 
         # send the handshake information
         if(self.drone_type in ("Bebop", "Bebop2")):
