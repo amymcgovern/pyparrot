@@ -8,11 +8,17 @@ Frequently Asked Questions
 Below is a list of common errors and how to fix them.
 
 Vision isn't showing anything on the minidrone
-------------------------------------------
+----------------------------------------------
 
 The Minidrone camera puts itself into a "resting" state after not flying for several minutes.  To solve this, you
 either need to fly again (a simple takeoff and landing will suffice) or reboot the minidrone and reconnect.
 
+I'm using windows and my drone gives me lots of timeout errors
+---------------------------------------------------------------
+This is a windows security setting and it can be fixed.  Go into your windows firewall settings (control panel,
+system and security, allow a program through Windows Firewall) and change the settings
+for python.exe to be allowed through the firewall for both home/private networks and public networks. Your sensors will
+suddenly be able to send data to your machine and safe_land will start working again as well as any sensors!
 
 My drone does takeoff and landing but nothing else
 --------------------------------------------------
