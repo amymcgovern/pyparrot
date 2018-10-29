@@ -318,6 +318,7 @@ class Minidrone:
         """
         self.address = address
         self.use_wifi = use_wifi
+        self.groundcam = None
         if (use_wifi):
             self.drone_connection = WifiConnection(self, drone_type="Mambo")
             # initialize groundcam

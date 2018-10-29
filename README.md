@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 10/29/2018: Version 1.5.10: Updated the groundcam to not break on disconnect with BLE.  Also have updated documentation with slides from workshop and windows FAQs.
 * 10/21/2018: Version 1.5.9: Fixed the wifiConnection without mDNS to work for Bebop (mDNS still works on bebop!).  Verified that mambo and bebop work now with latest firmware.
 * 10/19/2018: Version 1.5.8: Parrot broke mDNS in firmware 3.0.26 (and ftp is still broken).  Disabled the groundcam and hard-coded the IP address and ports for the mambo.  Long term we want mDNS back.  tested backwards compatiblity on older firmware and it works.
 * 10/13/2018: Version 1.5.7: Parrot released a security update/firmware upgrade to 3.0.25 that breaks ftp login for Mambo.  pyparrot now allows the mambo to still connect without errors but the groundcam will not work until we hear from parrot.  Also added example for joystick for the parrot swing from victor804
