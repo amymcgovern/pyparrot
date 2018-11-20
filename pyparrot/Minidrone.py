@@ -400,7 +400,7 @@ class Minidrone:
         :return: True if the command was sent and False otherwise
         """
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "TakeOff")
-        self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
 
     def safe_takeoff(self, timeout):
