@@ -58,9 +58,10 @@ that is addressed in a future firmware upgrade.  Each value ranges from -100 to 
 and direction of the max_tilt (for roll/pitch) or max_vertical_speed (for vertical movement).
 
 ``move_relative(dx, dy, dz, dradians)`` Moves the bebop a relative number of meters in x (forward/backward,
-forward is positive), y (right/left, right is positive), dz (up/down, positive is down), and dradians.  DO NOT
-USE THIS COMMAND YET.  While it correctly executes the command, it also randomly flies at high speed in random
-directions after the command executes.  This seems to be a known bug in the forum.  DO NOT USE YET.
+forward is positive), y (right/left, right is positive), dz (up/down, positive is down), and dradians.
+If you use this command INDOORS, make sure you either have FULL GPS coverage or NO GPS coverage (e.g. cover the front of the bebop
+ with tin foil to keep it from getting a lock).  If it has mixed coverage, it randomly flies at high speed in random
+directions after the command executes.  This is a known issue in Parrot's firmware and they state that a fix is coming.
 
 ``set_max_altitude(altitude)`` Set the maximum allowable altitude in meters.
 The altitude must be between 0.5 and 150 meters.
