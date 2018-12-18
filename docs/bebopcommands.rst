@@ -47,10 +47,6 @@ Flying
 
 ``flip(direction)`` Sends the flip command to the bebop. Valid directions to flip are: front, back, right, left.
 
-``turn_degrees(degrees)`` Turns the bebop in place the specified number of degrees.
-The range is -180 to 180.  This can be accomplished in direct_fly() as well but this one uses the
-internal mambo sensors (which are not sent out right now) so it is more accurate.
-
 ``fly_direct(roll, pitch, yaw, vertical_movement, duration)`` Fly the bebop directly using the
 specified roll, pitch, yaw, and vertical movements.  The commands are repeated for duration seconds.
 Note there are currently no sensors reported back to the user to ensure that these are working but hopefully
