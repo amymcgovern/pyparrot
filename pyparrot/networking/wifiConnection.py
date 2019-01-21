@@ -369,11 +369,11 @@ class WifiConnection:
         # https://github.com/N-Bz/bybop/blob/8d4c569c8e66bd1f0fdd768851409ca4b86c4ecd/src/Bybop_NetworkAL.py
         #self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
         self.udp_receive_sock.settimeout(5.0)
-
-        #BG EDIT
+        
+        #Some computers having connection refused error (error was some kind of that, I dont remember actually)
+        #These new setsockopt lines solving it (at least at my device)
         self.udp_receive_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         self.udp_send_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-        #BG EDIT 
         
         self.udp_receive_sock.bind(('0.0.0.0', int(self.udp_receive_port)))
 
@@ -718,5 +718,3 @@ class WifiConnection:
                              packet_id)
 
         self.safe_send(packet)
-
-
