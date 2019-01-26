@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 01/25/2019: Added an example of using a cv2.namedWindow to show two vision windows (but it has issues on mac os 10.14 because it isn't a main thread)
 * 10/29/2018: Version 1.5.10: Updated the groundcam to not break on disconnect with BLE.  Also have updated documentation with slides from workshop and windows FAQs.
 * 10/21/2018: Version 1.5.9: Fixed the wifiConnection without mDNS to work for Bebop (mDNS still works on bebop!).  Verified that mambo and bebop work now with latest firmware.
 * 10/19/2018: Version 1.5.8: Parrot broke mDNS in firmware 3.0.26 (and ftp is still broken).  Disabled the groundcam and hard-coded the IP address and ports for the mambo.  Long term we want mDNS back.  tested backwards compatiblity on older firmware and it works.
