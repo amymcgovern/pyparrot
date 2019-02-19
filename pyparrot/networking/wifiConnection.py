@@ -37,7 +37,7 @@ class mDNSListener(object):
 
 class WifiConnection:
 
-    def __init__(self, drone, drone_type="Bebop2"):
+    def __init__(self, drone, drone_type="Bebop2", ip_address=None):
         """
         Can be a connection to a Bebop, Bebop2 or a Mambo right now
 
@@ -54,6 +54,7 @@ class WifiConnection:
         self.udp_send_port = 44444 # defined during the handshake except not on Mambo after 3.0.26 firmware
         self.udp_receive_port = 43210
         self.is_listening = True  # for the UDP listener
+        self.ip_address = ip_address
 
         if (drone_type is "Bebop"):
             self.mdns_address = "_arsdk-0901._udp.local."
@@ -304,8 +305,13 @@ class WifiConnection:
             self.drone_ip = "192.168.99.3"
             tcp_sock.connect(("192.168.99.3", 44444))
         else:
-            self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
-            tcp_sock.connect((self.drone_ip, self.connection_info.port))
+            if (self.ip_address is None):
+                self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
+                tcp_sock.connect((self.drone_ip, self.connection_info.port))
+            else:
+                self.drone_ip = ipaddress.IPv4Address(self.ip_address).exploded
+                tcp_sock.connect((self.drone_ip, 44444))
+
 
         # send the handshake information
         if(self.drone_type in ("Bebop", "Bebop2")):

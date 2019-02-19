@@ -158,14 +158,14 @@ class BebopSensors:
         return str
 
 class Bebop():
-    def __init__(self, drone_type="Bebop2"):
+    def __init__(self, drone_type="Bebop2", ip_address=None):
         """
         Create a new Bebop object.  Assumes you have connected to the Bebop's wifi
 
         """
         self.drone_type = drone_type
 
-        self.drone_connection = WifiConnection(self, drone_type=drone_type)
+        self.drone_connection = WifiConnection(self, drone_type=drone_type, ip_address=ip_address)
 
         # intialize the command parser
         self.command_parser = DroneCommandParser()
