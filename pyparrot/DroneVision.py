@@ -22,6 +22,7 @@ from os.path import join
 import inspect
 from pyparrot.utils.NonBlockingStreamReader import NonBlockingStreamReader
 import shutil
+import signal
 
 class DroneVision:
     def __init__(self, drone_object, is_bebop, buffer_size=200, cleanup_old_images=True):
@@ -111,13 +112,13 @@ class DroneVision:
         # this step creates a directory full of images, one per frame
         print("Opening ffmpeg")
         if (self.is_bebop):
-            cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % self.utilPath + "%03d.png &"
+            cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % self.utilPath + "%03d.png"
             print(cmdStr)
             self.ffmpeg_process = \
                 subprocess.Popen(cmdStr, shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         else:
             self.ffmpeg_process = \
-                subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png &",
+                subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png",
                                shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
         # immediately start the vision buffering (before we even know if it succeeded since waiting puts us behind)
@@ -276,7 +277,17 @@ class DroneVision:
         self.vision_running = False
 
         # kill the ffmpeg subprocess
+        print("Killing the ffmpeg subprocess")
         self.ffmpeg_process.kill()
+        self.ffmpeg_process.terminate()
+        time.sleep(3)
+
+        if (self.ffmpeg_process.poll() is not None):
+            print("Sending a second kill call to the ffmpeg process")
+            self.ffmpeg_process.kill()
+            self.ffmpeg_process.terminate()
+            time.sleep(3)
+
 
         # send the command to kill the vision stream (bebop only)
         if (self.is_bebop):
