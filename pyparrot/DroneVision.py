@@ -21,9 +21,10 @@ import os
 from os.path import join
 import inspect
 from pyparrot.utils.NonBlockingStreamReader import NonBlockingStreamReader
+import shutil
 
 class DroneVision:
-    def __init__(self, drone_object, is_bebop, buffer_size=200):
+    def __init__(self, drone_object, is_bebop, buffer_size=200, cleanup_old_images=True):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -31,11 +32,13 @@ class DroneVision:
         :param drone_object reference to the drone (mambo or bebop) object
         :param is_bebop: True if it is a bebop and false if it is a mambo
         :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
+        :param cleanup_old_images: clean up the old images in the directory (defaults to True, set to false to keep old data around)
         """
         self.fps = 30
         self.buffer_size = buffer_size
         self.drone_object = drone_object
         self.is_bebop = is_bebop
+        self.cleanup_old_images = cleanup_old_images
 
         # initialize a buffer (will contain the last buffer_size vision objects)
         self.buffer = [None] * buffer_size
@@ -98,6 +101,11 @@ class DroneVision:
         self.utilPath = join(shortPath, "utils")
         print(self.imagePath)
         print(self.utilPath)
+
+        if (self.cleanup_old_images):
+            print("removing all the old images")
+            shutil.rmtree(self.imagePath)
+            os.mkdir(self.imagePath)
 
         # the first step is to open the rtsp stream through ffmpeg first
         # this step creates a directory full of images, one per frame

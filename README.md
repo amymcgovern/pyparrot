@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 03/02/2019: Version 1.5.13: Added removal of old files in images directory by default to ffmpeg vision (can turn it off with a parameter)
 * 02/19/2019: Version 1.5.12: Added pull request of wificonnection parameters and added ability to specify IP address (default uses mDNS still)
 * 01/25/2019: Version 1.5.11: Added an example of using a cv2.namedWindow to show two vision windows (but it has issues on mac os 10.14 because it isn't a main thread)
 * 10/29/2018: Version 1.5.10: Updated the groundcam to not break on disconnect with BLE.  Also have updated documentation with slides from workshop and windows FAQs.

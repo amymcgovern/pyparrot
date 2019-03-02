@@ -171,6 +171,9 @@ available at `demoBebopVision.py <https://github.com/amymcgovern/pyparrot/blob/m
 and is shown below.  The highlighted line is again where the user sets the callback function of how to
 process the vision frames.
 
+Updated in Version 1.5.13: you can tell DroneVision to either remove all the old vision files (now the default)
+or not by sending the parameter cleanup_old_images=True or False.
+
 .. code-block:: python
     :emphasize-lines: 40
 
