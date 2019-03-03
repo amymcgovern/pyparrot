@@ -37,7 +37,7 @@ class mDNSListener(object):
 
 class WifiConnection:
 
-    def __init__(self, drone, drone_type="Bebop2"):
+    def __init__(self, drone, drone_type="Bebop2", ip_address=None):
         """
         Can be a connection to a Bebop, Bebop2 or a Mambo right now
 
@@ -45,7 +45,7 @@ class WifiConnection:
         """
         self.is_connected = False
         if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco")):
-            color_print("Error: only type Bebop and Mambo are currently supported", "ERROR")
+            color_print("Error: only type Bebop Disco and Mambo are currently supported", "ERROR")
             return
 
         self.drone = drone
@@ -54,6 +54,7 @@ class WifiConnection:
         self.udp_send_port = 44444 # defined during the handshake except not on Mambo after 3.0.26 firmware
         self.udp_receive_port = 43210
         self.is_listening = True  # for the UDP listener
+        self.ip_address = ip_address
 
         if (drone_type is "Bebop"):
             self.mdns_address = "_arsdk-0901._udp.local."
@@ -65,14 +66,14 @@ class WifiConnection:
             #Bebop video streaming
             self.stream_port = 55004
             self.stream_control_port = 55005
-        elif (drone_type is "Mambo"):
-            self.mdns_address = "_arsdk-090b._udp.local."
         elif (drone_type is "Disco"):
             self.mdns_address = "_arsdk-090e._udp.local."
             #Bebop video streaming
             self.stream_port = 55004
             self.stream_control_port = 55005
- 
+        elif (drone_type is "Mambo"):
+            self.mdns_address = "_arsdk-090b._udp.local."
+
         # map of the data types by name (for outgoing packets)
         self.data_types_by_name = {
             'ACK' : 1,
@@ -309,8 +310,13 @@ class WifiConnection:
             self.drone_ip = "192.168.99.3"
             tcp_sock.connect(("192.168.99.3", 44444))
         else:
-            self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
-            tcp_sock.connect((self.drone_ip, self.connection_info.port))
+            if (self.ip_address is None):
+                self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
+                tcp_sock.connect((self.drone_ip, self.connection_info.port))
+            else:
+                self.drone_ip = ipaddress.IPv4Address(self.ip_address).exploded
+                tcp_sock.connect((self.drone_ip, 44444))
+
 
         # send the handshake information
         if(self.drone_type in ("Bebop", "Bebop2")):
@@ -374,6 +380,12 @@ class WifiConnection:
         # https://github.com/N-Bz/bybop/blob/8d4c569c8e66bd1f0fdd768851409ca4b86c4ecd/src/Bybop_NetworkAL.py
         #self.udp_receive_sock.connect((self.drone_ip, self.udp_receive_port))
         self.udp_receive_sock.settimeout(5.0)
+        
+        #Some computers having connection refused error (error was some kind of that, I dont remember actually)
+        #These new setsockopt lines solving it (at least at my device)
+        self.udp_receive_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        self.udp_send_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        
         self.udp_receive_sock.bind(('0.0.0.0', int(self.udp_receive_port)))
 
 
@@ -717,4 +729,3 @@ class WifiConnection:
                              packet_id)
 
         self.safe_send(packet)
-
