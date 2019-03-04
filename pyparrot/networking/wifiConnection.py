@@ -44,8 +44,8 @@ class WifiConnection:
         :param type: type of drone to connect to
         """
         self.is_connected = False
-        if (drone_type not in ("Bebop", "Bebop2", "Mambo")):
-            color_print("Error: only type Bebop and Mambo are currently supported", "ERROR")
+        if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco")):
+            color_print("Error: only type Bebop Disco and Mambo are currently supported", "ERROR")
             return
 
         self.drone = drone
@@ -63,6 +63,11 @@ class WifiConnection:
             self.stream_control_port = 55005
         elif (drone_type is "Bebop2"):
             self.mdns_address = "_arsdk-090c._udp.local."
+            #Bebop video streaming
+            self.stream_port = 55004
+            self.stream_control_port = 55005
+        elif (drone_type is "Disco"):
+            self.mdns_address = "_arsdk-090e._udp.local."
             #Bebop video streaming
             self.stream_port = 55004
             self.stream_control_port = 55005
