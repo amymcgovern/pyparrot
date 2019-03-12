@@ -319,7 +319,7 @@ class WifiConnection:
 
 
         # send the handshake information
-        if(self.drone_type in ("Bebop", "Bebop2")):
+        if(self.drone_type in ("Bebop", "Bebop2", "Disco")):
             # For Bebop add video stream ports to the json request
             json_string = json.dumps({"d2c_port":self.udp_receive_port,
                                       "controller_type":"computer",
