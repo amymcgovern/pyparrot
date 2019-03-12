@@ -139,7 +139,7 @@ class WifiConnection:
         :return: True if the connection succeeded and False otherwise
         """
 
-        if ("Mambo" not in self.drone_type):
+        if (self.ip_address is None) and ("Mambo" not in self.drone_type):
             print("Setting up mDNS listener since this is not a Mambo")
             #parrot's latest mambo firmware (3.0.26 broke all of the mDNS services so this is (temporarily) commented
             #out but it is backwards compatible and will work with the hard-coded addresses for now.
