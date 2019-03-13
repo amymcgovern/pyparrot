@@ -419,7 +419,7 @@ class BLEConnection:
             packet = struct.pack("<BBBBHBbbbbI", self.data_types['DATA_NO_ACK'],
                                  self.characteristic_send_counter['SEND_NO_ACK'],
                                  command_tuple[0], command_tuple[1], command_tuple[2],
-                                 1, roll, pitch, yaw, vertical_movement, 0)
+                                 1, int(roll), int(pitch), int(yaw), int(vertical_movement), 0)
 
             self._safe_ble_write(characteristic=self.send_characteristics['SEND_NO_ACK'], packet=packet)
             # self.send_characteristics['SEND_NO_ACK'].write(packet)
