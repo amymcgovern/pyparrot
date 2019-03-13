@@ -574,7 +574,7 @@ class WifiConnection:
                              self.sequence_counter['SEND_NO_ACK'],
                              20,
                              command_tuple[0], command_tuple[1], command_tuple[2],
-                             1, roll, pitch, yaw, vertical_movement, 0)
+                             1, int(roll), int(pitch), int(yaw), int(vertical_movement), 0)
 
         self.safe_send(packet)
 
