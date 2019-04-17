@@ -5,9 +5,9 @@
 Workshop Materials and Slides
 ==============================
 We have taught several workshops on using pyparrot.  As we continue to teach and develop materials for
-pyparrot, we will continue to share the curriculum materials here.  Since the 2018 OK workshop slides supercede the
-GCER 2018 slides, we only share the 2018 OK Workshop slides for now.
-
-* Morning slides from the OK workshop (focus on initial setup, initial flying) :download:`OK2018Morning.pdf <OK2018Morning.pdf>`
-
-* Afternoon slides from the OK workshop (learning to use sensors, extra slides on vision though we did not discuss at workshop) :download:`OK2018Afternoon.pdf <OK2018Afternoon.pdf>`.
+pyparrot, we will continue to share the curriculum materials.  The materials are all stored in the coursework
+directory on  at `GitHub <https://github.com/amymcgovern/pyparrot/tree/master/coursework>`_  The files in
+`ai_class <https://github.com/amymcgovern/pyparrot/tree/master/coursework/ai_class>`_
+include the project descriptions for the Spring 2018 AI Class taught by Dr. McGovern using the drones.
+The files in `workshop_slides <https://github.com/amymcgovern/pyparrot/tree/master/coursework/workshop_slides>`_
+contain the slides from prior workshops including OKlahoma's 2018 and 2019 workshops.

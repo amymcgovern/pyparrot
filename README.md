@@ -11,6 +11,7 @@ Anyone can use it who is interested in autonomous drone programming!
 Extensive documentation is available at [https://pyparrot.readthedocs.io](https://pyparrot.readthedocs.io)
 
 # Major updates and releases:
+* 04/17/2019: Updated documentation to include workshop slides from April 2019 workshop.  Restructured coursework directory to contain AI projects and workshop slides.
 * 03/13/2019: Version 1.5.17: Required PCMD commands to be ints (PR from daanzu)
 * 03/12/2019: Version 1.5.16: Added a disco fix (PR from proff) and fixed IP address fix (PR from daanzu)
 * 03/03/2019: Version 1.5.15: Added disco into wifi connected devices (thank you proff for the PR)
