@@ -23,9 +23,9 @@ import tempfile
 import sys
 import pyparrot.utils.vlc as vlc
 from PyQt5.QtCore import Qt, QTimer, QThread
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
-    QVBoxLayout, QAction, QFileDialog, QApplication
+    QVBoxLayout, QAction, QFileDialog, QApplication, QLabel
 
 
 class Player(QMainWindow):
@@ -107,6 +107,22 @@ class Player(QMainWindow):
 
         self.vboxlayout = QVBoxLayout()
         self.vboxlayout.addWidget(self.videoframe)
+
+        if (self.drone_vision.user_draw_window_fn is not None):
+            self.userWindow = QLabel()
+            fullPath = inspect.getfile(DroneVisionGUI)
+            shortPathIndex = fullPath.rfind("/")
+            if (shortPathIndex == -1):
+                # handle Windows paths
+                shortPathIndex = fullPath.rfind("\\")
+            print(shortPathIndex)
+            shortPath = fullPath[0:shortPathIndex]
+            pixmap = QPixmap('%s/demo_user_image.png' % shortPath)
+            print(pixmap)
+            print(pixmap.isNull())
+            self.userWindow.setPixmap(pixmap)
+            self.vboxlayout.addWidget(self.userWindow)
+
         self.vboxlayout.addLayout(self.hbuttonbox)
 
         self.widget.setLayout(self.vboxlayout)
@@ -150,7 +166,35 @@ class UserVisionProcessingThread(QThread):
 
         # exit when the vision thread ends
         print("exiting user vision thread")
-        self.exit()
+        self.terminate()
+
+class UserWindowDrawThread(QThread):
+
+    def __init__(self, user_draw_function, drone_vision):
+        """
+        :param user_draw_function: user drawing function that should return an image
+        """
+        QThread.__init__(self)
+        self.user_draw_function = user_draw_function
+        self.drone_vision = drone_vision
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        #print("user window draw thread being called")
+        while (self.drone_vision.vision_running):
+            img = self.user_draw_function()
+            if(img is not None):
+                self.drone_vision.vlc_gui.userWindow.setPixmap(QPixmap.fromImage(img))
+
+            # put the thread back to sleep for fps
+            # sleeping shorter to ensure we stay caught up on frames
+            time.sleep(1.0 / (3.0 * self.drone_vision.fps))
+
+        # exit when the vision thread ends
+        print("exiting user window draw thread")
+        self.terminate()
 
 class UserCodeToRun(QThread):
     def __init__(self, user_function, user_args, drone_vision):
@@ -171,7 +215,7 @@ class UserCodeToRun(QThread):
 
 
 class DroneVisionGUI:
-    def __init__(self, drone_object, is_bebop, user_code_to_run, user_args, buffer_size=200, network_caching=200, fps=20):
+    def __init__(self, drone_object, is_bebop, user_code_to_run, user_args, buffer_size=200, network_caching=200, fps=20, user_draw_window_fn=None):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -182,8 +226,9 @@ class DroneVisionGUI:
         this is needed due to the GUI taking the thread)
         :param user_args: arguments to the user code
         :param buffer_size: number of frames to buffer in memory.  Defaults to 10.
-        :param network_caching: buffering time in milli-seconds, 200 should be enough, 150 works on some devices
+        :param network_caching: buffering time in milli-seconds, 200 should be enough, 150 works on some devices (Mac OS X ignores this argument)
         :param fps: frame rate for the vision
+        :param user_window: set to a function to be called to draw a QImage and None otherwise (default None)
         """
         self.fps = fps
         self.vision_interval = int(1000 * 1.0 / self.fps)
@@ -211,6 +256,13 @@ class DroneVisionGUI:
         self.user_code_to_run = user_code_to_run
         self.user_args = user_args
         self.user_thread = UserCodeToRun(user_code_to_run, user_args, self)
+
+        # if we are drawing a special user window
+        self.user_draw_window_fn = user_draw_window_fn
+        if (self.user_draw_window_fn is not None):
+            self.user_window_draw_thread = UserWindowDrawThread(self.user_draw_window_fn, self)
+        else:
+            self.user_window_draw_thread = None
 
         # in case we never setup a user callback function
         self.user_vision_thread = None
@@ -303,6 +355,10 @@ class DroneVisionGUI:
             print("Starting user vision thread")
             self.user_vision_thread.start()
 
+        if (self.user_draw_window_fn is not None):
+            print("Starting user drawing thread")
+            self.user_window_draw_thread.start()
+
         # setup the timer for snapshots
         self.timer = QTimer(self.vlc_gui)
         self.timer.setInterval(self.vision_interval)
@@ -361,6 +417,17 @@ class DroneVisionGUI:
         :return:
         """
         self.close_video()
+        self.vlc_gui.close()
+        self.vlc_gui.destroy()
+
+        # kill the threads
+        if (self.user_window_draw_thread is not None):
+            self.user_window_draw_thread.quit()
+            self.user_vision_thread.quit()
+            self.user_thread.quit()
+
+        # this is hanging on Mac OS X when it tries to exit and I'm not sure why.  The threads are properly
+        # exiting
         sys.exit()
 
     def land_close_exit(self):

@@ -9,6 +9,7 @@ from pyparrot.DroneVisionGUI import DroneVisionGUI
 import threading
 import cv2
 import time
+from PyQt5.QtGui import QImage
 
 isAlive = False
 
@@ -21,11 +22,33 @@ class UserVision:
         #print("saving picture")
         img = self.vision.get_latest_valid_picture()
 
-        if (img is not None):
+        # limiting the pictures to the first 10 just to limit the demo from writing out a ton of files
+        if (img is not None and self.index <= 10):
             filename = "test_image_%06d.png" % self.index
-            #cv2.imwrite(filename, img)
+            cv2.imwrite(filename, img)
             self.index +=1
 
+
+def draw_current_photo():
+    """
+    Quick demo of returning an image to show in the user window.  Clearly one would want to make this a dynamic image
+    """
+    image = cv2.imread('test_image_000001.png')
+
+    if (image is not None):
+        if len(image.shape) < 3 or image.shape[2] == 1:
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        height, width, byteValue = image.shape
+        byteValue = byteValue * width
+
+        qimage = QImage(image, width, height, byteValue, QImage.Format_RGB888)
+
+        return qimage
+    else:
+        return None
 
 def demo_user_code_after_vision_opened(bebopVision, args):
     bebop = args[0]
@@ -67,7 +90,7 @@ if __name__ == "__main__":
     if (success):
         # start up the video
         bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=demo_user_code_after_vision_opened,
-                                     user_args=(bebop, ))
+                                     user_args=(bebop, ), user_draw_window_fn=draw_current_photo)
 
         userVision = UserVision(bebopVision)
         bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
