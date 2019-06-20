@@ -24,7 +24,7 @@ class BebopSensors:
         self.no_fly_over_max_distance = False
         self.max_tilt_changed = False
         self.max_pitch_roll_rotation_speed_changed = False
-        self.max_vertical_speed = False
+        self.max_vertical_speed_changed = False
         self.max_rotation_speed = False
         self.hull_protection_changed = False
         self.outdoor_mode_changed = False
