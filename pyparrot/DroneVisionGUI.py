@@ -186,7 +186,8 @@ class UserWindowDrawThread(QThread):
         while (self.drone_vision.vision_running):
             img = self.user_draw_function()
             if(img is not None):
-                self.drone_vision.vlc_gui.userWindow.setPixmap(QPixmap.fromImage(img))
+                if (not img.isNull()):
+                    self.drone_vision.vlc_gui.userWindow.setPixmap(QPixmap.fromImage(img))
 
             # put the thread back to sleep for fps
             # sleeping shorter to ensure we stay caught up on frames
