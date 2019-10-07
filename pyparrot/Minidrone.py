@@ -725,6 +725,21 @@ class Minidrone:
         command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "FlatTrim")
         self.drone_connection.send_noparam_command_packet_ack(command_tuple)
 
+    def change_preferred_mode(self, mode='easy'):
+        #Change preferred flying mode on Drone between "easy", "medium" and "difficult".
+
+        (command_tuple, enum_tuple) = self.command_parser.get_command_tuple_with_enum("minidrone", "PilotingSettings", "PreferredPilotingMode", mode)
+
+        return self.drone_connection.send_enum_command_packet_ack(command_tuple, enum_tuple)
+
+    def change_mode( self):
+        #Change between "easy" piloting mode and "preferred" piloting mode.
+        #This command only works while the drone is flying.
+        command_tuple = self.command_parser.get_command_tuple("minidrone", "Piloting", "TogglePilotingMode")
+        return self.drone_connection.send_noparam_command_packet_ack(command_tuple)
+
+
+
 
 class Mambo(Minidrone):
 
