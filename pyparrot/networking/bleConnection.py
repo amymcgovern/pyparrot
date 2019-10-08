@@ -400,6 +400,28 @@ class BLEConnection:
 
         return self.command_received['SEND_WITH_ACK']
 
+    def send_single_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement):
+        """
+        Send a single PCMD command with the specified roll, pitch, and yaw.  Note
+        this will not make that command run forever.  Instead it sends ONCE.  This can be used
+        in a loop (in your agent) that makes more smooth control than using the duration option.
+
+        :param command_tuple: command tuple per the parser
+        :param roll:
+        :param pitch:
+        :param yaw:
+        :param vertical_movement:
+        """
+
+        self.characteristic_send_counter['SEND_NO_ACK'] = (self.characteristic_send_counter['SEND_NO_ACK'] + 1) % 256
+        packet = struct.pack("<BBBBHBbbbbI", self.data_types['DATA_NO_ACK'],
+                             self.characteristic_send_counter['SEND_NO_ACK'],
+                             command_tuple[0], command_tuple[1], command_tuple[2],
+                             1, int(roll), int(pitch), int(yaw), int(vertical_movement), 0)
+
+        self._safe_ble_write(characteristic=self.send_characteristics['SEND_NO_ACK'], packet=packet)
+        # self.send_characteristics['SEND_NO_ACK'].write(packet)
+
     def send_pcmd_command(self, command_tuple, roll, pitch, yaw, vertical_movement, duration):
         """
         Send the PCMD command with the specified roll, pitch, and yaw
@@ -414,15 +436,7 @@ class BLEConnection:
         start_time = time.time()
         while (time.time() - start_time < duration):
 
-            self.characteristic_send_counter['SEND_NO_ACK'] = (
-                                                              self.characteristic_send_counter['SEND_NO_ACK'] + 1) % 256
-            packet = struct.pack("<BBBBHBbbbbI", self.data_types['DATA_NO_ACK'],
-                                 self.characteristic_send_counter['SEND_NO_ACK'],
-                                 command_tuple[0], command_tuple[1], command_tuple[2],
-                                 1, int(roll), int(pitch), int(yaw), int(vertical_movement), 0)
-
-            self._safe_ble_write(characteristic=self.send_characteristics['SEND_NO_ACK'], packet=packet)
-            # self.send_characteristics['SEND_NO_ACK'].write(packet)
+            self.send_single_pcmd_command(command_tuple, roll, pitch, yaw, vertical_movement)
             notify = self.drone_connection.waitForNotifications(0.1)
 
     def send_noparam_command_packet_ack(self, command_tuple):
