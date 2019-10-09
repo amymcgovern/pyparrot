@@ -38,8 +38,8 @@ Software requirements are listed below by type of connection to the drone.
 * All drones:  Python 3
 
    I use the `<https://www.anaconda.com/download/>`_:: installer and package manager for python.  Note, when you
-install anaconda, install the Visual Studio option, especially if you have windows.  Otherwise you will need to install
-Visual Studio separately.  The zeroconf package (listed below) requires developer tools because it needs to be compiled.
+   install anaconda, install the Visual Studio option, especially if you have windows.  Otherwise you will need to install
+   Visual Studio separately.  The zeroconf package (listed below) requires developer tools because it needs to be compiled.
 
 * All drones: untangle package (this is used to parse the xml files in the parrot SDK)
 
