@@ -421,10 +421,7 @@ class Bebop():
 
     def move_relative(self, dx, dy, dz, dradians):
         """
-        Move relative to our current position and pause until the command is done.  Note that
-        EVERY time we tested flying relative up (e.g. negative z) it did additional lateral moves
-        that were unnecessary.  I'll be posting this to the development board but, until then,
-        I recommend only using dx, dy, and dradians which all seem to work well.
+        Move relative to our current position and pause until the command is done.
 
         :param dx: change in front axis (meters)
         :param dy: change in right/left (positive is right) (meters)
