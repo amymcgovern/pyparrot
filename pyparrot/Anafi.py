@@ -160,7 +160,7 @@ class AnafiSensors:
 class Anafi():
     def __init__(self, drone_type="Anafi", ip_address=None):
         """
-        Create a new Anadfi object.  Assumes you have connected to the Anafi's wifi
+        Create a new Anafi object.  Assumes you have connected to the Anafi's wifi
 
         """
         self.drone_type = drone_type

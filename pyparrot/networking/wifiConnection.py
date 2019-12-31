@@ -39,12 +39,12 @@ class WifiConnection:
 
     def __init__(self, drone, drone_type="Bebop2", ip_address=None):
         """
-        Can be a connection to a Bebop, Bebop2 or a Mambo right now
+        Can be a connection to a Anafi, Bebop, Bebop2 or a Mambo right now
 
         :param type: type of drone to connect to
         """
         self.is_connected = False
-        if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco", "Anafi")):
+        if (drone_type not in ("Anafi", "Bebop", "Bebop2", "Mambo", "Disco")):
             color_print("Error: only type Anafi Bebop Disco and Mambo are currently supported", "ERROR")
             return
 
@@ -323,7 +323,7 @@ class WifiConnection:
 
 
         # send the handshake information
-        if(self.drone_type in ("Bebop", "Bebop2", "Disco")):
+        if(self.drone_type in ("Anafi", "Bebop", "Bebop2", "Disco")):
             # For Bebop add video stream ports to the json request
             json_string = json.dumps({"d2c_port":self.udp_receive_port,
                                       "controller_type":"computer",
@@ -350,11 +350,12 @@ class WifiConnection:
         num_try = 0
         while (not finished and num_try < num_retries):
             data = tcp_sock.recv(4096).decode('utf-8')
-            print(data)
             if (len(data) > 0):
-                #my_data = data[0:-1]
-                my_data = data
-                print(my_data)
+                if (self.drone_type == "Anafi"):
+                  my_data = data #data[0:-1]
+                else:
+                  my_data = data[0:-1]
+                print("mydata", my_data)
                 self.udp_data = json.loads(str(my_data))
 
                 # if the drone refuses the connection, return false
