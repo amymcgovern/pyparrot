@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2017 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature name="user_storage" id="145">
+	Messages related to the removable user storage feature
+	<enums>
+		<enum name="phy_state">
+			<value name="undetected">
+				The removable media is not detected.
+			</value>
+			<value name="too_small">
+				The removable media is too small for operation.
+			</value>
+			<value name="too_slow">
+				The removable media is too slow for operation.
+			</value>
+			<value name="available">
+				The removable media is detected.
+			</value>
+			<value name="usb_mass_storage">
+				The removable media is used by mass-storage gadget.
+			</value>
+		</enum>
+		<enum name="fs_state">
+			<value name="unknown">
+				The media file system state is not known (yet)
+			</value>
+			<value name="format_needed">
+				The media file system is not supported, unformatted or capacity is too low.
+			</value>
+			<value name="formatting">
+				The media file system is getting formatted.
+			</value>
+			<value name="ready">
+				The media file system is ready to be used.
+			</value>
+			<value name="error">
+				The media file system is not available.
+			</value>
+		</enum>
+		<enum name="attribute">
+			<value name="low_perf">
+				The removable media has low performance.
+			</value>
+		</enum>
+		<enum name="formatting_result">
+			<value name="error">
+				The last formatting command failed
+			</value>
+			<value name="denied">
+				The last formatting command was denied
+			</value>
+			<value name="success">
+				The last formatting command succeeded
+			</value>
+		</enum>
+		<enum name="feature">
+			<value name="format_when_ready_allowed">
+				Format is available when state is `ready` (and also, as usual when state is `format_needed`).
+			</value>
+			<value name="format_result_evt_supported">
+				The format result event is supported and will be sent after a format has been asked.
+			</value>
+			<value name="format_progress_evt_supported">
+				The format progress event is supported and will be sent during format operation.
+			</value>
+		</enum>
+		<enum name="formatting_type">
+			<value name="full">
+				Formatting which includes deep format operation that is time consuming but optimizes performance.
+			</value>
+			<value name="quick">
+				Formatting which removes content of the media.
+			</value>
+		</enum>
+		<enum name="formatting_step">
+			<value name="partitioning">
+				The drone is currently partitioning the media.
+			</value>
+			<value name="clearing_data">
+				The drone is currently wiping data on the media in order to optimize performance.
+			</value>
+			<value name="creating_fs">
+				The drone is creating a file system on the media.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<evt name="capabilities" id="8">
+			<comment
+				title="User storage capabilities"
+				desc="Describes user storage supported capabilities."
+				support="0914"
+				triggered="only during the connection"/>
+			<arg name="supported_features" type="bitfield:u16:feature">
+				Supported features.
+			</arg>
+		</evt>
+		<evt name="supported_formatting_types" id="9">
+			<comment
+				title="User storage supported formatting types"
+				desc="Describes user storage supported formatting types. When sent, it indicates that the `format_with_type`
+				command is supported. If not sent, the `format_with_type` command is not supported."
+				support="0914:1.3.0"
+				triggered="only during the connection"/>
+			<arg name="supported_types" type="bitfield:u8:formatting_type">
+				Supported formatting types.
+			</arg>
+		</evt>
+		<evt name="info" id="1">
+			<comment
+				title="Information on user-storage"
+				support="0914"
+				triggered="During formatting, on ready state, or if user storage is not available."/>
+			<arg name="name" type="string">
+				The name of the media.
+			</arg>
+			<arg name="capacity" type="u64">
+				The capacity of the media in Bytes.
+			</arg>
+		</evt>
+		<evt name="monitor" id="2" buffer="NON_ACK">
+			<comment
+				title="Monitoring event advertising available space"
+				support="0914"
+				triggered="By a start monitoring command [start_monitoring](#145-5). This event is sent every monitor_period
+				(see [state](#145-3) until the stop monitoring command [stop_monitoring](#145-6) is received."/>
+			<arg name="available_bytes" type="u64">
+				The free space in Bytes on the media.
+			</arg>
+		</evt>
+		<evt name="state" id="3">
+			<comment
+				title="State of user-storage"
+				support="0914"
+				triggered="During connection and when user storage internal state changes."/>
+			<arg name="physical_state" type="enum:phy_state">
+				The state of the physical media.
+			</arg>
+			<arg name="file_system_state" type="enum:fs_state">
+				The state of the data stored on media.
+			</arg>
+			<arg name="attribute" type="bitfield:u8:attribute">
+				Details about removable storage.
+			</arg>
+			<arg name="monitor_enabled" type="u8">
+				Boolean. 1 if monitoring is enabled, 0 if not.
+			</arg>
+			<arg name="monitor_period" type="u8">
+				Current period of monitoring if monitoring is enabled, 0 if not enabled.
+			</arg>
+		</evt>
+		<cmd name="format" id="4">
+			<comment
+				title="Start format operation"
+				desc="Start format operation on the removable media. This could imply its repartitioning if needed.
+				Can be done in state `format_needed` or,
+				if [capabilities](#145-8) contains `format_when_ready_allowed` also in state `ready`."
+				support="0914"
+				result="Event state is triggered once operation is performed. Event progress is triggered once the operation
+				has been started if [capabilities](#145-8) contains `format_progress_evt_supported`" />
+			<expectations>
+				<delayed>
+					#145-3(file_system_state: ready)
+				</delayed>
+			</expectations>
+			<arg name="label" type="string">
+				Label to set to the file system. If empty, label is set to the product name.
+			</arg>
+		</cmd>
+		<cmd name="format_with_type" id="10">
+			<comment
+				title="Start format operation with formatting type"
+				desc="Start format operation on the removable media given a formatting type. This could imply its repartitioning
+				if needed. Can be done in state `format_needed` or, if [capabilities](#145-8) contains
+				`format_when_ready_allowed` also in state `ready`."
+				support="0914:1.3.0"
+				result="Event state is triggered once operation is performed. Event progress is triggered once the operation
+				has been started if [capabilities](#145-8) contains `format_progress_evt_supported`" />
+			<expectations>
+				<delayed>
+					#145-3(file_system_state: ready)
+					#145-7(result: success)
+					#145-11
+				</delayed>
+			</expectations>
+			<arg name="label" type="string">
+				Label to set to the file system. If empty, label is set to the product name.
+			</arg>
+			<arg name="type" type="enum:formatting_type">
+				Formatting type.
+			</arg>
+		</cmd>
+		<cmd name="start_monitoring" id="5">
+			<comment
+				title="Start monitoring operation"
+				desc="Start monitoring operation of the removable media."
+				support="0914"
+				result="Monitor Events [monitor](#145-2) are triggered." />
+			<expectations>
+				<immediate>
+					#145-2
+				</immediate>
+			</expectations>
+			<arg name="period" type="u8">
+				Period in seconds to send monitor events. If set to 0, period is set to default value (one second).
+			</arg>
+		</cmd>
+		<cmd name="stop_monitoring" id="6">
+			<comment
+				title="Stop monitoring operation"
+				desc="Stop monitoring operation of the removable media."
+				support="0914"
+				result="Monitor Events [monitor](#145-2) are stopped from being triggered." />
+		</cmd>
+		<evt name="format_result" id="7">
+			<comment
+				title="Result of the formatting command"
+				support="0914:1.1.0"
+				triggered="By a formatting command [format](#145-4) or a formatting with type command [format_with_type](#145-10)
+				only if this event is supported by the drone. To know if supported,
+				see if [capabilities](#145-8) contains `format_result_evt_supported`."/>
+			<arg name="result" type="enum:formatting_result">
+				Result of the last formatting command
+			</arg>
+		</evt>
+		<evt name="format_progress" id="11">
+			<comment
+				title="Progress of the formatting command"
+				support="0914:1.3.0"
+				triggered="By a formatting command [format](#145-4) or a formatting with type command [format_with_type](#145-10)
+				only if this event is supported by the drone. To know if supported,
+				see if [capabilities](#145-8) contains `format_progress_evt_supported`."/>
+			<arg name="step" type="enum:formatting_step">
+				The formatting step the format process is in.
+			</arg>
+			<arg name="percentage" type="u8">
+				The progress of the current step expressed in percent.
+			</arg>
+		</evt>
+	</msgs>
+</feature>

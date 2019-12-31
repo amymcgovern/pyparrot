@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2019 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature name="piloting_style" id="155">
+	Piloting style.
+
+	<enums>
+		<enum name="style">
+			Piloting style.
+
+			<value name="standard">
+				Piloting style is standard
+			</value>
+			<value name="camera_operated">
+				Piloting style is camera operated, commands are relative to camera pitch
+			</value>
+		</enum>
+
+	</enums>
+
+	<msgs>
+
+		<evt name="style" id="1">
+			<comment
+				title="Current piloting style"
+				comment="Notifies about piloting style changes."
+				support="0914:1.6.0;0919:1.6.0"
+				triggered="At connection; on changes by [set_style](#155-2); by the drone when style is automatically changed"/>
+			<arg name="style" type="enum:style">
+				Current Piloting style
+			</arg>
+		</evt>
+
+		<cmd name="set_style" id="2">
+			<comment
+				title="Sets piloting style"
+				desc="Configures piloting style."
+				support="0914:1.6.0;0919:1.6.0"
+				result="[style](#155-1) event with the new style."/>
+			<expectations>
+				<immediate>
+					#155-1(style: this.style)
+				</immediate>
+			</expectations>
+			<arg name="style" type="enum:style">
+				Requested piloting style.
+			</arg>
+		</cmd>
+
+		<evt name="capabilities" id="3">
+			<comment
+				title="Capabilities"
+				comment="Describes piloting styles capabilities."
+				support="0914:1.6.0;0919:1.6.0"
+				triggered="At connection only."/>
+			<arg name="styles" type="bitfield:u8:style">
+				Supported piloting styles.
+			</arg>
+		</evt>
+
+	</msgs>
+</feature>

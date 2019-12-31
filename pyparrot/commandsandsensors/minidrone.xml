@@ -31,7 +31,7 @@
 -->
 <project name="minidrone" id="2">
 	All MiniDrone-only commands
-	<myclass name="Piloting" id="0">
+	<class name="Piloting" id="0">
 		All commands related to piloting the MiniDrone
 		<cmd name="FlatTrim" id="0">
 			Do a flat trim
@@ -74,7 +74,7 @@
 		</cmd>
 		<cmd name="FlyingMode" id="6">
 			Set drone FlyingMode. Only supported by WingX
-			<arg name="mode" type="enum">
+			<arg name="mode" type="u8">
 				Drone Flying Mode
 				<enum name="quadricopter">
 					Fly as a quadrictopter
@@ -106,8 +106,8 @@
 			Command to toggle between "easy" piloting mode and "preferred" piloting mode.
 			This command only works while the drone is flying.
 		</cmd>
-	</myclass>
-	<myclass name="PilotingState" id="3">
+	</class>
+	<class name="PilotingState" id="3">
 		Occasional information
 		<cmd name="FlatTrimChanged" id="0">
 			MiniDrone send flat trim was correctly processed
@@ -171,7 +171,7 @@
 		</cmd>
 		<cmd name="FlyingModeChanged" id="4">
 			FlyingMode changed. Only supported by WingX
-			<arg name="mode" type="enum">
+			<arg name="mode" type="u8">
 				Drone Flying Mode
 				<enum name="quadricopter">
 					Fly as a quadrictopter
@@ -226,8 +226,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="Animations" id="4">
+	</class>
+	<class name="Animations" id="4">
 		Animation commands
 		<cmd name="Flip" id="0">
 			Make a flip
@@ -253,8 +253,8 @@
 				Change the cap with offset angle [-180;180]
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="MediaRecord" id="6">
+	</class>
+	<class name="MediaRecord" id="6">
 		Media recording management
 		<cmd name="Picture" id="0">
 			@deprecated
@@ -266,8 +266,8 @@
 		<cmd name="PictureV2" id="1">
 			Take picture
 		</cmd>
-	</myclass>
-	<myclass name="MediaRecordState" id="7">
+	</class>
+	<class name="MediaRecordState" id="7">
 		State of media recording
 		<cmd name="PictureStateChanged" id="0">
 			@deprecated
@@ -312,8 +312,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="MediaRecordEvent" id="2">
+	</class>
+	<class name="MediaRecordEvent" id="2">
 		Events of media recording
 		<cmd name="PictureEventChanged" id="0" content="NOTIFICATION">
 			Event of picture recording
@@ -348,8 +348,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="PilotingSettings" id="8">
+	</class>
+	<class name="PilotingSettings" id="8">
 		Piloting Settings commands
 		<cmd name="MaxAltitude" id="0">
 			Set Max Altitude
@@ -379,9 +379,9 @@
 			This setting represents the vertical acceleration command that will be sent to the drone when piloting in gaz mode.
 			In this case, closed loop height control is no longer performed; an open loop vertical acceleration command is generated instead.
 			This command results from multiplying the user command coming from the joystick (float value between 0 and 1) by the MaxThrottle setting (also a value between 0 and 1) and by the gravity constant.
-			Thus, we obtain the corresponding value in [m/s²] that will then be mixed with the attitude commands and translated into rotation speeds.
+			Thus, we obtain the corresponding value in [m/s^2] that will then be mixed with the attitude commands and translated into rotation speeds.
 			As an example, if the value of this setting is 0.5, the maximal acceleration command that can be generated when the user command equals 1 is :
-			acc_cmd_max = 1 * 0.5 * 9.81 m/s² = 4.905 m/s².
+			acc_cmd_max = 1 * 0.5 * 9.81 m/s^2 = 4.905 m/s^2.
 			<arg name="max" type="float">
 				Max throttle, between 0 and 1.
 			</arg>
@@ -414,8 +414,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="PilotingSettingsState" id="9">
+	</class>
+	<class name="PilotingSettingsState" id="9">
 		Piloting Settings state from product
 		<cmd name="MaxAltitudeChanged" id="0">
 			Max Altitude sent by product
@@ -485,8 +485,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="SpeedSettings" id="1">
+	</class>
+	<class name="SpeedSettings" id="1">
 		Speed Settings commands
 		<cmd name="MaxVerticalSpeed" id="0">
 			Set Max Vertical speed
@@ -518,8 +518,8 @@
 				Current max plane mode rotation speed in degree/s
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="SpeedSettingsState" id="5">
+	</class>
+	<class name="SpeedSettingsState" id="5">
 		Speed Settings state from product
 		<cmd name="MaxVerticalSpeedChanged" id="0">
 			Max vertical speed sent by product
@@ -575,8 +575,8 @@
 				Range max of plane mode rotation speed
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="Settings" id="10">
+	</class>
+	<class name="Settings" id="10">
 		Settings commands
 		<cmd name="CutOutMode" id="0">
 			Set MiniDrone cut out mode
@@ -584,8 +584,8 @@
 				Enable cut out mode (1 if is activate, 0 otherwise)
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="SettingsState" id="11">
+	</class>
+	<class name="SettingsState" id="11">
 		Settings state from product
 		<cmd name="ProductMotorsVersionChanged" id="0">
 			@deprecated
@@ -619,8 +619,8 @@
 				State of cut out mode (1 if is activate, 0 otherwise)
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="FloodControlState" id="12">
+	</class>
+	<class name="FloodControlState" id="12">
 		Settings state from product
 		<cmd name="FloodControlChanged" id="0">
 			@deprecated
@@ -629,8 +629,8 @@
 				Delay (in ms) between two PCMD
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="GPS" id="13">
+	</class>
+	<class name="GPS" id="13">
 		GPS related commands
 		<cmd name="ControllerLatitudeForRun" id="0">
 			Set the controller latitude for a run.
@@ -644,8 +644,8 @@
 				Controller longitude in decimal degrees
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="Configuration" id="14">
+	</class>
+	<class name="Configuration" id="14">
 		Configuration related commands
 		<cmd name="ControllerType" id="0">
 			Set the controller type.
@@ -659,8 +659,8 @@
 				Controller name like com.parrot.freeflight3
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="UsbAccessoryState" id="15">
+	</class>
+	<class name="UsbAccessoryState" id="15">
 		USB Accessories state commands.
 		<cmd name="LightState" id="0" type="MAP_ITEM">
 			USB Light accessory state cmd.
@@ -741,8 +741,8 @@
 				0x08: Remove: This value should be removed from the existing list.
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="UsbAccessory" id="16">
+	</class>
+	<class name="UsbAccessory" id="16">
 		USB Accessories control commands.
 		<cmd name="LightControl" id="0">
 			USB Light control cmd.
@@ -793,8 +793,8 @@
 				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="RemoteController" id="17">
+	</class>
+	<class name="RemoteController" id="17">
 		Remote controller related commands.
 		<cmd name="SetPairedRemote" id="0">
 			Send the address of the remote controller on which the drone should be paired
@@ -810,8 +810,21 @@
 				2 least significant bytes of mac address
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="NavigationDataState" id="18">
+		<cmd name="RawMode" id="1">
+			Enter/leave RC raw mode.
+
+			In raw mode, unfiltered RC commands are sent directly
+			to the controller, and are not processed by the drone.
+
+			This is useful if you need to access the joysticks and
+			buttons state, in the RC mapping settings screen for
+			instance.
+			<arg name="enabled" type="u8">
+				1 to enable, 0 to disable.
+			</arg>
+		</cmd>
+	</class>
+	<class name="NavigationDataState" id="18">
 		Navigation Data.
 		<cmd name="DronePosition" id="0">
 			Get the drone position from takeoff point (0, 0, 0, 0).
@@ -884,8 +897,8 @@
 				Acquisition timestamp (ms).
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="MinicamState" id="19">
+	</class>
+	<class name="MinicamState" id="19">
 		Minicam related events.
 		<cmd name="PowerModeChanged" id="0">
 			Event informing about the minicam power mode.
@@ -1023,8 +1036,8 @@
 				1 if Mass Storage has been formatted, 0 otherwise.
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="VideoSettings" id="20">
+	</class>
+	<class name="VideoSettings" id="20">
 		Video settings.
 		<cmd name="Autorecord" id="0">
 			Set video automatic recording state.
@@ -1055,10 +1068,13 @@
 				<enum name="hd">
 					HD streaming (1280 x 720).
 				</enum>
+				<enum name="hq">
+					HQ streaming (864x480).
+				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="VideoSettingsState" id="21">
+	</class>
+	<class name="VideoSettingsState" id="21">
 		Video settings state.
 		<cmd name="AutorecordChanged" id="0">
 			Event informing about the video automatic recording status.
@@ -1089,10 +1105,13 @@
 				<enum name="hd">
 					HD streaming (1280 x 720).
 				</enum>
+				<enum name="hq">
+					HQ streaming (864x480).
+				</enum>
 			</arg>
 		</cmd>
-	</myclass>
-	<myclass name="Minicam" id="24">
+	</class>
+	<class name="Minicam" id="24">
 		Minicam related commands.
 		<cmd name="Picture" id="0">
 			Take picture.
@@ -1112,8 +1131,8 @@
 		<cmd name="MassStorageFormat" id="2">
 			Format mass storage.
 		</cmd>
-	</myclass>
-	<myclass name="RemoteControllerState" id="25">
+	</class>
+	<class name="RemoteControllerState" id="25">
 		State changes related to the remote controller.
 		<cmd name="ConnectionChanged" id="0">
 			State of the connection to the remote controller changed.
@@ -1123,5 +1142,70 @@
 				1=connected
 			</arg>
 		</cmd>
-	</myclass>
+		<cmd name="RecordButtonPressed" id="1">
+			Notify the controller that the record button was
+			pressed on the remote controller.
+		</cmd>
+		<cmd name="TakePictureButtonPressed" id="2">
+			Notify the controller that the take picture button was
+			pressed on the remote controller.
+		</cmd>
+		<cmd name="RawMode" id="3">
+			Notify the controller on raw mode state change.
+
+			In raw mode, unfiltered RC commands are sent directly
+			to the controller, and are not processed by the drone.
+
+			This is useful if you need to access the joysticks and
+			buttons state, in the RC mapping settings screen for
+			instance.
+			<arg name="enabled" type="u8">
+				1 if raw mode is enabled, 0 if it is not.
+			</arg>
+		</cmd>
+		<cmd name="RawCommands" id="4">
+			Raw RC commands data. Updated when a change is
+			detected.
+			<arg name="joy0x" type="i8">
+				Stick 0 X axis value between -127 and 127.
+				0 is neutral.
+			</arg>
+			<arg name="joy0y" type="i8">
+				Stick 0 Y axis value between -127 and 127.
+				0 is neutral.
+			</arg>
+			<arg name="joy1x" type="i8">
+				Stick 1 X axis value between -127 and 127.
+				0 is neutral.
+			</arg>
+			<arg name="joy1y" type="i8">
+				Stick 1 Y axis value between -127 and 127.
+				0 is neutral.
+			</arg>
+			<arg name="buttons" type="u16">
+				Bitfield reflecting the state of all the
+				buttons.
+				0 means that the button is released, 1 if it is pushed.
+				bit 0: Take off
+				bit 1: 1 button
+				bit 2: 2 button
+				bit 3: B button
+				bit 4: A button
+				bit 5: R1 button
+				bit 6: R2 button
+				bit 7: L1 button
+				bit 8: L2 button
+				bit 9: Left joystick
+				bit 10: Right joystick
+			</arg>
+		</cmd>
+		<cmd name="BatteryLevel" id="5">
+			Battery level data. Updated as soon as it changes.
+			<arg name="level" type="i8">
+				Battery level in percent.
+				Special value -1 when the battery level is not
+				known yet.
+			</arg>
+		</cmd>
+	</class>
 </project>

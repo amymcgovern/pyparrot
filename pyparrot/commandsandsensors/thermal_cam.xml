@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2017 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="142" name="thermal_cam">
+	Thermal camera accessory feature
+	<enums>
+		<enum name="state">
+			Camera state
+			<value name="activated">
+				Camera is activated
+			</value>
+			<value name="deactivated">
+				Camera is deactivated
+			</value>
+			<value name="pending">
+				Activation is pending
+			</value>
+		</enum>
+		<enum name="range">
+			Thermal range
+			<value name="high">
+				High range (from 0 to 400°C)
+			</value>
+			<value name="low">
+				Low range (from 0 to 120°C)
+			</value>
+		</enum>
+		<enum name="charging_state">
+			Battery state
+			<value name="not_charging">
+				Power cable is unplugged
+			</value>
+			<value name="charging_only">
+				Power save mode when battery is criticaly low
+			</value>
+			<value name="charging">
+				Battery is charging correctly
+			</value>
+			<value name="unknown">
+				Charging state is unknown
+			</value>
+		</enum>
+		<enum name="flat_field_calibration_state">
+			Camera Thermal sensor flat field calibration(FFC) status
+			<value name="calibrated">
+				Sensor is calibrated
+			</value>
+			<value name="calibration_required">
+				Sensor needs to be calibrated
+			</value>
+			<value name="calibration_in_progress">
+				Sensor calibration is in progress
+			</value>
+			<value name="calibration_unknown">
+				Sensor FFC state is unknown
+			</value>
+		</enum>
+		<enum name="flat_field_calibration_mode">
+			flat field calibration(FFC) mode
+			<value name="automatic">
+				calibration occurs automatically when needed
+			</value>
+			<value name="manual">
+				calibration occurs on user request only
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="activate" id="1">
+			<comment
+				title="Activate a thermal camera"
+				desc="Activate a given thermal camera.\n
+				Activating a camera may deactivate others on some drones."
+				support="none"
+				result="Camera is activated and [CameraState](#142-3) is changed to activated."/>
+			<expectations>
+				<delayed>
+					#142-3(cam_id: this.cam_id, state: activated)
+				</delayed>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<cmd name="deactivate" id="2">
+			<comment
+				title="Deactivate a thermal camera"
+				desc="Deactivate a given thermal camera."
+				support="none"
+				result="Camera is deactivated and [CameraState](#142-3) is changed to deactivated."/>
+			<expectations>
+				<delayed>
+					#142-3(cam_id: this.cam_id, state: deactivated)
+				</delayed>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<evt name="camera_state" id="3" type="MAP_ITEM:cam_id">
+			<comment
+				title="Camera state"
+				desc="Camera state."
+				support="none"
+				triggered="by [Activate](#142-1) or [Deactivate](#142-2)."/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="state" type="enum:state"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="set_sensitivity" id="4">
+			<comment
+				title="Set the thermal cam sensitivity"
+				desc="Set the thermal camera sensitivity range."
+				support="none"
+				result="Sensitivity range of the camera is changed, and event [Sensitivity](#142-5) is
+				sent accordingly."/>
+			<expectations>
+				<delayed>
+					#142-5(cam_id: this.cam_id, current_range: this.range)
+				</delayed>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="range" type="enum:range"/>
+		</cmd>
+		<evt name="sensitivity" id="5" type="MAP_ITEM:cam_id">
+			<comment
+				title="Thermal cam sensitivity"
+				desc="Thermal cam sensitivity range."
+				support="none"
+				triggered="by [SetSensitivity](#142-4)"/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="current_range" type="enum:range"/>
+			<arg name="available_ranges" type="bitfield:u8:range"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="calibration_infos" id="6" type="MAP_ITEM:cam_id">
+			<comment
+				title="Thermal cam calibration informations"
+				desc="Visible camera position relative to the drone. The thermal camera is considered at an ideal position."
+				support="none"
+				triggered="at connection or when the thermal cam is connected."/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="roll" type="float">
+				Euler angle roll in degree difference between visible cam and thermal cam.
+			</arg>
+			<arg name="pitch" type="float">
+				Euler angle pitch in degree difference between visible cam and thermal cam.
+			</arg>
+			<arg name="yaw" type="float">
+				Euler angle yaw in degree difference between visible cam and thermal cam.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="charging_status" id="7" type="MAP_ITEM:cam_id">
+			<comment
+				title="Thermal cam charging status"
+				desc="Thermal cam charging status."
+				support="none"
+				triggered="when charging status changed"/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="state" type="enum:charging_state"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="flat_field_calibrate" id="8">
+			<comment
+				title="Starts the flat field calibration(FFC) of the thermal sensor"
+				desc="Request the sensor to start thermal flat field calibration"
+				support="none"
+				result="Thermal sensor starts calibration process, and event [flat_field_calibration_status](#142-9) is
+				sent accordingly."/>
+			<expectations>
+				<delayed>
+					#142-9(cam_id: this.cam_id)
+				</delayed>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<evt name="flat_field_calibration_status" id="9" type="MAP_ITEM:cam_id">
+			<comment
+				title="Thermal cam FFC status"
+				desc="Thermal cam FFC status."
+				support="none"
+				triggered="when FFC status changed"/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="state" type="enum:flat_field_calibration_state"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="set_flat_field_calibration_mode" id="10">
+			<comment
+				title="Set the FFC mode"
+				desc="Set the FFC mode."
+				support="none"
+				result="FFC mode is changed, and event [flat_field_calibration_mode](#142-11) is
+				sent accordingly."/>
+			<expectations>
+				<delayed>
+					#142-11(cam_id: this.cam_id, mode: this.mode)
+				</delayed>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="mode" type="enum:flat_field_calibration_mode"/>
+		</cmd>
+		<evt name="flat_field_calibration_mode" id="11" type="MAP_ITEM:cam_id">
+			<comment
+				title="Thermal cam FFC mode"
+				desc="Thermal cam FFC mode."
+				support="none"
+				triggered="when FFC mode changed"/>
+			<arg name="cam_id" type="u8">
+				Thermal camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="mode" type="enum:flat_field_calibration_mode"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+	</msgs>
+</feature>

@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="138" name="mapper">
+	Key mapper for remote controllers
+	<enums>
+		<enum name="button_action">
+			The action (mapped on a button)
+			<value name="app_0">
+				Action handled by the application
+			</value>
+			<value name="app_1">
+				Action handled by the application
+			</value>
+			<value name="app_2">
+				Action handled by the application
+			</value>
+			<value name="app_3">
+				Action handled by the application
+			</value>
+			<value name="app_4">
+				Action handled by the application
+			</value>
+			<value name="app_5">
+				Action handled by the application
+			</value>
+			<value name="app_6">
+				Action handled by the application
+			</value>
+			<value name="app_7">
+				Action handled by the application
+			</value>
+			<value name="app_8">
+				Action handled by the application
+			</value>
+			<value name="app_9">
+				Action handled by the application
+			</value>
+			<value name="app_10">
+				Action handled by the application
+			</value>
+			<value name="app_11">
+				Action handled by the application
+			</value>
+			<value name="app_12">
+				Action handled by the application
+			</value>
+			<value name="app_13">
+				Action handled by the application
+			</value>
+			<value name="app_14">
+				Action handled by the application
+			</value>
+			<value name="app_15">
+				Action handled by the application
+			</value>
+			<value name="return_home">
+				Return to home
+			</value>
+			<value name="takeoff_land">
+				Take off or land
+			</value>
+			<value name="video_record">
+				Start/stop video record
+			</value>
+			<value name="take_picture">
+				Take a picture
+			</value>
+			<value name="camera_exposition_inc">
+				Increment camera exposition
+			</value>
+			<value name="camera_exposition_dec">
+				Decrement camera exposition
+			</value>
+			<value name="flip_left">
+				Flip left
+			</value>
+			<value name="flip_right">
+				Flip right
+			</value>
+			<value name="flip_front">
+				Flip front
+			</value>
+			<value name="flip_back">
+				Flip back
+			</value>
+			<value name="emergency">
+				Emergency motors shutdown
+			</value>
+			<value name="center_camera">
+				Reset camera to its default position
+			</value>
+			<value name="cycle_hud">
+				Cycle between different hud configurations on HDMI
+				(Skycontroller 1 only)
+			</value>
+			<value name="camera_auto">
+				In picture mode: take a picture
+				In record mode: start/stop record
+			</value>
+		</enum>
+		<enum name="axis_action">
+			The action (mapped on an axis)
+			<value name="app_0">
+				Action handled by the application
+			</value>
+			<value name="app_1">
+				Action handled by the application
+			</value>
+			<value name="app_2">
+				Action handled by the application
+			</value>
+			<value name="app_3">
+				Action handled by the application
+			</value>
+			<value name="app_4">
+				Action handled by the application
+			</value>
+			<value name="app_5">
+				Action handled by the application
+			</value>
+			<value name="app_6">
+				Action handled by the application
+			</value>
+			<value name="app_7">
+				Action handled by the application
+			</value>
+			<value name="app_8">
+				Action handled by the application
+			</value>
+			<value name="app_9">
+				Action handled by the application
+			</value>
+			<value name="app_10">
+				Action handled by the application
+			</value>
+			<value name="app_11">
+				Action handled by the application
+			</value>
+			<value name="app_12">
+				Action handled by the application
+			</value>
+			<value name="app_13">
+				Action handled by the application
+			</value>
+			<value name="app_14">
+				Action handled by the application
+			</value>
+			<value name="app_15">
+				Action handled by the application
+			</value>
+			<value name="roll">
+				roll
+			</value>
+			<value name="pitch">
+				pitch
+			</value>
+			<value name="yaw">
+				yaw
+			</value>
+			<value name="gaz">
+				gaz
+			</value>
+			<value name="camera_pan">
+				camera pan
+			</value>
+			<value name="camera_tilt">
+				camera tilt
+			</value>
+			<value name="camera_zoom">
+				camera zoom
+			</value>
+		</enum>
+		<enum name="button_event">
+			Button event
+			<value name="release">
+				button released
+			</value>
+			<value name="press">
+				button pressed
+			</value>
+		</enum>
+		<enum name="expo_type">
+			Expo type
+			<value name="linear">
+				No expo applied, axis is linear
+			</value>
+			<value name="expo_0">
+				Light exponential curve
+			</value>
+			<value name="expo_1">
+				Medium exponential curve
+			</value>
+			<value name="expo_2">
+				Heavy exponential curve
+			</value>
+			<value name="expo_4">
+				Maximum exponential curve
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="grab" id="1">
+			<comment
+				title="Grab (or ungrab) controls"
+				desc="Grabbed buttons are sent to the app and are not
+				handled by the mapper"
+				support="090f;0913;0915"
+				result="The mapper will send a [grab_state](#138-2) command"/>
+			<expectations>
+				<immediate>
+					#138-2(buttons: this.buttons, axes: this.axes)
+				</immediate>
+			</expectations>
+			<arg name="buttons" type="u32">
+				Buttons to grab/ungrab (bitfield)
+			</arg>
+			<arg name="axes" type="u32">
+				Axes to grab/ungrab (bitfield)
+			</arg>
+		</cmd>
+		<evt name="grab_state" id="2">
+			<comment
+				title="Grabbed controls"
+				desc="Grabbed buttons are sent to the app and are not
+				handled by the mapper"
+				support="090f;0913;0915"
+				triggered="by a [grab](#138-1) command"/>
+			<arg name="buttons" type="u32">
+				Grabbed buttons (bitfield)
+			</arg>
+			<arg name="axes" type="u32">
+				Grabbed axes (bitfield)
+			</arg>
+			<arg name="buttons_state" type="u32">
+				For grabbed buttons only.
+				State of the button when the grab starts (bitfield)
+			</arg>
+		</evt>
+		<evt name="grab_button_event" id="3" content="NOTIFICATION">
+			<comment
+				title="Event on a grabbed button"
+				desc="The state of a grabbed button changes"
+				support="090f;0913;0915"
+				triggered="when a grabbed button is pressed/released"/>
+			<arg name="button" type="u32">
+				Button id
+			</arg>
+			<arg name="event" type="enum:button_event"/>
+		</evt>
+		<evt name="grab_axis_event" id="4" content="NOTIFICATION">
+			<comment
+			title="Event on a grabbed axis"
+			desc="The state of a grabbed axis changes"
+			support="090f;0913;0915"
+			triggered="when the value of a grabbed axis changes"/>
+			<arg name="axis" type="u32">
+				Axis id
+			</arg>
+			<arg name="value" type="i8">
+				Value in range [-100; 100].
+			</arg>
+		</evt>
+		<cmd name="map_button_action" id="5">
+			<comment
+				title="Map a button action on one or more buttons"
+				desc="An action can only be mapped to one button set.\n
+				Each action can be mapped to different buttons for
+				different products."
+				support="090f;0913;0915"
+				result="The mapper will send [button_mapping_item](#138-7) and
+				[axis_mapping_item](#138-8) according to the request."/>
+			<expectations>
+				<immediate>
+					#138-7
+					#138-8
+				</immediate>
+			</expectations>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="action" type="enum:button_action"/>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+				Set 0 (no button) to unmap an action
+			</arg>
+		</cmd>
+		<cmd name="map_axis_action" id="6">
+			<comment
+				title="Map an axis action to one axis and zero or more buttons"
+				desc="An action can only be mapped to one axis/button set.\n
+				Each action can be mapped to different axes/buttons for
+				different products."
+				support="090f;0913;0915"
+				result="The mapper will send [button_mapping_item](#138-7) and
+				[axis_mapping_item](#138-8) according to the request."/>
+			<expectations>
+				<immediate>
+					#138-7(product: this.product, action: this.action, buttons: this.buttons)
+					#138-8(product: this.product, action: this.action, buttons: this.buttons)
+				</immediate>
+			</expectations>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="action" type="enum:axis_action"/>
+			<arg name="axis" type="i32">
+				The axis number on which the action will be mapped.
+				Set a negative value to unmap the action.
+			</arg>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+				Can be zero if no buttons are required.
+			</arg>
+		</cmd>
+		<evt name="button_mapping_item" id="7" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the button_actions mapping list"
+				desc="The resulting map describes all active button mappings of the
+				mapper.\n Each action can only be mapped once per product."
+				support="090f;0913;0915"
+				triggered="by a [map_button_action](#138-5) or a
+				 [map_axis_action](#138-6) command"/>
+			<arg name="uid" type="u32">
+				Unique ID of the mapping.
+			</arg>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="action" type="enum:button_action"/>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="axis_mapping_item" id="8" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the axis_actions mapping list"
+				desc="The resulting map describes all active axis mappings of the
+				mapper.\n Each action can only be mapped once per product."
+				support="090f;0913;0915"
+				triggered="by a [map_button_action](#138-5) or a
+				 [map_axis_action](#138-6) command"/>
+			<arg name="uid" type="u32">
+				Unique ID of the mapping.
+			</arg>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="action" type="enum:axis_action"/>
+			<arg name="axis" type="i32">
+				The axis number on which the action is mapped.
+			</arg>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="application_axis_event" id="9" content="NOTIFICATION">
+			<comment
+				title="Application specific event"
+				desc="This event signals the controller application when an
+				application specific axis_event is triggered.\n Application
+				specific actions are typically used for UI interaction which
+				does not involves the drone."
+				support="090f;0913;0915"
+				triggered="when any axis action set to application_action is triggered."/>
+			<arg name="action" type="enum:axis_action"/>
+			<arg name="value" type="i8">
+				The current value of the axis.
+			</arg>
+		</evt>
+		<evt name="application_button_event" id="10" content="NOTIFICATION">
+			<comment
+				title="Application specific event"
+				desc="This event signals the controller application when an
+				application specific button_event is triggered.\n Application
+				specific actions are typically used for UI interaction which
+				does not involves the drone."
+				support="090f;0913;0915"
+				triggered="when any button action set to application_action is triggered."/>
+			<arg name="action" type="enum:button_action"/>
+		</evt>
+		<cmd name="reset_mapping" id="11">
+			<comment
+				title="Reset mapping to default values"
+				desc="Resets the mappings, axis exponential parameters, and axis
+				inversion for the given product.\n
+				If the product is given as 0 (zero), the all products are reset."
+				support="090f;0913;0915"
+				result="The mapper will send [button_mapping_item](#138-7),
+				[axis_mapping_item](#138-8), [expo_map_item](#138-13)
+				and [inverted_map_item](#138-15) according to the request."/>
+			<arg name="product" type="u16">
+				The product to reset, or 0 to reset all products.
+			</arg>
+		</cmd>
+		<cmd name="set_expo" id="12">
+			<comment
+				title="Set exponential type for the given axis, for the given product"
+				desc="By default, each axis can have a different expo value.\n
+				For some products/mappings configuration, the expo values of two
+				axes belonging to the same physical joystick can be locked to
+				the same value. In this case, setting the value for one axis
+				will automatically change both values."
+				support="090f;0913;0915"
+				result="The mapper will send [expo_map_item](#138-13)"/>
+			<expectations>
+				<immediate>
+					#138-13
+				</immediate>
+			</expectations>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list).
+				Set to 0 to apply to all products
+			</arg>
+			<arg name="axis" type="i32">
+				Axis number. Set to -1 to apply to all axes.
+			</arg>
+			<arg name="expo" type="enum:expo_type"/>
+		</cmd>
+		<evt name="expo_map_item" id="13" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the expo map"
+				desc="By default, each axis can have a different expo value.\n
+				For some products/mappings configuration, the expo values of two
+				axes belonging to the same physical joystick can be locked to
+				the same value. In this case, setting the value for one axis
+				will automatically change both values."
+				support="090f;0913;0915"
+				triggered="by a [set_expo](#138-12) command"/>
+			<arg name="uid" type="u32">
+				Unique ID (for MAP_ITEM type)
+			</arg>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="axis" type="i32">
+				Axis number
+			</arg>
+			<arg name="expo" type="enum:expo_type"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="set_inverted" id="14">
+			<comment
+				title="Set/unset inverted state for a physical axis"
+				desc="Axis inversion has no effect on grabbed axes, nor on virtual
+				buttons that might be generated from axes."
+				support="090f;0913;0915"
+				result="The mapper will send [inverted_map_item](#138-15)"/>
+			<expectations>
+				<immediate>
+					#138-15
+				</immediate>
+			</expectations>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list).
+				Set to 0 to apply to all products
+			</arg>
+			<arg name="axis" type="i32">
+				Axis number
+			</arg>
+			<arg name="inverted" type="u8">
+				0 : Axis not inverted.
+				1 : Axis inverted
+			</arg>
+		</cmd>
+		<evt name="inverted_map_item" id="15" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the inverted map"
+				desc="Axis inversion has no effect on grabbed axes, nor on virtual
+				buttons that might be generated from axes."
+				support="090f;0913;0915"
+				triggered="by a [set_inverted](#138-14) command"/>
+			<arg name="uid" type="u32">
+				Unique ID (for MAP_ITEM type)
+			</arg>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+			<arg name="axis" type="i32">
+				Axis number
+			</arg>
+			<arg name="inverted" type="u8">
+				0 : Axis not inverted.
+				1 : Axis inverted
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="active_product" id="16">
+			<comment
+				title="Active product for the mapper"
+				desc="This event notifies the application about the currently active
+				product, thus allowing the application to diplay and edit the
+				current mapping without having to guess from other sources."
+				support="090f:1.0.5;0913;0915"
+				triggered="when the active product changes"/>
+			<arg name="product" type="u16">
+				Product (see libARDiscovery for list)
+			</arg>
+		</evt>
+		<cmd name="enter_volatile_mapping" id="17">
+			<comment
+				title="Enter in volatile mapping mode"
+				desc="All mappings in this mode will disappear when exit will be called
+				or when device is unplugged."
+				support="090f;0913;0915"
+				result="Event [volatile_mapping_state](#138-19)"/>
+			<expectations>
+				<immediate>
+					#138-19(active: 1)
+				</immediate>
+			</expectations>
+		</cmd>
+		<cmd name="exit_volatile_mapping" id="18">
+			<comment
+				title="Terminates volatile mapping mode"
+				desc="Destroy volatile mapping.\n
+				Any current action is canceled, for example PCMD will become null even
+				if PCMD axis are pushed, the user has to release the axis to recover
+				PCMD control."
+				support="090f;0913;0915"
+				result="Event [volatile_mapping_state](#138-19)"/>
+			<expectations>
+				<immediate>
+					#138-19(active: 0)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="volatile_mapping_state" id="19">
+			<comment
+				title="Volatile mapping state"
+				desc="Volatile mapping state"
+				support="090f;0913;0915"
+				triggered="During connection, by [enter_volatile_mapping](#138-17) and [exit_volatile_mapping](#138-18)"/>
+			<arg name="active" type="u8">
+				0 : Volatile mapping is not active.
+				1 : Volatile mapping is active.
+			</arg>
+		</evt>
+	</msgs>
+</feature>

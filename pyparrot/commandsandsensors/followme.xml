@@ -46,6 +46,9 @@
 			<value name="relative">
 				Follow the target keeping the same orientation to its direction
 			</value>
+			<value name="leash">
+				Follow the target as it was held by a leash
+			</value>
 		</enum>
 		<enum name="behavior">
 			FollowMe behavior
@@ -193,7 +196,13 @@
 				result="Event [state](#134-3) is triggered.\n
 				Also triggers the event that informs about the current \n
 				configuration (if there is one) like event\n
-				[Geographic configuration](#134-4) or [Relative configuration](#134-6)"/>
+				[Geographic configuration](#134-7) or [Relative configuration](#134-9)"/>
+			<expectations>
+				<immediate>
+					#134-3(mode: this.mode, behavior: look_at)
+					|#134-3(mode: this.mode, behavior: follow)
+				</immediate>
+			</expectations>
 			<arg name="mode" type="enum:mode"/>
 		</cmd>
 		<cmd name="stop" id="2">
@@ -202,6 +211,11 @@
 				desc="Stop current followMe."
 				support="090c:4.0.0"
 				result="Event [state](#134-3) is triggered with mode equals to none."/>
+			<expectations>
+				<immediate>
+					#134-3(mode: none)
+				</immediate>
+			</expectations>
 		</cmd>
 		<evt name="state" id="3">
 			<comment
@@ -232,13 +246,18 @@
 			<arg name="mode" type="enum:mode"/>
 			<arg name="missing_requirements" type="bitfield:u16:input">
 				List of missing requirements to enter this mode on start.
-				Bit is 0 if the input is not ok, 1 if the input is ok.
+				Bit is 0 if the input is missing, 1 if the input is ok.
+				For example, if the first bit is equal to 0, it means that the mode is not
+				available because the drone is not calibrated.
 				If at least one input is missing, drone won't able to follow the target.
 				It won't use any fallback either
 			</arg>
 			<arg name="improvements" type="bitfield:u16:input">
 				List of inputs that can improve the mode.
-				Bit is 0 if the input is not ok, 1 if the input is ok.
+				Bit is 0 if the input is missing, i.e.: the mode can be improved if this
+				input would be fulfilled, 1 if the input is ok.
+				For example, if the first bit is equal to 0, it means that the mode would be improved
+				if the drone would be calibrated.
 				If at least one input is missing, a downgraded mode will be used. See behavior
 			</arg>
 		</evt>
@@ -248,7 +267,12 @@
 				desc="Configure the geographic FollowMe.\n
 				This should only be taken in account if arg behavior in [state](#134-3) is equal to Follow."
 				support="090c:4.0.0"
-				result="Event [Geographic config](#134-6) is sent and drone will move to respect the configuration."/>
+				result="Event [Geographic config](#134-7) is sent and drone will move to respect the configuration."/>
+			<expectations>
+				<immediate>
+					#134-7(use_default: this.use_default)
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
 			<arg name="distance" type="float">
 				The distance leader-follower in meter
@@ -267,7 +291,7 @@
 				desc="Geographic configuration changed.\n
 				This event is only valid when arg behavior in [state](#134-3) is equal to Follow."
 				support="090c:4.0.0"
-				triggered="By [start geographic](#134-1) or [configure geographic](#134-4)."/>
+				triggered="By [start geographic](#134-1) or [configure geographic](#134-6)."/>
 			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
 			<arg name="distance" type="float">
 				The distance leader-follower in meter
@@ -288,7 +312,12 @@
 				desc="Configure the relative FollowMe.\n
 				This should only be taken in account if arg behavior in [state](#134-3) is equal to Follow"
 				support="090c:4.0.0"
-				result="Event [Relative config](#134-6) is sent and drone will move to respect the configuration."/>
+				result="Event [Relative config](#134-9) is sent and drone will move to respect the configuration."/>
+			<expectations>
+				<immediate>
+					#134-9(use_default: this.use_default, distance: this.distance, elevation: this.elevation, azimuth: this.azimuth)
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
 			<arg name="distance" type="float">
 				The distance leader-follower in meter
@@ -306,7 +335,51 @@
 				desc="Relative configuration changed.\n
 				This event is only valid when arg behavior in [state](#134-3) is equal to Follow."
 				support="090c:4.0.0"
-				triggered="By [start relative](#134-1) or [configure relative](#134-4)."/>
+				triggered="By [start relative](#134-1) or [configure relative](#134-8)."/>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+				If distance is default, this value is the current drone distance
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad
+				If elevation is default, this value is the current leader to drone elevation
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth course-leader-follower in rad
+				If azimuth is default, this value is the current leader to drone azimuth
+			</arg>
+		</evt>
+		<cmd name="configure_leash" id="28">
+			<comment
+				title="Configure the leash mode"
+				desc="Configure the leash mode of FollowMe.\n
+				This should only be taken in account if arg behavior in [state](#134-3) is equal to Follow"
+				support=""
+				result="Event [Leash config](#134-29) is sent and drone will move to respect the configuration."/>
+			<expectations>
+				<immediate>
+					#134-29(use_default: this.use_default, distance: this.distance, elevation: this.elevation, azimuth: this.azimuth)
+				</immediate>
+			</expectations>
+			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
+			<arg name="distance" type="float">
+				The distance leader-follower in meter
+			</arg>
+			<arg name="elevation" type="float">
+				The elevation leader-follower in rad
+			</arg>
+			<arg name="azimuth" type="float">
+				The azimuth north-leader-follower in rad
+			</arg>
+		</cmd>
+		<evt name="leash_config" id="29">
+			<comment
+				title="Leash mode configuration changed"
+				desc="Leash mode configuration changed.\n
+				This event is only valid when arg behavior in [state](#134-3) is equal to Follow."
+				support=""
+				triggered="By [start leash](#134-1) or [configure leash](#134-28)."/>
 			<arg name="use_default" type="bitfield:u8:geo_rel_configure_param"/>
 			<arg name="distance" type="float">
 				The distance leader-follower in meter
@@ -352,7 +425,12 @@
 				desc="Stop current followMe animation.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="FollowMe animation will stop. Event [state](#134-2) is triggered."/>
+				result="FollowMe animation will stop. Event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="start_helicoid_anim" id="12" deprecated="true">
 			<comment
@@ -361,7 +439,12 @@
 				The helicoid animation allows the drone to revolve around the target while going up, with a fixed radius.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="Animation is started and event [state](#134-2) is triggered."/>
+				result="Animation is started and event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:helicoid_configure_param"/>
 			<arg name="speed" type="float">
 				The desired speed of the anim in m/s
@@ -405,7 +488,12 @@
 				The swing animation enables a vertical point of view while the drone passes over the target.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="Animation is started and event [state](#134-2) is triggered."/>
+				result="Animation is started and event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:swing_configure_param"/>
 			<arg name="speed" type="float">
 				The desired speed of the anim in m/s
@@ -441,7 +529,12 @@
 				The boomerang animation enables a zoom-out/zoom-in trajectory while preserving the framing chosen by the user.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="Animation is started and event [state](#134-2) is triggered."/>
+				result="Animation is started and event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:boomerang_configure_param"/>
 			<arg name="speed" type="float">
 				The desired speed of the anim in m/s
@@ -477,7 +570,12 @@
 				The candle animation enables a zoom-in directly on the target followed by a vertical zoom-out.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="Animation is started and event [state](#134-2) is triggered."/>
+				result="Animation is started and event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:candle_configure_param"/>
 			<arg name="speed" type="float">
 				The desired speed of the anim in m/s
@@ -513,7 +611,12 @@
 				Allows the drone to catch up to the target before flying past it, creating a zoom-in/zoom_out effect without a curved path.\n
 				This message has been deprecated. Please use the animation feature."
 				support="090c:4.0.0"
-				result="Animation is started and event [state](#134-2) is triggered."/>
+				result="Animation is started and event [state](#134-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-3
+				</immediate>
+			</expectations>
 			<arg name="use_default" type="bitfield:u8:dolly_slide_configure_param"/>
 			<arg name="speed" type="float">
 				The desired speed of the anim in m/s
@@ -555,7 +658,12 @@
 				title="Set the target framing"
 				desc="Set the desired target framing in the video."
 				support="090c:4.0.0"
-				result="Event [target framing position](#134-20) is triggered."/>
+				result="Event [target framing position](#134-23) is triggered."/>
+			<expectations>
+				<immediate>
+					#134-23(horizontal: this.horizontal, vertical: this.vertical)
+				</immediate>
+			</expectations>
 			<arg name="horizontal" type="i8">
 				Horizontal position in the video (in %, from left to right)
 			</arg>
@@ -581,7 +689,12 @@
 				desc="Send vision detection results."
 				support="090c:4.0.0"
 				result="If drone is in FollowMe, is will look at the target according to\n
-				the chosen [framing position](#134-20)."/>
+				the chosen [framing position](#134-23)."/>
+			<expectations>
+				<immediate>
+					#134-23(horizontal: this.horizontal, vertical: this.vertical)
+				</immediate>
+			</expectations>
 			<arg name="target_azimuth" type="float">
 				Horizontal north-drone-target angle in radian
 			</arg>
@@ -607,6 +720,33 @@
 				support="090c:4.0.0"
 				triggered="By a possible wrong [target image detection](#134-24)."/>
 			<arg name="state" type="enum:image_detection_status"/>
+		</evt>
+		<cmd name="set_target_is_controller" id="26">
+			<comment
+				title="Tells that the target is the controller"
+				desc="Tells that the target to follow is the controller and drone can use controller gps
+				sent by [controller_info gps](#140-1) and barometer data sent by [controller_info barometer](#140-2)
+				as valid to locate the target."
+				support=""
+				result="The drone sends [target_is_controller](#134-27) and may send [mode_info](#134-20) with updated
+				`missing_requirements`"/>
+			<expectations>
+				<immediate>
+					#134-27(state: this.target_is_controller)
+				</immediate>
+			</expectations>
+			<arg name="target_is_controller" type="u8">
+				Boolean. 1 if the target is the controller, 0 otherwise
+			</arg>
+		</cmd>
+		<evt name="target_is_controller" id="27">
+			<comment
+				title="Tells whether the drone is using the controller gps position and barometer to locate the target"
+				support=""
+				triggered="During connection and by [set_target_is_controller](#134-26)"/>
+			<arg name="state" type="u8">
+				Boolean. 1 if the target is the controller, 0 otherwise
+			</arg>
 		</evt>
 	</msgs>
 </feature>

@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2018 Parrot Drones SAS
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	  notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in
+	  the documentation and/or other materials provided with the
+	  distribution.
+	* Neither the name of the Parrot Company nor the names
+	  of its contributors may be used to endorse or promote products
+	  derived from this software without specific prior written
+	  permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	PARROT COMPANY BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+
+<feature id="148" name="gimbal">
+	All messages related to the gimbal, either a real gimbal or a virtual camera.
+	<enums>
+		<enum name="model">
+			Gimbal model.
+			<value name="main">
+				Main gimbal.
+				Only one gimbal of this kind is allowed at a time on a drone.
+			</value>
+		</enum>
+
+		<enum name="state">
+			Feature current state.
+			<value name="inactive">
+				Feature is not currently active.
+			</value>
+			<value name="active">
+				Feature is currently active.
+			</value>
+		</enum>
+
+		<enum name="error">
+			Gimbal error.
+			<value name="calibration_error">
+				Calibration error. Verify that nothing is blocking the gimbal movement.
+			</value>
+			<value name="overload_error">
+				Overload error. Verify that nothing is blocking the gimbal movement.
+			</value>
+			<value name="comm_error">
+				Communication error. Wait for retry.
+			</value>
+			<value name="critical_error">
+				Critical error. Drone must be restarted.
+			</value>
+		</enum>
+
+		<enum name="calibration_state">
+			Calibration state.
+			<value name="required">
+				Calibration is required.
+			</value>
+			<value name="in_progress">
+				Calibration is in progress.
+			</value>
+			<value name="ok">
+				Calibration is ok.
+			</value>
+		</enum>
+
+		<enum name="calibration_result">
+			Calibration result.
+			<value name="success">
+				Calibration completed successfully.
+			</value>
+			<value name="failure">
+				Calibration failed.
+			</value>
+			<value name="canceled">
+				Calibration canceled, with command `cancel_calibration`.
+			</value>
+		</enum>
+
+		<enum name="axis">
+			Axis.
+			<value name="yaw">
+				Yaw axis
+			</value>
+			<value name="pitch">
+				Pitch axis
+			</value>
+			<value name="roll">
+				Roll axis
+			</value>
+		</enum>
+		<enum name="control_mode">
+			Gimbal control mode.
+			<value name="position">
+				Attitude is set by giving a position.
+			</value>
+			<value name="velocity">
+				Attitude is set by giving a velocity.
+			</value>
+		</enum>
+		<enum name="frame_of_reference">
+			Frame of reference.
+			<value name="none">
+				None
+			</value>
+			<value name="relative">
+				Euler angles define gimbal attitude in the drone frame of reference, where, as seen from the drone:
+				- roll axis points forward
+				- pitch axis points on the right hand side
+				- yaw axis points downward
+			</value>
+			<value name="absolute">
+				Euler angles define gimbal attitude in the Earth frame of reference, where:
+				- roll axis points North
+				- pitch axis points East
+				- yaw axis points toward the center of the Earth
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<evt name="gimbal_capabilities" id="1">
+			<comment
+				title="Gimbal capabilities"
+				comment="Gimbal capabilities.
+				This event lists the supported axes.
+				It is sent only once at connection and does not change after.
+				This event will be received before all other gimbal events."
+				support="0914"
+				triggered="at connection."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+				Gimbal id is unique and persistent: the same gimbal model on a same drone model always has the same id.
+				Main/Built-in gimbal has id zero.
+			</arg>
+			<arg name="model" type="enum:model">
+				Camera model.
+			</arg>
+			<arg name="axes" type="bitfield:u8:axis">
+				Bitfield of axes that can be controlled. If bit is set to 1, it means that the axis can be controlled.
+			</arg>
+		</evt>
+		<evt name="relative_attitude_bounds" id="2">
+			<comment
+				title="Relative attitude bounds"
+				comment="Attitude bounds on the relative frame of reference."
+				support="0914"
+				triggered="when the bounds change."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="min_yaw" type="float">
+				Minimum yaw value, in degrees, in the relative frame of reference
+			</arg>
+			<arg name="max_yaw" type="float">
+				Maximum yaw value, in degrees, in the relative frame of reference
+			</arg>
+			<arg name="min_pitch" type="float">
+				Minimum pitch value, in degrees, in the relative frame of reference
+			</arg>
+			<arg name="max_pitch" type="float">
+				Maximum pitch value, in degrees, in the relative frame of reference
+			</arg>
+			<arg name="min_roll" type="float">
+				Minimum roll value, in degrees, in the relative frame of reference
+			</arg>
+			<arg name="max_roll" type="float">
+				Maximum roll value, in degrees, in the relative frame of reference
+			</arg>
+		</evt>
+		<evt name="absolute_attitude_bounds" id="10">
+			<comment
+				title="Absolute attitude bounds"
+				comment="Attitude bounds on the absolute frame of reference."
+				support="0914"
+				triggered="when the bounds change."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="min_yaw" type="float">
+				Minimum yaw value, in degrees, in the absolute frame of reference
+			</arg>
+			<arg name="max_yaw" type="float">
+				Maximum yaw value, in degrees, in the absolute frame of reference
+			</arg>
+			<arg name="min_pitch" type="float">
+				Minimum pitch value, in degrees, in the absolute frame of reference
+			</arg>
+			<arg name="max_pitch" type="float">
+				Maximum pitch value, in degrees, in the absolute frame of reference
+			</arg>
+			<arg name="min_roll" type="float">
+				Minimum roll value, in degrees, in the absolute frame of reference
+			</arg>
+			<arg name="max_roll" type="float">
+				Maximum roll value, in degrees, in the absolute frame of reference
+			</arg>
+		</evt>
+		<evt name="max_speed" id="3">
+			<comment
+				title="Max speed"
+				comment="Information about the max speed setting: the bounds and current value
+				for the max speed on each axis."
+				support="0914"
+				triggered="by [SetMaxSpeed](#148-4) or when the speed bounds changes."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+				Gimbal id is unique and persistent: the same gimbal model on a same drone model always has the same id.
+				Main/Built-in gimbal has id zero.
+			</arg>
+			<arg name="min_bound_yaw" type="float">
+				Lower bound of the max yaw speed, in degrees per seconds
+			</arg>
+			<arg name="max_bound_yaw" type="float">
+				Upper bound of the max yaw speed, in degrees per seconds
+			</arg>
+			<arg name="current_yaw" type="float">
+				Maximum yaw speed value, in degrees per seconds
+			</arg>
+			<arg name="min_bound_pitch" type="float">
+				Lower bound of the max pitch speed, in degrees per seconds
+			</arg>
+			<arg name="max_bound_pitch" type="float">
+				Upper bound of the max pitch speed, in degrees per seconds
+			</arg>
+			<arg name="current_pitch" type="float">
+				Maximum pitch speed value, in degrees per seconds
+			</arg>
+			<arg name="min_bound_roll" type="float">
+				Lower bound of the max roll speed, in degrees per seconds
+			</arg>
+			<arg name="max_bound_roll" type="float">
+				Upper bound of the max roll speed, in degrees per seconds
+			</arg>
+			<arg name="current_roll" type="float">
+				Maximum roll speed value, in degrees per seconds
+			</arg>
+		</evt>
+		<cmd name="set_max_speed" id="4">
+			<comment
+				title="Set max speed"
+				comment="Set the max speed setting."
+				support="0914"
+				result="set the max speed setting then [MaxSpeed](#148-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#148-3(gimbal_id: this.gimbal_id)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="yaw" type="float">
+				Maximum yaw speed value, in degrees per seconds
+				This value will be clamped between [MaxSpeed](#148-3) min_bound_yaw and max_bound_yaw
+			</arg>
+			<arg name="pitch" type="float">
+				Maximum pitch speed value, in degrees per seconds
+				This value will be clamped between [MaxSpeed](#148-3) min_bound_pitch and max_bound_pitch
+			</arg>
+			<arg name="roll" type="float">
+				Maximum roll speed value, in degrees per seconds
+				This value will be clamped between [MaxSpeed](#148-3) min_bound_roll and max_bound_roll
+			</arg>
+		</cmd>
+		<cmd name="set_target" id="5" buffer="NON_ACK">
+			<comment
+				title="Set the gimbal target"
+				comment="Set position or speed target of the gimbal."
+				support="0914"
+				result="set the target."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="control_mode" type="enum:control_mode">
+				Mode of changing the gimbal attitude.
+				This parameter will caracterize following parameters units.
+			</arg>
+			<arg name="yaw_frame_of_reference" type="enum:frame_of_reference">
+				Frame of reference of the yaw value.
+				`none` if the yaw target should not be changed
+			</arg>
+			<arg name="yaw" type="float">
+				Yaw value.
+				Frame of reference is given by the value of `yaw_frame_of_reference`.
+				Units depend on the `control_mode` value:
+				- `position`: value is in degrees
+				- `velocity`, value is in signed ratio (from -1 to 1) of the [MaxSpeed](#148-3) `current_yaw` parameter
+			</arg>
+			<arg name="pitch_frame_of_reference" type="enum:frame_of_reference">
+				Frame of reference of the pitch value
+				`none` if the pitch target should not be changed
+			</arg>
+			<arg name="pitch" type="float">
+				Pitch value.
+				Frame of reference is given by the value of `pitch_frame_of_reference`.
+				Units depend on the `control_mode` value:
+				- `position`: value is in degrees
+				- `velocity`, value is in signed ratio (from -1 to 1) of the [MaxSpeed](#148-3) `current_pitch` parameter
+			</arg>
+			<arg name="roll_frame_of_reference" type="enum:frame_of_reference">
+				Frame of reference of the roll value
+				`none` if the roll target should not be changed
+			</arg>
+			<arg name="roll" type="float">
+				Roll value.
+				Frame of reference is given by the value of `roll_frame_of_reference`.
+				Units depend on the `control_mode` value:
+				- `position`: value is in degrees
+				- `velocity`, value is in signed ratio (from -1 to 1) of the [MaxSpeed](#148-3) `current_roll` parameter
+			</arg>
+		</cmd>
+		<evt name="attitude" id="6" buffer="NON_ACK">
+			<comment
+				title="Gimbal attitude"
+				comment="Curret attitude of the gimbal."
+				support="0914"
+				triggered="regularly."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="yaw_frame_of_reference" type="enum:frame_of_reference">
+				Current frame of reference used for the yaw axis.
+			</arg>
+			<arg name="pitch_frame_of_reference" type="enum:frame_of_reference">
+				Current frame of reference used for the pitch axis.
+			</arg>
+			<arg name="roll_frame_of_reference" type="enum:frame_of_reference">
+				Current frame of reference used for the roll axis.
+			</arg>
+			<arg name="yaw_relative" type="float">
+				Yaw orientation of the gimbal in the relative frame of reference, in degrees.
+			</arg>
+			<arg name="pitch_relative" type="float">
+				Pitch orientation of the gimbal in the relative frame of reference, in degrees.
+			</arg>
+			<arg name="roll_relative" type="float">
+				Roll orientation of the gimbal in the relative frame of reference, in degrees.
+			</arg>
+			<arg name="yaw_absolute" type="float">
+				Yaw orientation of the gimbal in the absolute frame of reference, in degrees.
+			</arg>
+			<arg name="pitch_absolute" type="float">
+				Pitch orientation of the gimbal in the absolute frame of reference, in degrees.
+			</arg>
+			<arg name="roll_absolute" type="float">
+				Roll orientation of the gimbal in the absolute frame of reference, in degrees.
+			</arg>
+		</evt>
+		<evt name="axis_lock_state" id="7">
+			<comment
+				title="Axis lock state"
+				comment="Whether the axis is currently locked or not.
+				If an axis is locked, it means that the [set_target](#148-5) on this axis is currently unavailable.\n
+				Attitude can be locked for example during a LookAt, a FollowMe or a piloted POI."
+				support="0914"
+				triggered="when the axis lock is changed."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="locked" type="bitfield:u8:axis">
+				Bitfield indicating if each axis is temporarily locked.
+				Bits set to 1 are locked.
+			</arg>
+		</evt>
+		<cmd name="start_offsets_update" id="12">
+			<comment
+				title="Start offset update"
+				comment="Start the offset update process. In this state offsets can be adjusted by
+				[set_offsets](#148-9)."
+				support="0914"
+				result="actual offsets and update state [offsets](#148-8) is triggered, with
+				`update_state` set to `active`."/>
+			<expectations>
+				<immediate>
+					#148-8(gimbal_id: this.gimbal_id, update_state: active)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</cmd>
+		<cmd name="stop_offsets_update" id="13">
+			<comment
+				title="Stop offset update"
+				comment="Terminate the offset update process."
+				support="0914"
+				result="[offsets](#148-8) is triggered, with `update_state` set to `inactive`."/>
+			<expectations>
+				<immediate>
+					#148-8(gimbal_id: this.gimbal_id, update_state: inactive)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</cmd>
+		<evt name="offsets" id="8">
+			<comment
+				title="Get the offsets"
+				comment="Get the offset and their bounds on each axis."
+				support="0914"
+				triggered="at connection and by [SetOffsets](#148-9)."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="update_state" type="enum:state">
+				offset update states.
+			</arg>
+			<arg name="min_bound_yaw" type="float">
+				Lower bound of the offset that can be set on the yaw axis, in degrees
+			</arg>
+			<arg name="max_bound_yaw" type="float">
+				Upper bound of the offset that can be set on the yaw axis, in degrees
+			</arg>
+			<arg name="current_yaw" type="float">
+				Current offset applied to the yaw axis, in degrees
+			</arg>
+			<arg name="min_bound_pitch" type="float">
+				Lower bound of the offset that can be set on the pitch axis, in degrees
+			</arg>
+			<arg name="max_bound_pitch" type="float">
+				Upper bound of the offset that can be set on the pitch axis, in degrees
+			</arg>
+			<arg name="current_pitch" type="float">
+				Current offset applied to the pitch axis, in degrees
+			</arg>
+			<arg name="min_bound_roll" type="float">
+				Lower bound of the offset that can be set on the roll axis, in degrees
+			</arg>
+			<arg name="max_bound_roll" type="float">
+				Upper bound of the offset that can be set on the roll axis, in degrees
+			</arg>
+			<arg name="current_roll" type="float">
+				Current offset applied to the roll axis, in degrees
+			</arg>
+		</evt>
+		<cmd name="set_offsets" id="9">
+			<comment
+				title="Set gimbal offsets"
+				comment="Set the offset that should be applied to each axis when the offset update process
+				has been started by [start_offets_update](#148-12).
+				This can be used to update the gimbal attitude."
+				support="0914"
+				result="if the offset update process has been started, the offsets are set on each axis
+				then [Offsets](#148-8) is triggered."/>
+			<expectations>
+				<immediate>
+					#148-8(gimbal_id: this.gimbal_id)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="yaw" type="float">
+				Offset, in degrees, that should be applied to the yaw axis.
+				This value will be clamped between [Offsets](#148-8) min_bound_yaw and max_bound_yaw
+			</arg>
+			<arg name="pitch" type="float">
+				Offset, in degrees, that should be applied to the pitch axis.
+				This value will be clamped between [[Offsets](#148-8) min_bound_pitch and max_bound_pitch
+			</arg>
+			<arg name="roll" type="float">
+				Offset, in degrees, that should be applied to the roll axis.
+				This value will be clamped between [Offsets](#148-8) min_bound_roll and max_bound_roll
+			</arg>
+		</cmd>
+		<cmd name="reset_orientation" id="11">
+			<comment
+				title="Reset the orientation of the gimbal"
+				comment="Reset the orientation of the gimbal.
+				The orientation of the gimbal is set back to its default orientation.
+				Current frame of references are kept and controller should send none
+				in the [set_target](#148-5) command. As soon as the drone receive a target
+				different from none, the reset will be canceled."
+				support="0914"
+				result="Orientation of the gimbal is reset."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</cmd>
+
+		<evt name="calibration_state" id="14">
+			<comment
+				title="Calibration state"
+				comment="Current calibration state."
+				support="0914"
+				triggered="at connection and when calibration state changes."/>
+			<arg name="state" type="enum:calibration_state">
+				Current state
+			</arg>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</evt>
+
+		<cmd name="calibrate" id="15">
+			<comment
+				title="Start calibration."
+				comment="Start gimbal calibration. Must be called when the drone is not flying, still, on a flat and
+				horizontal surface, and that nothing is blocking the gimbal movement."
+				support="0914"
+				result="[calibration_state](#148-14) changes to `in_progress`. [calibration_result](#148-16) when
+				calibration is terminated."/>
+			<expectations>
+				<immediate>
+					#148-14(gimbal_id: this.gimbal_id, state: in_progress)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</cmd>
+
+		<cmd name="cancel_calibration" id="18">
+			<comment
+				title="Cancel calibration."
+				comment="Cancel gimbal calibration."
+				support="0914"
+				result="[calibration_state](#148-14) changes to `required` or `ok`. [calibration_result](#148-16)
+				with `canceled` result."/>
+			<expectations>
+				<immediate>
+					#148-16(gimbal_id: this.gimbal_id, result: canceled)
+				</immediate>
+			</expectations>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+		</cmd>
+
+		<evt name="calibration_result" id="16" content="NOTIFICATION">
+			<comment
+				title="Calibration result."
+				comment="Result of calibrate](#148-15) command."
+				support="0914"
+				triggered="At the end of the gimbal calibration."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="result" type="enum:calibration_result">
+				Calibration result.
+			</arg>
+		</evt>
+
+		<evt name="alert" id="17" >
+			<comment
+				title="Gimbal error."
+				comment="Notify gimbal error."
+				support="0914"
+				triggered="At connection and when an error occurs."/>
+			<arg name="gimbal_id" type="u8">
+				id of the gimbal.
+			</arg>
+			<arg name="error" type="bitfield:u8:error">
+				Error bitfield.
+			</arg>
+		</evt>
+
+	</msgs>
+</feature>

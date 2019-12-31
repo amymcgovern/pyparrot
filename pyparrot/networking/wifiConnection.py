@@ -1,5 +1,5 @@
 """
-Holds all the data and commands needed to fly a Bebop drone.
+Holds all the data and commands needed to fly a Bebop or Anafi drone.
 
 Author: Amy McGovern, dramymcgovern@gmail.com
 """
@@ -44,8 +44,8 @@ class WifiConnection:
         :param type: type of drone to connect to
         """
         self.is_connected = False
-        if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco")):
-            color_print("Error: only type Bebop Disco and Mambo are currently supported", "ERROR")
+        if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco", "Anafi")):
+            color_print("Error: only type Anafi Bebop Disco and Mambo are currently supported", "ERROR")
             return
 
         self.drone = drone
@@ -59,6 +59,10 @@ class WifiConnection:
         if (drone_type is "Bebop"):
             self.mdns_address = "_arsdk-0901._udp.local."
             #Bebop video streaming
+            self.stream_port = 55004
+            self.stream_control_port = 55005
+        elif (drone_type is "Anafi"):
+            self.mdns_address = "_arsdk-0914._udp.local."
             self.stream_port = 55004
             self.stream_control_port = 55005
         elif (drone_type is "Bebop2"):
@@ -346,8 +350,11 @@ class WifiConnection:
         num_try = 0
         while (not finished and num_try < num_retries):
             data = tcp_sock.recv(4096).decode('utf-8')
+            print(data)
             if (len(data) > 0):
-                my_data = data[0:-1]
+                #my_data = data[0:-1]
+                my_data = data
+                print(my_data)
                 self.udp_data = json.loads(str(my_data))
 
                 # if the drone refuses the connection, return false

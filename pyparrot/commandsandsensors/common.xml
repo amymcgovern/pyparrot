@@ -59,6 +59,9 @@
 				<enum name="unknown">
 					Unknown generic cause
 				</enum>
+				<enum name="reset_factory">
+					The reset factory procedure has been requested
+				</enum>
 			</arg>
 		</cmd>
 	</myclass>
@@ -73,6 +76,11 @@
 				support="drones"
 				result="The product will trigger all settings events (such as [CameraSettings](#0-15-0), or product specific settings as the [MaxAltitude](#1-6-0) for the Bebop).\n
 				Then, it will trigger [AllSettingsEnd](#0-3-0)."/>
+			<expectations>
+				<immediate>
+					#0-3-0
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="Reset" id="1">
 			<comment
@@ -81,6 +89,11 @@
 				support="drones"
 				result="It will trigger [ResetChanged](#0-3-1).\n
 				Then, the product will trigger all settings events (such as [CameraSettings](#0-15-0), or product specific settings as the [MaxAltitude](#1-6-0) for the Bebop) with factory values."/>
+			<expectations>
+				<immediate>
+					#0-3-1
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="ProductName" id="2">
 			<comment
@@ -90,6 +103,11 @@
 				support="drones"
 				result="Name is changed.\n
 				Then, it will trigger [NameChanged](#0-3-2)."/>
+			<expectations>
+				<immediate>
+					#0-3-2(name: this.name)
+				</immediate>
+			</expectations>
 			<arg name="name" type="string">
 				Product name
 			</arg>
@@ -103,6 +121,11 @@
 				support="0901;0902;0905;0906;090c;090e"
 				result="The country is set.\n
 				Then, it will trigger [CountryChanged](#0-3-6)."/>
+			<expectations>
+				<immediate>
+					#0-3-6(code: this.code)
+				</immediate>
+			</expectations>
 			<arg name="code" type="string">
 				Country code with ISO 3166 format
 			</arg>
@@ -116,6 +139,12 @@
 				support="0901;0902;0905;0906;090c;090e"
 				result="The auto-country of the product is changed.\n
 				Then, it will trigger [AutoCountryChanged](#0-3-7) and [CountryChanged](#0-3-6)."/>
+			<expectations>
+				<immediate>
+					#0-3-7(automatic: this.automatic)
+					#0-3-6
+				</immediate>
+			</expectations>
 			<arg name="automatic" type="u8">
 				Boolean : 0 : Manual / 1 : Auto
 			</arg>
@@ -201,6 +230,16 @@
 				Boolean : 0 : Manual / 1 : Auto
 			</arg>
 		</cmd>
+		<cmd name="BoardIdChanged" id="8">
+			<comment
+				title="Board id"
+				desc="Board id."
+				support="drones"
+				triggered="during the connection process."/>
+			<arg name="id" type="string">
+				Board id
+			</arg>
+		</cmd>
 	</myclass>
 	<myclass name="Common" id="4">
 		Common commands
@@ -213,6 +252,11 @@
 				support="drones"
 				result="The product will trigger all states events (such as [FlyingState](#1-4-1) for the Bebop).\n
 				Then, it will trigger [AllStatesEnd](#0-5-0)."/>
+			<expectations>
+				<immediate>
+					#0-5-0
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="CurrentDate" id="1">
 			<comment
@@ -225,6 +269,11 @@
 				support="drones"
 				result="The date of the product is set.\n
 				Then, it will trigger [DateChanged](#0-5-4)."/>
+			<expectations>
+				<immediate>
+					#0-5-4(date: this.date)
+				</immediate>
+			</expectations>
 			<arg name="date" type="string">
 				Date with ISO-8601 format
 			</arg>
@@ -240,6 +289,11 @@
 				support="drones"
 				result="The time of the product is set.\n
 				Then, it will trigger [TimeChanged](#0-5-5)."/>
+			<expectations>
+				<immediate>
+					#0-5-5(time: this.time)
+				</immediate>
+			</expectations>
 			<arg name="time" type="string">
 				Time with ISO-8601 format
 			</arg>
@@ -251,6 +305,27 @@
 				The product will accept this command only if is not flying."
 				support="drones"
 				result="The product will reboot if it can."/>
+		</cmd>
+		<cmd name="CurrentDateTime" id="4">
+			<comment
+				title="Set the datetime"
+				desc="Set both the date and the time with only one command.\n
+				If using this command, do not use [CurrentDate](#0-4-1) and [CurrentTime](#0-4-2) commands.\n
+				This datetime is taken by the drone as its own datetime.\n
+				So medias and other files will be dated from this datetime\n\n
+				**Please note that you should not send this command if you are using the\n
+				libARController API as this library is handling the connection process for you.**"
+				support="0914"
+				result="The datetime of the product is set.\n
+				Then, it will trigger [CurrentDateTimeChanged](#0-5-15)."/>
+			<expectations>
+				<immediate>
+					#0-5-15(datetime: this.datetime)
+				</immediate>
+			</expectations>
+			<arg name="datetime" type="string">
+				DateTime with the ISO-8601 complete short format: "%Y%m%dT%H%M%S%z"
+			</arg>
 		</cmd>
 	</myclass>
 	<myclass name="CommonState" id="5">
@@ -269,7 +344,7 @@
 				desc="Battery state."
 				support="drones"
 				triggered="when the battery level changes."/>
-			<arg name="battery_percent" type="u8">
+			<arg name="percent" type="u8">
 				Battery percentage
 			</arg>
 		</cmd>
@@ -540,6 +615,44 @@
 				Timestamp in milliseconds since 00:00:00 UTC on 1 January 1970. 0 mean that video is still recording.
 			</arg>
 		</cmd>
+		<cmd name="CurrentDateTimeChanged" id="15">
+			<comment
+				title="Datetime changed"
+				desc="Both date and time changed.\n
+				Corresponds to the latest datetime set on the drone.\n\n
+				**Please note that you should not care about this event if you are using the libARController API as this library is handling the connection process for you.**"
+				support="0914"
+				triggered="by [CurrentDateTime](#0-4-4)."/>
+			<arg name="datetime" type="string">
+				Datetime with the ISO-8601 complete short format: "%Y%m%dT%H%M%S%z"
+			</arg>
+		</cmd>
+		<cmd name="LinkSignalQuality" id="16">
+			<comment
+				title="Link signal quality"
+				desc="Link signal quality. Gives a overal indication of the radio link quality"
+				support="0914"
+				triggered="when the link signal quality changes."/>
+			<arg name="value" type="u8">
+				Bits 0-3: indicate the Link signal quality. The quality varies from 1 to 5. 1 means that a disconnection is highly probable,
+				5 means that the link signal quality is very good.
+				Bit 6: 1 when there is a probable 4G interference coming from the smartphone. Zero otherwise.
+				Bit 7: 1 when the link signal quality is low although the radio RSSI is good. This indicate that the radio link is
+				perturbed by external elements. Zero otherwise.
+			</arg>
+		</cmd>
+		<cmd name="BootId" id="17">
+			<comment
+				title="Current Drone Boot id"
+				desc="Current Drone Boot id.\n
+				A Boot Id identifies a drone session and do not change between drone power on and power off.\n
+				Also, each medias contains the Boot Id."
+				support="0914"
+				triggered="At connection."/>
+			<arg name="bootId" type="string">
+				Id of the boot
+			</arg>
+		</cmd>
 	</myclass>
 	<myclass name="OverHeat" id="6">
 		Over heat commands
@@ -589,6 +702,47 @@
 				0 when the application is not in the piloting HUD, 1 when it enters the HUD.
 			</arg>
 		</cmd>
+		<cmd name="PeerStateChanged" id="1">
+			<comment
+				title="A SDK peer has connected/disconnected"
+				desc="A SDK peer (ie FreeFlight) has connected/disconnected to the Skycontroller.\n
+				      This is only meant to be sent by the Skycontroller, as it is acting as a proxy."
+				support="0918"
+				triggered="at connection and when the peer state changes."/>
+			<arg name="state" type="enum">
+				Update status
+				<enum name="connected">
+					Peer connected to Skycontroller.
+				</enum>
+				<enum name="disconnected">
+				  	Peer disconnected from Skycontroller.
+				</enum>
+			</arg>
+			<arg name="type" type="enum">
+				SDK connection type.
+				<enum name="unknown">
+					Unknown.
+				</enum>
+				<enum name="net">
+					Net.
+				</enum>
+				<enum name="mux">
+					Mux.
+				</enum>
+			</arg>
+			<arg name="peerName" type="string">
+				Peer name.
+				May not be available at disconnection.
+			</arg>
+			<arg name="peerId" type="string">
+				Peer id.
+				May not be available at disconnection.
+			</arg>
+			<arg name="peerType" type="string">
+				Peer type.
+				May not be available at disconnection.
+			</arg>
+		</cmd>
 	</myclass>
 	<myclass name="WifiSettings" id="9">
 		Wifi settings commands
@@ -600,6 +754,11 @@
 				support="0901;0902;0905;0906;090c;090e"
 				result="The product change its indoor/outdoor wifi settings.\n
 				Then, it will trigger [WifiOutdoorMode](#0-10-0)."/>
+			<expectations>
+				<immediate>
+					#0-10-0(outdoor: this.outdoor)
+				</immediate>
+			</expectations>
 			<arg name="outdoor" type="u8">
 				1 if it should use outdoor wifi settings, 0 otherwise
 			</arg>
@@ -631,6 +790,11 @@
 				support="0901:2.0.29;090c;090e"
 				result="If the FlightPlan has been started, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to *playing*.\n
 				Otherwise, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to stopped and event [MavlinkPlayErrorStateChanged](#0-12-1) is triggered with an explanation of the error."/>
+			<expectations>
+				<immediate>
+					#0-12-0(state: playing, type: this.type)
+				</immediate>
+			</expectations>
 			<arg name="filepath" type="string">
 				 flight plan file path from the mavlink ftp root
 			</arg>
@@ -651,6 +815,11 @@
 				To unpause a FlightPlan, see [StartFlightPlan](#0-11-0)\n"
 				support="0901:2.0.29;090c;090e"
 				result="The currently playing FlightPlan will be paused. Then, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to the current state of the FlightPlan (should be *paused* if everything went well)."/>
+			<expectations>
+				<immediate>
+					#0-12-0(state: paused)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="Stop" id="2">
 			<comment
@@ -658,6 +827,11 @@
 				desc="Stop a FlightPlan that was playing.\n"
 				support="0901:2.0.29;090c;090e"
 				result="The currently playing FlightPlan will be stopped. Then, event [FlightPlanPlayingStateChanged](#0-12-0) is triggered with param state set to the current state of the FlightPlan (should be *stopped* if everything went well)."/>
+			<expectations>
+				<immediate>
+					#0-12-0(state: stopped)
+				</immediate>
+			</expectations>
 		</cmd>
 	</myclass>
 	<myclass name="MavlinkState" id="12">
@@ -739,6 +913,11 @@
 				support="0901:4.1.0;090c:4.1.0;090e:1.4.0"
 				result="The return home mode is enabled or disabled.\n
 				Then, event [ReturnHomeOnDisconnectionChanged](#0-33-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-33-0(state: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="u8">
 				1 to enable, 0 to disable
 			</arg>
@@ -769,6 +948,12 @@
 				result="The magnetometer calibration process is started or aborted. Then, event [MagnetoCalibrationStartedChanged](#0-14-3) is triggered.\n
 				If started, event [MagnetoCalibrationStateChanged](#0-14-3) is triggered with the current calibration state: a list of all axis and their calibration states.\n
 				It will also trigger [MagnetoCalibrationAxisToCalibrateChanged](#0-14-2), that will inform the controller about the current axis to calibrate."/>
+			<expectations>
+				<immediate>
+					#0-14-3
+					#0-14-2
+				</immediate>
+			</expectations>
 			<arg name="calibrate" type="u8">
 				1 if the calibration should be started, 0 if it should be aborted
 			</arg>
@@ -779,6 +964,11 @@
 				desc="Start or abort Pitot tube calibration process.\n"
 				support="090e:1.1.0"
 				result="The pitot calibration process is started or aborted. Then, event [PitotCalibrationStateChanged](#0-14-4) is triggered with the current calibration state."/>
+			<expectations>
+				<immediate>
+					#0-14-4
+				</immediate>
+			</expectations>
 			<arg name="calibrate" type="u8">
 				1 if the calibration should be started, 0 if it should be aborted
 			</arg>
@@ -960,6 +1150,10 @@
 					Component for waypoints beyond the geofence.
 					State is 0 when one or more waypoints are beyond the geofence.
 				</enum>
+				<enum name="CameraAvailable">
+					Drone camera component.
+					State is 0 when the drone needs to wait camera availability.
+				</enum>
 			</arg>
 			<arg name="State" type="u8">
 				State of the FlightPlan component (1 FlightPlan component OK, otherwise 0)
@@ -1028,6 +1222,11 @@
 				support="0905;0906"
 				result="The audio stream direction is set.\n
 				Then, event [AudioStreamDirection](#0-21-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-21-0(running: this.ready)
+				</immediate>
+			</expectations>
 			<arg name="ready" type="u8">
 				Bit field for TX and RX ready.
 				bit 0 is 1 if controller is ready and wants to receive sound (Drone TX)
@@ -1059,6 +1258,11 @@
 				support="0905;0906;0907"
 				result="The intensity of the LEDs is changed.\n
 				Then, event [LedIntensity](#0-23-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-23-0(left: this.left , right: this.right)
+				</immediate>
+			</expectations>
 			<arg name="left" type="u8">
 				Set the left LED intensity value (0 through 255).
 			</arg>
@@ -1092,6 +1296,11 @@
 				List of available animations can be retrieved from [AnimationsStateList](#0-25-0)."
 				support="0902;0905;0906;0907;0909"
 				result="If possible, the product starts the requested animation. Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-25-0(anim: this.anim)
+				</immediate>
+			</expectations>
 			<arg name="anim" type="enum">
 				Animation to start.
 				<enum name="HEADLIGHTS_FLASH">
@@ -1155,6 +1364,11 @@
 				support="0902;0905;0906;0907;0909"
 				result="If the requested animation was running, it will be stopped.\n
 				Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-25-0
+				</immediate>
+			</expectations>
 			<arg name="anim" type="enum">
 				Animation to stop.
 				<enum name="HEADLIGHTS_FLASH">
@@ -1218,6 +1432,11 @@
 				support="0902;0905;0906;0907;0909"
 				result="All running animations are stopped.\n
 				Then, event [AnimationsStateList](#0-25-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-25-0
+				</immediate>
+			</expectations>
 		</cmd>
 	</myclass>
 	<myclass name="AnimationsState" id="25">
@@ -1318,6 +1537,11 @@
 				support="0902;0905;0906;0907;0909;090a"
 				result="The product knows which accessory it is wearing.\n
 				Then, event [AccessoryConfigChanged](#0-27-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#0-27-1(accessory: this.accessory)
+				</immediate>
+			</expectations>
 			<arg name="accessory" type="enum">
 				Accessory configuration to set.
 				<enum name="NO_ACCESSORY">
@@ -1600,6 +1824,38 @@
 				result="The product will reboot, all settings will be
 				reset to their default values. All data on the product
 				will also be erased."/>
+		</cmd>
+	</myclass>
+	<myclass name="UpdateState" id="34">
+		Update related commands
+		<cmd name="UpdateStateChanged" id="0">
+			<comment
+				title="Software update status"
+				desc="Status of the latest software update"
+				support="0914"
+				triggered="at connection during the first boot after a firmware update."/>
+			<arg name="sourceVersion" type="string">
+				Version before the update.
+			</arg>
+			<arg name="targetVersion" type="string">
+				Target version of the latest update. This is the version after the update when `status` is `SUCCESS` or
+				the version of the update that failed when `status` is one of the failure value.
+			</arg>
+			<arg name="status" type="enum">
+				Update status
+				<enum name="SUCCESS">
+					Update completed successfully.
+				</enum>
+				<enum name="FAILURE_BAD_FILE">
+					Failure, wrong or corrupted update file.
+				</enum>
+				<enum name="FAILURE_BAT_LEVEL_TOO_LOW">
+					Failure, battery level was too low.
+				</enum>
+				<enum name="FAILURE">
+					Generic Failure.
+				</enum>
+			</arg>
 		</cmd>
 	</myclass>
 </project>

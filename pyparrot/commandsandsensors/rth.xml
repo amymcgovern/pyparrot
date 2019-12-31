@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2017 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="146" name="rth">
+	All messages related to the return home
+	<enums>
+		<enum name="home_type">
+			Home type.
+			<value name="none">
+				No home type. This might be because the drone does not have a gps fix
+			</value>
+			<value name="takeoff">
+				The drone will return to the takeoff location
+			</value>
+			<value name="followee">
+				The drone will return to the followee position
+			</value>
+			<value name="custom">
+				The drone will return to a custom location
+			</value>
+		</enum>
+		<enum name="altitude_reference">
+			Altitude reference
+			<value name="none">
+				Altitude is not meaningful
+			</value>
+			<value name="above_sea_level">
+				Altitude is relative to sea level
+			</value>
+			<value name="above_take_off">
+				Altitude is relative to take off
+			</value>
+		</enum>
+		<enum name="state">
+			State of return to home
+			<value name="available">
+				Return to home is available
+			</value>
+			<value name="in_progress">
+				Return to home is in progress
+			</value>
+			<value name="unavailable">
+				Return to home is not available
+			</value>
+			<value name="pending">
+				Return to home has been received, but its process is pending
+			</value>
+		</enum>
+		<enum name="state_reason">
+			Reason of the state
+			<value name="user_request">
+				User requested a return to home (available->in_progress)
+			</value>
+			<value name="connection_lost">
+				Connection between controller and product lost (available->in_progress)
+			</value>
+			<value name="low_battery">
+				Low battery occurred (available->in_progress)
+			</value>
+			<value name="finished">
+				Return to home is finished (in_progress->available)
+			</value>
+			<value name="stopped">
+				Return to home has been stopped (in_progress->available)
+			</value>
+			<value name="disabled">
+				Return to home disabled by product (in_progress->unavailable or available->unavailable)
+			</value>
+			<value name="enabled">
+				Return to home enabled by product (unavailable->available)
+			</value>
+		</enum>
+		<enum name="home_reachability">
+			Home reachability
+			<value name="unknown">
+				Home reachability is unknown
+			</value>
+			<value name="reachable">
+				Home is reachable
+			</value>
+			<value name="critical">
+				Home is still reachable but won't be if rth is not triggered now.
+				If rth is running, cancelling it will probably make the home not reachable.
+			</value>
+			<value name="not_reachable">
+				Home is not reachable
+			</value>
+		</enum>
+		<enum name="auto_trigger_reason">
+			Home reachability
+			<value name="none">
+				There is no return home auto trigger planned.
+			</value>
+			<value name="battery_critical_soon">
+				Battery will soon be critical.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<evt name="home_type_capabilities" id="1">
+			<comment
+				title="Home type capabilities"
+				comment="Describes home types supported. This event is only sent during the connection"
+				support=""
+				triggered="at connection."/>
+			<arg name="values" type="bitfield:u32:home_type">
+				Bitfield of suported home types.
+			</arg>
+		</evt>
+		<evt name="home_type" id="2">
+			<comment
+				title="Home type"
+				comment="Current home type. Default is `takeoff`.
+				According to this home type, the location of the home can be known by reading the correct location.
+				For example, if the home type is takeoff, the home location can be get with [TakeoffLocation](#146-4).
+				If gps fix is lost, type `none` is sent. When the drone will get back the gps fix,
+				the former home type will be automatically set.\n
+				After that the drone has started and got a gps fix, type is `takeoff`."
+				support=""
+				triggered="when the home type changes and
+				when setting a new home type has been refused by the drone."/>
+			<arg name="type" type="enum:home_type">
+				Home type.
+			</arg>
+		</evt>
+		<cmd name="set_home_to_takeoff_location" id="3">
+			<comment
+				title="Set the home to takeoff"
+				desc="Set the home to the takeoff location."
+				support=""
+				result="If the [takeoff location](#146-4) is known, (i.e. if the drone has fixed),
+				[home_type](#146-2) is sent with type = `takeoff`,
+				otherwise it is sent back with the former home type."/>
+			<expectations>
+				<immediate>
+					#146-2(type: takeoff)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="takeoff_location" id="4">
+			<comment
+				title="Takeoff location"
+				comment="Takeoff location."
+				support=""
+				triggered="regularly when drone is landed then one last time right before taking off, if gps is fixed.
+				If not, triggered on the first fix with the value fixed before takeoff set to `true`."/>
+			<arg name="latitude" type="double">
+				Latitude of the takeoff location
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the takeoff location
+			</arg>
+			<arg name="fixedBeforeTakeoff" type="u8">
+				1 if the location was acquired before the takeoff. 0 if it was acquired during the flight (i.e. is it
+				the first fix location).
+			</arg>
+		</evt>
+		<cmd name="set_home_to_custom_location" id="5">
+			<comment
+				title="Set a custom location as home"
+				desc="Set the home to a custom location."
+				support=""
+				result="If the drone knows its own location and
+				that the custom location is not outside a circle centered on the drone
+				with a radius equals to the max distance setting value,
+				[home_type](#146-2) is sent with type = `custom`,
+				otherwise it is sent back with the former home type."/>
+			<expectations>
+				<immediate>
+					#146-2(type: custom)
+				</immediate>
+			</expectations>
+			<arg name="latitude" type="double">
+				Latitude of the takeoff location
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the takeoff location
+			</arg>
+			<arg name="altitude_reference" type="enum:altitude_reference">
+				Reference of the altitude, `none` if altitude is not given.
+			</arg>
+			<arg name="altitude" type="double">
+				Altitude of the custom location.
+				Only valid if `altitude_reference` is not `none`.
+			</arg>
+		</cmd>
+		<evt name="custom_location" id="6">
+			<comment
+				title="Custom location"
+				comment="Custom location."
+				support=""
+				triggered="by [SetHomeToCustomLocation](#146-5)."/>
+			<arg name="latitude" type="double">
+				Latitude of the custom location
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the custom location
+			</arg>
+			<arg name="altitude_reference" type="enum:altitude_reference">
+				Reference of the altitude, `none` if altitude is not given.
+			</arg>
+			<arg name="altitude" type="double">
+				Altitude of the custom location.
+				Only valid if `altitude_reference` is not `none`.
+			</arg>
+		</evt>
+		<cmd name="set_home_to_followee_location" id="7">
+			<comment
+				title="Set the home to followee"
+				desc="Set the home to the followee location.
+				Followee means the target of a FollowMe or LookAt with gps coordinates sent."
+				support=""
+				result="If the [followee location](#146-8) is known,
+				(i.e. if the drone has made a FollowMe or a LookAt with controller gps coordinates),
+				[home_type](#146-2) is sent with type = `followee`,
+				otherwise it is sent back with the former home type."/>
+			<expectations>
+				<immediate>
+					#146-2(type: followee)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="followee_location" id="8">
+			<comment
+				title="Followee location"
+				comment="Followee location.
+				Followee means the target of a FollowMe or LookAt with gps coordinates sent."
+				support=""
+				triggered="regularly when drone is in FollowMe or LookAt
+				with [controller gps coordinates](#140-1) sent."/>
+			<arg name="latitude" type="double">
+				Latitude of the takeoff location
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the takeoff location
+			</arg>
+			<arg name="altitude_reference" type="enum:altitude_reference">
+				Reference of the altitude, `none` if altitude is not given.
+			</arg>
+			<arg name="altitude" type="double">
+				Altitude of the custom location.
+				Only valid if `altitude_reference` is not `none`.
+			</arg>
+		</evt>
+		<cmd name="set_return_home_delay" id="9">
+			<comment
+				title="Set the return home delay"
+				desc="Set the delay after which the drone will automatically try to return home after a disconnection."
+				support=""
+				result="The delay of the return home is set.\n
+				Then, event [ReturnHomeDelay](#146-10) is triggered."/>
+			<expectations>
+				<immediate>
+					#146-10(delay: this.delay)
+				</immediate>
+			</expectations>
+			<arg name="delay" type="u16">
+				Delay in second
+			</arg>
+		</cmd>
+		<evt name="return_home_delay" id="10">
+			<comment
+				title="Return home delay"
+				desc="Return home trigger delay. This delay represents the time after which the return home is
+				automatically triggered after a disconnection."
+				support=""
+				triggered="by [SetReturnHomeDelay](#146-9)."/>
+			<arg name="delay" type="u16">
+				Delay in second
+			</arg>
+			<arg name="min" type="u16">
+				Min delay in second
+			</arg>
+			<arg name="max" type="u16">
+				Max delay in second
+			</arg>
+		</evt>
+		<cmd name="return_to_home" id="11">
+			<comment
+				title="Return home"
+				desc="Return home.\n
+				Ask the drone to fly to its home position.\n
+				Please note that the drone will wait to be hovering to start its return home.
+				This means that it will wait to have a [flag](#1-0-2) set at 0."
+				support=""
+				result="event [ReturnHomeState](#146-13) is triggered.
+				Then, the drone will fly back to its home position.\n
+				You can get a state pending if the drone is not ready to start its return home process
+				but will do it as soon as it is possible."/>
+			<expectations>
+				<immediate>
+					#146-13(state: in_progress)
+				</immediate>
+			</expectations>
+		</cmd>
+		<cmd name="abort" id="12">
+			<comment
+				title="Abort a Return home"
+				desc="Abort a currently executing return to home."
+				support=""
+				result="The drone will abort its return home.\n
+				Then, event [ReturnHomeState](#146-13) is triggered."/>
+		</cmd>
+		<evt name="state" id="13">
+			<comment
+				title="Return home state"
+				desc="Return home state.\n
+				Availability is related to gps fix, magnetometer calibration."
+				support=""
+				triggered="by [ReturnToHome](#146-11) or by [CancelReturnToHome](#146-12),
+				or when the state of the return home changes."/>
+			<arg name="state" type="enum:state">
+				State of the return to home
+			</arg>
+			<arg name="reason" type="enum:state_reason">
+				Reason of the state change
+			</arg>
+		</evt>
+		<evt name="home_reachability" id="14">
+			<comment
+				title="Home reachability"
+				desc="Home reachability status."
+				support=""
+				triggered="when home reachability status changes."/>
+			<arg name="status" type="enum:home_reachability">
+				State of the return to home
+			</arg>
+		</evt>
+		<evt name="rth_auto_trigger" id="15">
+			<comment
+				title="Return Home auto trigger."
+				desc="Return Home auto trigger information."
+				support=""
+				triggered="when return home auto trigger information changes, then evey seconds while `reason` is
+				different from `none`."/>
+			<arg name="reason" type="enum:auto_trigger_reason">
+				Reason of the auto trigger.
+			</arg>
+			<arg name="delay" type="u32">
+				Delay until the return home is automatically triggered by the drone, in seconds.
+				If reason is `none` this information has no meaning.
+			</arg>
+		</evt>
+		<cmd name="cancel_auto_trigger" id="16">
+			<comment
+				title="Cancel RTH auto trigger"
+				desc="Cancel any current return home auto trigger.
+				This command has no effect if there is no auto trigger currently planned
+				(i.e. reason of [RTH auto trigger](#146-15) is `none`)."
+				support=""
+				result="The drone will cancel its return home auto trigger.\n
+				Then, event [RTH auto trigger](#146-15) is triggered with reason set to `none`."/>
+		</cmd>
+	</msgs>
+</feature>

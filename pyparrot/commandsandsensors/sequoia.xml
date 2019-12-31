@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2017 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="147" name="sequoia_cam">
+	Sequoia camera accessory feature
+	<enums>
+		<enum name="radiometric_calib_status_value">
+			Radiometric calibration status
+			<value name="available">
+				Radiometric calibration is available
+			</value>
+			<value name="unavailable">
+				Radiometric calibration is not available
+			</value>
+			<value name="in_progress">
+				Radiometric calibration In progress
+			</value>
+		</enum>
+		<enum name="radiometric_calib_result_value">
+			Last radiometric calibration result
+			<value name="success">
+				Radiometric calibration is successfull
+			</value>
+			<value name="error">
+				Radiometric calibration failed
+			</value>
+		</enum>
+		<enum name="session_status_value">
+			Last session state
+			<value name="opened">
+				A session is currently opened
+			</value>
+			<value name="closed">
+				No session is currently opened
+			</value>
+		</enum>
+		<enum name="sensor_value">
+			Sensor to use
+			<value name="near_infra_red">
+				near infra red
+			</value>
+			<value name="green">
+				green
+			</value>
+			<value name="red">
+				red
+			</value>
+			<value name="red_edge">
+				red edge
+			</value>
+		</enum>
+		<enum name="storage_infos_selected">
+			Storage selection
+			<value name="sd">
+				sd is selected
+			</value>
+			<value name="internal">
+				internal is selected
+			</value>
+		</enum>
+		<enum name="system_error">
+			Errors bits
+			<value name="update_err">
+				UPDATE ERR.
+			</value>
+			<value name="temp_err">
+				TEMP ERR.
+			</value>
+			<value name="no_sunshine_err">
+				NO SUNSHINE ERR.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<evt name="radiometric_calib_status" id="1" type="MAP_ITEM:cam_id">
+			<comment
+				title="Is radiometric calibration available ?"
+				desc="Is radiometric calibration available ?\n"
+				support="0916;090e"/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="value" type="enum:radiometric_calib_status_value"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="radiometric_calib_result" id="2" type="MAP_ITEM:cam_id">
+			<comment
+				title="Last radiometric calibration result"
+				desc="Last radiometric calibration result.\n"
+				support="0916;090e"/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="value" type="enum:radiometric_calib_result_value"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="radiometric_calib_start" id="3">
+			<comment
+				title="Start Sequoia radiometric calibration"
+				desc="Launch capture on radiometric calibration mode.
+				      This PTP mode is 0x8004"
+				support="0916;090e"
+				result="None"/>
+			<expectations>
+				<immediate>
+					#147-1(cam_id: this.id)
+				</immediate>
+			</expectations>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<cmd name="open_session" id="4">
+			<comment
+				title="Open new mission session"
+				desc="Changes sequoia path for future media"
+				support="0916;090e"
+				result="New directory is created for subsequent media,
+					live stitch feature is available,
+					previous session with different name is closed
+					and event [session_state_changed](#147-6) is fired"/>
+			<expectations>
+				<immediate>
+					#147-6(cam_id: this.id)
+				</immediate>
+			</expectations>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="name" type="string">
+				Name of the session, only letters, numbers, '-' and '_' are allowed.
+			</arg>
+		</cmd>
+		<cmd name="close_session" id="5">
+			<comment
+				title="Close current mission session."
+				desc="Close current mission session."
+				support="0916;090e"
+				result="New medias will be taken in legacy filesystem,
+					all live stitch media are cleaned up,
+					live stitch is not available anymore
+					and session state is fired."
+			/>
+			<expectations>
+				<immediate>
+					#147-6(cam_id: this.id)
+				</immediate>
+			</expectations>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<evt name="session_state_changed" id="6" type="MAP_ITEM:cam_id">
+			<comment
+				title="Session state changed"
+				desc="Session state changed"
+				support="0916;090e"/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="state" type="enum:session_status_value"/>
+			<arg name="session_path" type="string"/>
+				Session path is the remote path of the session on sequoia's ftp.
+			<arg name="live_stitch_path" type="string"/>
+				Live stitch path is the remote path for live stitch on drone's ftp.
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="set_live_stitch_mask" id="7">
+			<comment
+				title="Set live stitch mask"
+				desc="Configure live stitch mode"
+				support="0916;090e"
+				result="Live pictures are available for live processing
+					on sensors specified by mask value; if 0, live_stitch is off"/>
+			<expectations>
+				<immediate>
+					#147-8(cam_id: this.id)
+				</immediate>
+			</expectations>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="sensors_mask" type="bitfield:u8:sensor_value">
+				Sensors to use for live stitch
+			</arg>
+		</cmd>
+		<evt name="live_stitch_mask_changed" id="8" type="MAP_ITEM:cam_id">
+			<comment
+				title="Current live stitch mask value."
+				desc="Current live stitch mask value."
+				support="0916;090e"
+				result="Sends current mask used for live stitch.
+					Returns 0 if a session is not opened."/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="mask" type="bitfield:u8:sensor_value"/>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="live_stitch_last_picture_id_changed" id="9" type="MAP_ITEM:cam_id">
+			<comment
+				title="Last picture id available for live stitch."
+				support="0916;090e"
+				desc="Last picture id available for live stitch."/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="picture_id" type="u32"/>
+				Picture id is the index of the last available picture. Pictures are
+				named by this index on 5 decimal digits plus the '.tif' extension.
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="storage_infos" id="10" type="MAP_ITEM:cam_id">
+			<comment
+				title="Storage infos"
+				desc="Storage infos\n"
+				support="0916;090e"
+				triggered="during the connection and by [get_storage_infos](#147-12)"/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="selected" type="enum:storage_infos_selected"/>
+			<arg name="internal_available" type="u8">Boolean. 1 if ro, 0 if rw</arg>
+			<arg name="internal_total_size" type="u64">Total size in bytes of internal</arg>
+			<arg name="internal_free_size" type="u64">Free bytes of the internal</arg>
+			<arg name="internal_is_ro" type="u8">Boolean. 1 if ro, 0 if rw</arg>
+			<arg name="internal_is_corrupted" type="u8">Boolean. 1 if corrupted, 0 otherwise</arg>
+			<arg name="sd_available" type="u8">Boolean. 1 if ro, 0 if rw</arg>
+			<arg name="sd_total_size" type="u64">Total size in bytes of the sd</arg>
+			<arg name="sd_free_size" type="u64">Free bytes of the sd</arg>
+			<arg name="sd_is_ro" type="u8">Boolean. 1 if ro, 0 if rw</arg>
+			<arg name="sd_is_corrupted" type="u8">Boolean. 1 if corrupted, 0 otherwise</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="system_status" id="11" type="MAP_ITEM:cam_id">
+			<comment
+				title="System status"
+				desc="System status, 0x00 for all ok\n"
+				support="0916;090e"
+				triggered="during the connection and on error"/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="errors" type="bitfield:u16:system_error">
+				System errors bitfield. 0 is no error.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="get_storage_infos" id="12">
+			<comment
+				title="Ask to send back a storage infos"
+				desc="Ask to send back a storage_event"
+				support="0916;090e"
+				result="Sorage infos are asked, then [storage_infos](#147-10) is sent back"/>
+			<expectations>
+				<immediate>
+					#147-10(cam_id: this.id)
+				</immediate>
+			</expectations>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<cmd name="factory_reset" id="13">
+			<comment
+				title="Reset the Sequoia to its factory settings"
+				desc="This command will request a factory reset from the
+				Sequoia. *The factory reset procedure implies an
+				automatic reboot the sequoia*, which will be done immediately after
+				recieving this command."
+				support="0916;090e"
+				result="The Sequoia will reboot, all settings will be
+				reset to their default values."/>
+			<arg name="id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+		</cmd>
+		<evt name="live_stitch_pictures_in_progress_number_changed" id="14" type="MAP_ITEM:cam_id">
+			<comment
+				title="Number of pictures that are currently processed."
+				desc="Number of pictures that are currently processed."
+				support="0916;090e"
+				triggered="when all states have been requested and when the number
+					of pictures in progress changed."/>
+			<arg name="cam_id" type="u8">
+				Camera id, as given in the [connected accessories](#1-33-0) event.
+			</arg>
+			<arg name="nb_pictures" type="u32"/>
+				Number of pictures that are currently processed.
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+	</msgs>
+</feature>

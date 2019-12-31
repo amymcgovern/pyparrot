@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature name="drone_manager" id="137">
+	Commands related to the drone_manager feature
+	<enums>
+		<enum name="security">
+			The security of the drone network.
+			<value name="none">
+				The drone is not protected.
+			</value>
+			<value name="wpa2">
+				The drone is protected with Wpa2 (passphrase).
+			</value>
+		</enum>
+		<enum name="connection_state">
+			The state of the connection to a drone.
+			<value name="idle">
+				The drone manager do nothing (wait for command).
+			</value>
+			<value name="searching">
+				The drone manager is searching for a known drone.
+			</value>
+			<value name="connecting">
+				The drone manager is connecting to a drone.
+			</value>
+			<value name="connected">
+				The drone manager is connected to a drone.
+			</value>
+			<value name="disconnecting">
+				The drone manager is finishing the connection with the drone before taking further action.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<!-- Drone list handling -->
+		<cmd name="discover_drones" id="1">
+			<comment
+				title="Request the drone list"
+				desc="The list will contain:\n
+				* known drones not currently visible.
+				* known drones currently visible.
+				* unknown drones currently visible."
+				support="090f;0913;0915"
+				result="The drone manager will answer with a list of [drone\_list\_item](#137-2)"/>
+			<expectations>
+				<immediate>
+					#137-2
+				</immediate>
+			</expectations>
+
+		</cmd>
+		<evt name="drone_list_item" id="2" type="MAP_ITEM:serial">
+			<comment
+				title="Drone list item"
+				desc="Item describing a drone."
+				support="090f;0913;0915"
+				triggered="when requested [discover_drones](#137-1)."/>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="model" type="u16">
+				Model id of the drone.
+			</arg>
+			<arg name="name" type="string">
+				Name (SSID) of the drone.
+			</arg>
+			<arg name="connection_order" type="u8">
+				0 if the drone is unknwon (never connected).
+				Else, order of last connection (1 = most recent)
+			</arg>
+			<arg name="active" type="u8">
+				1 if the drone is active (the drone manager tries to connect or is connected to it)
+				0 if the drone is not the active one.
+			</arg>
+			<arg name="visible" type="u8">
+				1 if the drone is currently visible, 0 otherwise.
+			</arg>
+			<arg name="security" type="enum:security">
+				Security method used by the drone.
+			</arg>
+			<arg name="has_saved_key" type="u8">
+				1 if the drone manager has a saved security key for the drone, 0 otherwise.
+				If security method is not 'none', and this value is 0, then the controller should prompt the user for a passphrase before sending a connect.
+			</arg>
+			<arg name="rssi" type="i8">
+				The drone rssi (wifi signal strength estimation).
+				The value is meaningless if the drone is not visible.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<!-- Connection handling -->
+		<cmd name="connect" id="3">
+			<comment
+				title="Connect to a drone"
+				desc="Request connection to a specific drone. Override the auto-selected drone."
+				support="090f;0913;0915"
+				result="The drone manager will send an update of its [connection_state](#137-5), if relevant"/>
+			<expectations>
+				<immediate>
+					#137-5
+				</immediate>
+			</expectations>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="key" type="string">
+				Security key (passphrase) to use.
+				This arg is ignored if the drone security is 'none'.
+				If the drone manager has a saved key for the drone, pass an empty string to use it
+			</arg>
+		</cmd>
+		<cmd name="forget" id="4">
+			<comment
+				title="Forget a drone"
+				desc="Forget the given drone. If the drone is the selected one, the auto-selection will run again."
+				support="090f;0913;0915"
+				result="If the drone was the active one, a new one will be autoselected, and [connection_state](#137-5) update will be sent as needed.
+					Otherwise, no answer will be sent from the drone manager"/>
+			<expectations>
+				<immediate>
+					#137-5
+				</immediate>
+			</expectations>
+			<arg name="serial" type="string">
+				Serial number of the drone to forget.
+			</arg>
+		</cmd>
+		<evt name="connection_state" id="5">
+			<comment
+				title="State of the connection"
+				desc="State of the connection."
+				support="090f;0913;0915"
+				triggered="when the state changes.\nIf the state is 'searching', all informations about the drone will refer to the last connected drone.\n
+				Otherwise, these informations will refer to the active drone."/>
+			<arg name="state" type="enum:connection_state">
+				Current state of the connection.
+			</arg>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="model" type="u16">
+				Model id of the drone.
+			</arg>
+			<arg name="name" type="string">
+				Name (SSID) of the drone.
+			</arg>
+		</evt>
+		<evt name="authentication_failed" id="6">
+			<comment
+				title="Authentication failed"
+				desc="Authentication failed because of a wrong key (passphrase)."
+				support="090f;0913;0915"
+				triggered="when trying to [connect](#137-3) to a protected drone with a wrong key (passphrase)"/>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="model" type="u16">
+				Model id of the drone.
+			</arg>
+			<arg name="name" type="string">
+				Name (SSID) of the drone.
+			</arg>
+		</evt>
+		<evt name="connection_refused" id="7">
+			<comment
+				title="Connection refused"
+				desc="Connection refused by the drone because another peer is already connected to."
+				support="090f;0913;0915"
+				triggered="Try to [connect](#137-3) to a drone where another peer is already connected to."/>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="model" type="u16">
+				Model id of the drone.
+			</arg>
+			<arg name="name" type="string">
+				Name (SSID) of the drone.
+			</arg>
+		</evt>
+		<evt name="known_drone_item" id="8" type="MAP_ITEM:serial">
+			<comment
+				title="Known drone item"
+				desc="Item describing a known drone (already connected)."
+				support="090f:1.0.3;0913;0915"
+				triggered="when [AllSettings](#4-4-0) is requested
+				 or when a drone is forgotten
+				 or connected for the first time."/>
+			<arg name="serial" type="string">
+				Serial number of the drone.
+			</arg>
+			<arg name="model" type="u16">
+				Model id of the drone.
+			</arg>
+			<arg name="name" type="string">
+				Last visible Name (SSID) of the drone.
+			</arg>
+			<arg name="security" type="enum:security">
+				Security method used by the drone.
+			</arg>
+			<arg name="has_saved_key" type="u8">
+				1 if the drone manager has a saved security key for the drone, 0 otherwise.
+				If security method is not 'none', and this value is 0, then the controller should prompt the user for a passphrase before sending a connect.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+	</msgs>
+</feature>

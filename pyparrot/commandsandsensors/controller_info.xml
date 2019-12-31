@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="140" name="controller_info">
+	Controller info feature
+	<enums>
+	</enums>
+	<msgs>
+		<cmd name="gps" id="1" buffer="NON_ACK">
+			<comment
+				title="Controller gps info"
+				desc="Controller gps info.\n
+				This command is not acknowledged by the drone."
+				support="090c:4.0.0"
+				result="The position of the controller is known by the drone.\n
+				It can be used for RTH or FollowMe."/>
+			<arg name="latitude" type="double">
+				Latitude of the controller (in deg)
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the controller (in deg)
+			</arg>
+			<arg name="altitude" type="float">
+				Altitude of the controller (in meters, according to sea level)
+			</arg>
+			<arg name="horizontal_accuracy" type="float">
+				Horizontal accuracy (in meter)
+			</arg>
+			<arg name="vertical_accuracy" type="float">
+				Vertical accuracy (in meter)
+			</arg>
+			<arg name="north_speed" type="float">
+				North speed (in meter per second)
+			</arg>
+			<arg name="east_speed" type="float">
+				East speed (in meter per second)
+			</arg>
+			<arg name="down_speed" type="float">
+				Vertical speed (in meter per second) (down is positive)
+			</arg>
+			<arg name="timestamp" type="double">
+				Timestamp of the gps info
+			</arg>
+		</cmd>
+		<cmd name="barometer" id="2" buffer="NON_ACK">
+			<comment
+				title="Controller barometer info"
+				support="090c:4.0.0"
+				result="The altitude of the controller is known by the drone.\n
+				This command is not acknowledged by the drone."/>
+			<arg name="pressure" type="float">
+				Atmospheric pressure in Pa
+			</arg>
+			<arg name="timestamp" type="double">
+				Timestamp of the barometer info
+			</arg>
+		</cmd>
+	</msgs>
+</feature>
