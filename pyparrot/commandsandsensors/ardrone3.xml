@@ -33,14 +33,6 @@
 	All ARDrone3-only commands
 	<myclass name="Piloting" id="0">
 		All commands related to piloting the drone
-		<cmd name="FlatTrim" id="0">
-			<comment
-				title="Do a flat trim"
-				desc="Do a flat trim of the accelerometer/gyro.\n
-				Could be useful when the drone is sliding in hover mode."
-				support="0901;090c;090e"
-				result="Accelerometer and gyroscope are calibrated then event [FlatTrimChanged](#1-4-0) is triggered."/>
-		</cmd>
 		<cmd name="TakeOff" id="1">
 			<comment
 				title="Take off"
@@ -50,6 +42,12 @@
 				result="On the quadcopters: the drone takes off if its [FlyingState](#1-4-1) was landed.\n
 				On the fixed wings, the landing process is aborted if the [FlyingState](#1-4-1) was landing.\n
 				Then, event [FlyingState](#1-4-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-4-1(state: motor_ramping)
+					#1-4-1(state: takingoff)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="PCMD" id="2" buffer="NON_ACK">
 			<comment
@@ -129,6 +127,11 @@
 				result="On the copters, the drone lands if its [FlyingState](#1-4-1) was taking off, hovering or flying.\n
 				On the fixed wings, the drone lands if its [FlyingState](#1-4-1) was hovering or flying.\n
 				Then, event [FlyingState](#1-4-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-4-1(state: landing)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="Emergency" id="4" buffer="HIGH_PRIO" timeout="RETRY">
 			<comment
@@ -139,6 +142,11 @@
 				support="0901;090c;090e"
 				result="The drone immediatly cuts off its motors.\n
 				Then, event [FlyingState](#1-4-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-4-1(state: emergency)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="NavigateHome" id="5">
 			<comment
@@ -151,6 +159,13 @@
 				result="The drone will fly back to its home position.\n
 				Then, event [ReturnHomeState](#1-4-3) is triggered.\n
 				You can get a state pending if the drone is not ready to start its return home process but will do it as soon as it is possible."/>
+			<expectations>
+				<immediate>
+						#1-4-3(state: inProgress, reason: userRequest)
+						|#1-4-3(state: pending, reason: userRequest)
+						|#1-4-3(state: available, reason: stopped)
+				</immediate>
+			</expectations>
 			<arg name="start" type="u8">
 				1 to start the navigate home, 0 to stop it
 			</arg>
@@ -173,6 +188,11 @@
 				result="The drone will move of the given offsets.\n
 				Then, event [RelativeMoveEnded](#1-34-0) is triggered.\n
 				If you send a second relative move command, the drone will trigger a [RelativeMoveEnded](#1-34-0) with the offsets it managed to do before this new command and the value of error set to interrupted."/>
+			<expectations>
+				<immediate>
+					#1-34-0
+				</immediate>
+			</expectations>
 			<arg name="dX" type="float">
 				Wanted displacement along the front axis [m]
 			</arg>
@@ -199,6 +219,11 @@
 				Then, event [FlyingState](#1-4-1) is triggered with state set at motor ramping.\n
 				Then, event [FlyingState](#1-4-1) is triggered with state set at userTakeOff.\n
 				Then user can throw the drone to make it take off."/>
+			<expectations>
+				<immediate>
+					#1-4-1
+				</immediate>
+			</expectations>
 			<arg name="state" type="u8">
 				State of user take off mode
 				- 1 to enter in user take off.
@@ -213,6 +238,11 @@
 				support="090e"
 				result="The fixed wing will circle in the given direction.\n
 				Then, event [FlyingState](#1-4-1) is triggered with state set at hovering."/>
+			<expectations>
+				<immediate>
+					#1-4-1(state: hovering)
+				</immediate>
+			</expectations>
 			<arg name="direction" type="enum">
 				The circling direction
 				<enum name="CW">
@@ -239,6 +269,11 @@
 				result="Event [MovingTo](#1-4-12) is triggered with state running.
 				Then, the drone will move to the given location.\n
 				Then, event [MoveToChanged](#1-4-12) is triggered with state succeed."/>
+			<expectations>
+				<immediate>
+					#1-4-12(latitude: this.latitude, longitude: this.longitude, altitude: this.altitude, orientation_mode: this.orientation_mode, status: RUNNING)
+				</immediate>
+			</expectations>
 			<arg name="latitude" type="double">
 				Latitude of the location (in degrees) to reach
 			</arg>
@@ -246,7 +281,7 @@
 				Longitude of the location (in degrees) to reach
 			</arg>
 			<arg name="altitude" type="double">
-				Altitude above sea level (in m) to reach
+				Altitude above take off point (in m) to reach
 			</arg>
 			<arg name="orientation_mode" type="enum">
 				Orientation mode of the move to
@@ -275,8 +310,13 @@
 				If there is no current moveTo, this command has no effect."
 				support="090c:4.3.0"
 				result="Event [MoveToChanged](#1-4-12) is triggered with state canceled."/>
+			<expectations>
+				<immediate>
+					#1-4-12(status: CANCELED)
+				</immediate>
+			</expectations>
 		</cmd>
-		<cmd name="StartPilotedPOI" id="12">
+		<cmd name="StartPilotedPOI" id="12" deprecated="true">
 			<comment
 				title="Start a piloted POI"
 				desc="Start a piloted Point Of Interest.\n
@@ -290,6 +330,12 @@
 				If the drone does not hover for a given time, piloted POI is canceled by the drone and state
 				will change to AVAILABLE.
 				Then, the drone will look at the given location."/>
+			<expectations>
+				<immediate>
+						#1-4-14(latitude: this.latitude, longitude: this.longitude, altitude: this.altitude, status: RUNNING)
+						|#1-4-14(latitude: this.latitude, longitude: this.longitude, altitude: this.altitude, status: PENDING)
+				</immediate>
+			</expectations>
 			<arg name="latitude" type="double">
 				Latitude of the location (in degrees) to look at
 			</arg>
@@ -297,16 +343,72 @@
 				Longitude of the location (in degrees) to look at
 			</arg>
 			<arg name="altitude" type="double">
-				Altitude above sea level (in m) to look at
+				Altitude above take off point (in m) to look at
+			</arg>
+		</cmd>
+		<cmd name="StartPilotedPOIV2" id="15">
+			<comment
+				title="Start a piloted POI"
+				desc="Start a piloted Point Of Interest.\n
+				During a piloted POI, the drone always points towards the given POI but can be piloted normally.
+				However, yaw value is ignored. The gimbal behavior depends on the mode argument:\n
+				- in locked gimbal mode, the gimbal always looks at the POI, and gimbal control command is ignored by
+				the drone,\n
+				- in free gimbal mode, the gimbal initially looks at the POI, and is then freely controllable by the
+				gimbal command.\n
+				Ignored if [PilotedPOIV2](#1-4-22) state is UNAVAILABLE."
+				support="0914:1.6.3;0919:1.6.3"
+				result="If the drone is hovering, event [PilotedPOIV2](#1-4-22) is triggered with state RUNNING.
+				If the drone is not hovering, event [PilotedPOIV2](#1-4-22) is triggered with state PENDING,
+				waiting to hover. When the drone hovers, the state changes to RUNNING.
+				If the drone does not hover for a given time, piloted POI is canceled by the drone and state
+				changes to AVAILABLE.
+				Then, the drone looks at the given location."/>
+			<expectations>
+				<immediate>
+						#1-4-22(latitude: this.latitude, longitude: this.longitude, altitude: this.altitude, mode: this.mode, status: RUNNING)
+						|#1-4-22(latitude: this.latitude, longitude: this.longitude, altitude: this.altitude, mode: this.mode, status: PENDING)
+				</immediate>
+			</expectations>
+			<arg name="latitude" type="double">
+				Latitude of the location (in degrees) to look at
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the location (in degrees) to look at
+			</arg>
+			<arg name="altitude" type="double">
+				Altitude above take off point (in m) to look at
+			</arg>
+			<arg name="mode" type="enum">
+				POI mode
+				<enum name="locked_gimbal">
+					Gimbal is locked on the POI
+				</enum>
+				<enum name="free_gimbal">
+					Gimbal is freely controllable
+				</enum>
 			</arg>
 		</cmd>
 		<cmd name="StopPilotedPOI" id="13">
 			<comment
 				title="Stop the piloted POI"
-				desc="Stop the piloted Point Of Interest.\n
-				If [PilotedPOI](#1-4-14) state is RUNNING or PENDING, stop it."
-				support="090c:4.3.0"
-				result="Event [PilotedPOI](#1-4-14) is triggered with state AVAILABLE."/>
+				desc="Stop the piloted Point Of Interest (with or without gimbal control).\n
+				If [PilotedPOI](#1-4-14) or [PilotedPOIV2](#1-4-22) state is RUNNING or PENDING, stop it."
+				support="090c:4.3.0;0914;0919"
+				result="Event [PilotedPOI](#1-4-14) or [PilotedPOIV2](#1-4-22) is triggered with state AVAILABLE."/>
+			<expectations>
+				<immediate>
+					#1-4-14(status: AVAILABLE)
+					|#1-4-22(status: AVAILABLE)
+				</immediate>
+			</expectations>
+		</cmd>
+		<cmd name="CancelMoveBy" id="14">
+			<comment
+				title="Cancel the relative move"
+				desc="Cancel the current relative move.\n
+				If there is no current relative move, this command has no effect."
+				result="Event [RelativeMoveChanged](#1-4-16) is triggered with state canceled."/>
 		</cmd>
 	</myclass>
 	<myclass name="Animations" id="5">
@@ -317,6 +419,11 @@
 				desc="Make a flip."
 				support="0901;090c"
 				result="The drone will make a flip if it has enough battery."/>
+			<expectations>
+				<immediate>
+					#1-4-1(state: flying)
+				</immediate>
+			</expectations>
 			<arg name="direction" type="enum">
 				Direction for the flip
 				<enum name="front">
@@ -435,6 +542,11 @@
 				The drone will take a picture.\n
 				Then, when picture has been taken, notification [PictureEvent](#1-3-0) is triggered.\n
 				And normally [PictureState](#1-8-2) will be triggered with a state ready."/>
+			<expectations>
+				<immediate>
+					#1-8-2(state: busy, error: ok)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="VideoV2" id="3">
 			<comment
@@ -446,6 +558,11 @@
 				support="0901:2.0.1;090c;090e"
 				result="The drone will begin or stop to record the video (or timelapse).\n
 				Then, event [VideoState](#1-8-3) will be triggered. Also, notification [VideoEvent](#1-3-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-8-3(state: this.record, error: ok)
+				</immediate>
+			</expectations>
 			<arg name="record" type="enum">
 				Command to record video
 				<enum name="stop">
@@ -694,13 +811,6 @@
 	</myclass>
 	<myclass name="PilotingState" id="4">
 		State from drone
-		<cmd name="FlatTrimChanged" id="0">
-			<comment
-				title="Flat trim changed"
-				desc="Drone acknowledges that flat trim was correctly processed."
-				support="0901;090c;090e"
-				triggered="by [FlatTrim](#1-0-0)."/>
-		</cmd>
 		<cmd name="FlyingStateChanged" id="1">
 			<comment
 				title="Flying state"
@@ -956,7 +1066,7 @@
 				Longitude of the location (in degrees) to reach
 			</arg>
 			<arg name="altitude" type="double">
-				Altitude above sea level (in m) to reach
+				Altitude above take off point (in m) to reach
 			</arg>
 			<arg name="orientation_mode" type="enum">
 				Orientation mode of the move to
@@ -1014,7 +1124,7 @@
 				</enum>
 			</arg>
 		</cmd>
-		<cmd name="PilotedPOI" id="14">
+		<cmd name="PilotedPOI" id="14" deprecated="true">
 			<comment
 				title="Piloted POI state"
 				desc="Piloted POI state."
@@ -1030,11 +1140,11 @@
 				This information is only valid when the state is pending or running.
 			</arg>
 			<arg name="altitude" type="double">
-				Altitude above sea level (in m) to look at.
+				Altitude above take off point (in m) to look at.
 				This information is only valid when the state is pending or running.
 			</arg>
 			<arg name="status" type="enum">
-				Status of the move to
+				Status of the Piloted POI
 				<enum name="UNAVAILABLE">
 					The piloted POI is not available
 				</enum>
@@ -1043,6 +1153,51 @@
 				</enum>
 				<enum name="PENDING">
 					Piloted POI has been requested. Waiting to be in state that allow the piloted POI to start
+				</enum>
+				<enum name="RUNNING">
+					Piloted POI is running
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="PilotedPOIV2" id="22">
+			<comment
+				title="Piloted POI state"
+				desc="Piloted POI state."
+				support="0914:1.6.3;0919:1.6.3"
+				triggered="by [StartPilotedPOIV2](#1-0-15) or [StopPilotedPOI](#1-0-13)
+				or when piloted POI becomes available or unavailable."/>
+			<arg name="latitude" type="double">
+				Latitude of the location (in degrees) to look at.
+				This information is only valid when the state is pending or running.
+			</arg>
+			<arg name="longitude" type="double">
+				Longitude of the location (in degrees) to look at.
+				This information is only valid when the state is pending or running.
+			</arg>
+			<arg name="altitude" type="double">
+				Altitude above take off point (in m) to look at.
+				This information is only valid when the state is pending or running.
+			</arg>
+			<arg name="mode" type="enum">
+				POI mode.
+				This information is only valid when the state is pending or running.
+				<enum name="locked_gimbal">
+					Gimbal is locked on the POI
+				</enum>
+				<enum name="free_gimbal">
+					Gimbal is freely controllable
+				</enum>
+			</arg>
+			<arg name="status" type="enum">
+				Status of the Piloted POI
+				<enum name="UNAVAILABLE">
+					The piloted POI is not available
+				</enum>
+				<enum name="AVAILABLE">
+					The piloted POI is available
+				</enum>
+				<enum name="PENDING">
+					Piloted POI has been requested. Waiting to be in state that allows the piloted POI to start
 				</enum>
 				<enum name="RUNNING">
 					Piloted POI is running
@@ -1073,6 +1228,138 @@
 					This can be either because the home is unknown or the position of the drone is unknown,
 					or the drone has not enough information to determine how long it takes to fly home.
 				</enum>
+			</arg>
+		</cmd>
+		<cmd name="moveByChanged" id="16">
+			<comment
+				title="Relative move changed"
+				desc="Relative move changed."
+				triggered="by [MoveRelatively](#1-0-7), or [CancelRelativeMove](#1-0-14) or when the drone's relative move state changes."/>
+			<arg name="dXAsked" type="float">
+				Distance asked to be traveled along the front axis [m]
+			</arg>
+			<arg name="dYAsked" type="float">
+				Distance asked to be traveled along the right axis [m]
+			</arg>
+			<arg name="dZAsked" type="float">
+				Distance asked to be traveled along the down axis [m]
+			</arg>
+			<arg name="dPsiAsked" type="float">
+				Relative angle asked to be applied on heading [rad]
+			</arg>
+			<arg name="dX" type="float">
+				Actual distance traveled along the front axis [m].
+				This information is only valid when the state is DONE or CANCELED.
+			</arg>
+			<arg name="dY" type="float">
+				Actual distance traveled along the right axis [m].
+				This information is only valid when the state is DONE or CANCELED.
+			</arg>
+			<arg name="dZ" type="float">
+				Actual distance traveled along the down axis [m].
+				This information is only valid when the state is DONE or CANCELED.
+			</arg>
+			<arg name="dPsi" type="float">
+				Actual applied angle on heading [rad].
+				This information is only valid when the state is DONE or CANCELED.
+			</arg>
+			<arg name="status" type="enum">
+				Status of the relative move
+				<enum name="RUNNING">
+					The drone is actually flying to the relative position
+				</enum>
+				<enum name="DONE">
+					The drone has reached the target
+				</enum>
+				<enum name="CANCELED">
+					The relative move has been canceled, either by a CancelMoveBy command
+					or when a disconnection appears.
+				</enum>
+				<enum name="ERROR">
+					The relative move has not been finished or started because of an error.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="HoveringWarning" id="17">
+			<comment
+				title="Hovering warning"
+				desc="Indicate that the drone may have difficulties to maintain a fix position when hovering."
+				support="0915"
+				triggered="at connection and on changes."/>
+			<arg name="no_gps_too_dark" type="u8">
+				1 if the drone doesn't have a GPS fix and there is not enough light.
+			</arg>
+			<arg name="no_gps_too_high" type="u8">
+				1 if the drone doesn't have a GPS fix and is flying too high.
+			</arg>
+		</cmd>
+		<cmd name="ForcedLandingAutoTrigger" id="18">
+			<comment
+				title="Landing auto trigger."
+				desc="Forced landing auto trigger information."
+				support=""
+				triggered="at connection, and when forced landing auto trigger information changes,
+				then every seconds while `reason` is different from `none`."/>
+			<arg name="reason" type="enum">
+				Reason of the forced landing.
+				<enum name="NONE">
+					There is no forced landing auto trigger planned.
+				</enum>
+				<enum name="BATTERY_CRITICAL_SOON">
+					Battery will soon be critical, so forced landing auto trigger is planned.
+				</enum>
+			</arg>
+			<arg name="delay" type="u32">
+				Delay until the landing is automatically triggered by the drone, in seconds.
+				If reason is `none` this information has no meaning.
+			</arg>
+		</cmd>
+		<cmd name="WindStateChanged" id="19">
+			<comment
+				title="Wind state"
+				desc="Wind state."
+				support="0914"
+				triggered="at connection and on changes."/>
+			<arg name="state" type="enum">
+				Drone wind state
+				<enum name="ok">
+					The wind strength can be handled properly by the drone.
+				</enum>
+				<enum name="warning">
+					The wind strength begins to be too strong for the drone to fly correctly.
+				</enum>
+				<enum name="critical">
+					The wind strength is too strong for the drone to fly correctly.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VibrationLevelChanged" id="20">
+			<comment
+				title="Vibration level"
+				desc="Vibration level."
+				support="0914:1.6.0;0919:1.6.0"
+				triggered="at connection and on changes."/>
+			<arg name="state" type="enum">
+				Drone vibration level
+				<enum name="ok">
+					The level of vibration can be handled properly by the drone.
+				</enum>
+				<enum name="warning">
+					The level of vibration begins to be too strong for the drone to fly correctly.
+				</enum>
+				<enum name="critical">
+					The level of vibration is too strong for the drone to fly correctly.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AltitudeAboveGroundChanged" id="21" buffer="NON_ACK">
+			<comment
+				title="Drone's altitude above ground changed"
+				desc="Drone's altitude above ground changed."
+				support="0914:1.6.2;0919:1.6.2"
+				triggered="regularly."/>
+			<arg name="altitude" type="float">
+				Altitude in meters
 			</arg>
 		</cmd>
 	</myclass>
@@ -1127,6 +1414,11 @@
 				support="0901;090c;090e"
 				result="Event [WifiScanResults](#1-14-0) is triggered with all networks found.\n
 				When all networks have been sent, event [WifiScanEnded](#1-14-1) is triggered."/>
+			<expectations>
+				<delayed>
+					#1-14-0
+				</delayed>
+			</expectations>
 			<arg name="band" type="enum">
 				The band(s) : 2.4 Ghz, 5 Ghz, or both
 				<enum name="2_4ghz">
@@ -1147,6 +1439,11 @@
 				The list of available Wifi channels is related to the country of the drone. You can get this country from the event [CountryChanged](#0-3-6)."
 				support="0901;090c;090e"
 				result="Event [AvailableWifiChannels](#1-14-2) is triggered with all available channels. When all channels have been sent, event [AvailableWifiChannelsCompleted](#1-14-3) is triggered."/>
+			<expectations>
+				<delayed>
+					#1-14-2
+				</delayed>
+			</expectations>
 		</cmd>
 	</myclass>
 	<myclass name="NetworkState" id="14">
@@ -1216,6 +1513,7 @@
 				support="0901;090c;090e"
 				triggered="after the last [AvailableWifiChannel](#1-14-2) has been sent."/>
 		</cmd>
+
 	</myclass>
 	<myclass name="PilotingSettings" id="2">
 		Piloting Settings commands
@@ -1229,6 +1527,11 @@
 				support="0901;090c;090e"
 				result="The max altitude is set.\n
 				Then, event [MaxAltitude](#1-6-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-0(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current altitude max in m
 			</arg>
@@ -1242,6 +1545,11 @@
 				support="0901;090c"
 				result="The max pitch/roll is set.\n
 				Then, event [MaxPitchRoll](#1-6-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-1(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current tilt max in degree
 			</arg>
@@ -1263,6 +1571,11 @@
 				support="0901;090c;090e"
 				result="The max distance is set.\n
 				Then, event [MaxDistance](#1-6-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-3(current: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				Current max distance in meter
 			</arg>
@@ -1278,6 +1591,11 @@
 				support="0901;090c;090e"
 				result="Geofencing is enabled or disabled.\n
 				Then, event [Geofencing](#1-6-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-4(shouldNotFlyOver: this.shouldNotFlyOver)
+				</immediate>
+			</expectations>
 			<arg name="shouldNotFlyOver" type="u8">
 				1 if the drone can't fly further than max distance, 0 if no limitation on the drone should be done
 			</arg>
@@ -1290,6 +1608,11 @@
 				support="0901:3.3.0;090c:3.3.0"
 				result="The max horizontal speed is set.\n
 				Then, event [AutonomousFlightMaxHorizontalSpeed](#1-6-5) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-5(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				maximum horizontal speed [m/s]
 			</arg>
@@ -1302,6 +1625,11 @@
 				support="0901:3.3.0;090c:3.3.0"
 				result="The max vertical speed is set.\n
 				Then, event [AutonomousFlightMaxVerticalSpeed](#1-6-6) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-6(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				maximum vertical speed [m/s]
 			</arg>
@@ -1314,6 +1642,11 @@
 				support="0901:3.3.0;090c:3.3.0"
 				result="The max horizontal acceleration is set.\n
 				Then, event [AutonomousFlightMaxHorizontalAcceleration](#1-6-7) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-7(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				maximum horizontal acceleration [m/s2]
 			</arg>
@@ -1326,6 +1659,11 @@
 				support="0901:3.3.0;090c:3.3.0"
 				result="The max vertical acceleration is set.\n
 				Then, event [AutonomousFlightMaxVerticalAcceleration](#1-6-8) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-8(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				maximum vertical acceleration [m/s2]
 			</arg>
@@ -1338,6 +1676,11 @@
 				support="0901:3.3.0;090c:3.3.0"
 				result="The max rotation speed is set.\n
 				Then, event [AutonomousFlightMaxRotationSpeed](#1-6-9) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-9(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				maximum yaw rotation speed [deg/s]
 			</arg>
@@ -1350,6 +1693,11 @@
 				support="0901:3.2.0;090c:3.2.0"
 				result="The banked turn mode is enabled or disabled.\n
 				Then, event [BankedTurnMode](#1-6-10) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-10(state: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="u8">
 				1 to enable, 0 to disable
 			</arg>
@@ -1362,6 +1710,11 @@
 				support="090e"
 				result="The minimum altitude is set.\n
 				Then, event [MinimumAltitude](#1-6-11) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-11(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current altitude min in m
 			</arg>
@@ -1374,6 +1727,11 @@
 				support="090e"
 				result="The circling direction is set.\n
 				Then, event [DefaultCirclingDirection](#1-6-12) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-12(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="enum">
 				The circling direction
 				<enum name="CW">
@@ -1392,6 +1750,11 @@
 				support="none"
 				result="The circling radius is set.\n
 				Then, event [CirclingRadius](#1-6-13) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-13(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="u16">
 				The circling radius in meter
 			</arg>
@@ -1404,6 +1767,11 @@
 				support="090e"
 				result="The circling altitude is set.\n
 				Then, event [CirclingAltitude](#1-6-14) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-14(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="u16">
 				The circling altitude in meter
 			</arg>
@@ -1416,6 +1784,11 @@
 				support="090e"
 				result="The pitch mode is set.\n
 				Then, event [PitchMode](#1-6-15) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-6-15(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="enum">
 				The Pitch mode
 				<enum name="NORMAL">
@@ -1441,6 +1814,11 @@
 				Then, event [MotionDetection](#1-6-16) is triggered.
 				After that, if enabled and [FlyingState](#1-4-1) is landed,
 				the [MotionState](#1-4-13) is triggered upon changes."/>
+			<expectations>
+				<immediate>
+					#1-4-13(state: this.enable)
+				</immediate>
+			</expectations>
 			<arg name="enable" type="u8">
 				1 to enable the motion detection, 0 to disable it.
 			</arg>
@@ -1686,6 +2064,11 @@
 				support="0901;090c"
 				result="The max vertical speed is set.\n
 				Then, event [MaxVerticalSpeed](#1-12-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-12-0(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current max vertical speed in m/s
 			</arg>
@@ -1697,6 +2080,11 @@
 				support="0901;090c"
 				result="The max rotation speed is set.\n
 				Then, event [MaxRotationSpeed](#1-12-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-12-1(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current max yaw rotation speed in degree/s
 			</arg>
@@ -1708,6 +2096,11 @@
 				support="0901;090c"
 				result="The drone knows that it has a hull protection.\n
 				Then, event [HullProtection](#1-12-2) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-12-2(present: this.present)
+				</immediate>
+			</expectations>
 			<arg name="present" type="u8">
 				1 if present, 0 if not present
 			</arg>
@@ -1716,6 +2109,11 @@
 			<comment
 				title="Set outdoor mode"
 				desc="Set outdoor mode."/>
+			<expectations>
+				<immediate>
+					#1-12-3(outdoor: this.outdoor)
+				</immediate>
+			</expectations>
 			<arg name="outdoor" type="u8">
 				1 if outdoor flight, 0 if indoor flight
 			</arg>
@@ -1727,6 +2125,11 @@
 				support="0901;090c"
 				result="The max pitch/roll rotation speed is set.\n
 				Then, event [MaxPitchRollRotationSpeed](#1-12-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-12-4(current: this.current)
+				</immediate>
+			</expectations>
 			<arg name="current" type="float">
 				Current max pitch/roll rotation speed in degree/s
 			</arg>
@@ -1810,6 +2213,11 @@
 				support="0901;090c;090e"
 				result="The wifi channel changes according to given parameters. Watch out, a disconnection might appear.\n
 				Then, event [WifiSelection](#1-10-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-10-0
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				The type of wifi selection (auto, manual)
 				<enum name="auto">
@@ -1843,6 +2251,11 @@
 				support="0901;090c;090e"
 				result="The wifi security is set (but not applied until next restart).\n
 				Then, event [WifiSecurityType](#1-10-2) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-10-2(type: this.type, key: this.key, keyType: this.keyType)
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				The type of wifi security (open, wpa2)
 				<enum name="open">
@@ -2137,6 +2550,11 @@
 				support="0901;090c;090e"
 				result="The picture format is set.\n
 				Then, event [PictureFormat](#1-20-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-0(type: this.type)
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				The type of photo format
 				<enum name="raw">
@@ -2160,6 +2578,11 @@
 				support="0901;090c;090e"
 				result="The white balance mode is set.\n
 				Then, event [WhiteBalanceMode](#1-20-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-1(type: this.type)
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				The type auto white balance
 				<enum name="auto">
@@ -2186,6 +2609,11 @@
 				support="0901;090c;090e"
 				result="The exposure is set.\n
 				Then, event [ImageExposure](#1-20-2) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-2(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				Exposition value (bounds given by ExpositionChanged arg min and max, by default [-3:3])
 			</arg>
@@ -2197,6 +2625,11 @@
 				support="0901;090c;090e"
 				result="The saturation is set.\n
 				Then, event [ImageSaturation](#1-20-3) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-3(value: this.value)
+				</immediate>
+			</expectations>
 			<arg name="value" type="float">
 				Saturation value (bounds given by SaturationChanged arg min and max, by default [-100:100])
 			</arg>
@@ -2210,6 +2643,12 @@
 				support="0901;090c;090e"
 				result="The timelapse mode is set (but not started).\n
 				Then, event [TimelapseMode](#1-20-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-4(enabled: this.enabled)
+					|#1-20-4(enabled: this.enabled, interval: this.interval)
+				</immediate>
+			</expectations>
 			<arg name="enabled" type="u8">
 				1 if timelapse is enabled, 0 otherwise
 			</arg>
@@ -2225,6 +2664,11 @@
 				support="0901;090c;090e"
 				result="The autorecord mode is set.\n
 				Then, event [AutorecordMode](#1-20-5) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-5(enabled: this.enabled, mass_storage_id: this.mass_storage_id)
+				</immediate>
+			</expectations>
 			<arg name="enabled" type="u8">
 				1 if video autorecord is enabled, 0 otherwise
 			</arg>
@@ -2239,6 +2683,11 @@
 				support="0901:3.4.0;090c:3.4.0;090e"
 				result="The video stabilization mode is set.\n
 				Then, event [VideoStabilizationMode](#1-20-6) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-6(mode: this.mode)
+				</immediate>
+			</expectations>
 			<arg name="mode" type="enum">
 				Video stabilization mode
 				<enum name="roll_pitch">
@@ -2262,6 +2711,11 @@
 				support="0901:3.4.0;090c:3.4.0;090e"
 				result="The video recording mode is set.\n
 				Then, event [VideoRecordingMode](#1-20-7) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-7(mode: this.mode)
+				</immediate>
+			</expectations>
 			<arg name="mode" type="enum">
 				Video recording mode
 				<enum name="quality">
@@ -2279,6 +2733,11 @@
 				support="0901:3.4.0;090c:3.4.0;090e"
 				result="The video framerate is set.\n
 				Then, event [VideoFramerate](#1-20-8) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-8(framerate: this.framerate)
+				</immediate>
+			</expectations>
 			<arg name="framerate" type="enum">
 				Video framerate
 				<enum name="24_FPS">
@@ -2299,6 +2758,11 @@
 				support="0901:3.4.0;090c:3.4.0;090e"
 				result="The video resolutions is set.\n
 				Then, event [VideoResolutions](#1-20-9) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-20-9(type: this.type)
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				Video streaming and recording resolutions
 				<enum name="rec1080_stream480">
@@ -2507,6 +2971,11 @@
 				support="0901;090c;090e"
 				result="The video stream is started or stopped.\n
 				Then, event [VideoStreamState](#1-22-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-22-0
+				</immediate>
+			</expectations>
 			<arg name="enable" type="u8">
 				1 to enable, 0 to disable.
 			</arg>
@@ -2518,6 +2987,11 @@
 				support="0901;090c;090e"
 				result="The stream mode is set.\n
 				Then, event [VideoStreamMode](#1-22-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-22-1(mode: this.mode)
+				</immediate>
+			</expectations>
 			<arg name="mode" type="enum">
 				stream mode
 				<enum name="low_latency">
@@ -2601,6 +3075,11 @@
 				support="0901;090c;090e"
 				result="The controller position is known by the drone.\n
 				Then, event [HomeLocation](#1-24-2) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-24-2
+				</immediate>
+			</expectations>
 			<arg name="latitude" type="double">
 				GPS latitude in decimal degrees
 			</arg>
@@ -2626,6 +3105,11 @@
 				support="0901;090c;090e"
 				result="The user choice is known by the drone.\n
 				Then, event [PreferredHomeType](#1-24-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-24-4(type: this.type)
+				</immediate>
+			</expectations>
 			<arg name="type" type="enum">
 				The type of the home position
 				<enum name="TAKEOFF">
@@ -2646,8 +3130,34 @@
 				support="0901;090c;090e"
 				result="The delay of the return home is set.\n
 				Then, event [ReturnHomeDelay](#1-24-5) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-24-5(delay: this.delay)
+				</immediate>
+			</expectations>
 			<arg name="delay" type="u16">
 				Delay in second
+			</arg>
+		</cmd>
+		<cmd name="ReturnHomeMinAltitude" id="5">
+			<comment
+				title="Set the return home min altitude"
+				desc="Set the return home minimum altitude.
+				If the drone is below this altitude when starting its return home, it will first reach the minimum
+				altitude. If it is higher than this minimum altitude, it will operate its return home at its actual
+				altitude."
+				support=""
+				result="The minimum altitude for the return home is set.\n
+				Then, event [ReturnHomeMinAltitude](#1-24-7) is triggered."/>
+
+			<expectations>
+				<immediate>
+					#1-24-7(value: this.value)
+				</immediate>
+			</expectations>
+			<arg name="value" type="float">
+				Altitude in meters, relative to the take off point.
+				Bounds are given by the event [ReturnHomeMinAltitude](#1-24-7).
 			</arg>
 		</cmd>
 	</myclass>
@@ -2761,6 +3271,21 @@
 				GPS longitude in decimal degrees
 			</arg>
 		</cmd>
+		<cmd name="ReturnHomeMinAltitudeChanged" id="7">
+			<comment
+				title="Return home min altitude"
+				desc="Minumum altitude for return home changed."
+				triggered="by [SetReturnHomeMinAltitude](#1-23-5)."/>
+			<arg name="value" type="float">
+				Current value in meters, relative to take off altitude.
+			</arg>
+			<arg name="min" type="float">
+				Lower bound in meters, relative to take off altitude.
+			</arg>
+			<arg name="max" type="float">
+				Upper bound in meters, relative to take off altitude.
+			</arg>
+		</cmd>
 	</myclass>
 	<myclass name="CameraState" id="25">
 		Camera state
@@ -2842,6 +3367,11 @@
 				support="0901;090c"
 				result="The electric frequency is set.\n
 				Then, event [ElectricFrequency](#1-30-0) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-30-0(frequency: this.frequency)
+				</immediate>
+			</expectations>
 			<arg name="frequency" type="enum">
 				Type of the electric frequency
 				<enum name="fiftyHertz">
@@ -2862,6 +3392,11 @@
 				support="0901;090c"
 				result="The antiflickering mode is set.\n
 				Then, event [AntiflickeringMode](#1-30-1) is triggered."/>
+			<expectations>
+				<immediate>
+					#1-30-1(mode: this.mode)
+				</immediate>
+			</expectations>
 			<arg name="mode" type="enum">
 				Mode of the anti flickering functionnality
 				<enum name="auto">
@@ -3059,6 +3594,11 @@
 				support="none"
 				result="The drone makes a sound
 				and send back [AlertSoundState](#1-36-0) with state playing."/>
+			<expectations>
+				<immediate>
+					#1-36-0(state: playing)
+				</immediate>
+			</expectations>
 		</cmd>
 		<cmd name="StopAlertSound" id="1">
 			<comment
@@ -3067,6 +3607,11 @@
 				support="none"
 				result="The drone stops its alert sound
 				and send back [AlertSoundState](#1-36-0) with state stopped."/>
+			<expectations>
+				<immediate>
+					#1-36-0(state: stopped)
+				</immediate>
+			</expectations>
 		</cmd>
 	</myclass>
 	<myclass name="SoundState" id="36">

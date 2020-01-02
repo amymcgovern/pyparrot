@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2019 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature name="leds" id="154">
+	Leds.
+	<enums>
+		<enum name="switch_state">
+			Switch state.
+
+			<value name="off">
+				Switch is off.
+			</value>
+			<value name="on">
+				Switch is on.
+			</value>
+		</enum>
+
+		<enum name="supported_capabilities">
+			Supported capabilites
+
+			<value name="on_off">
+				Possibility to activate or deactivate the switch
+			</value>
+		</enum>
+	</enums>
+
+	<msgs>
+		<evt name="capabilities" id="1">
+			<comment
+				title="Capabilities"
+				comment="Describes supported capabilities."
+				support="0914:1.5.0;0919:1.5.0"
+				triggered="At connection only."/>
+			<arg name="supported_capabilities" type="bitfield:u16:supported_capabilities">
+				Supported capabilities.
+			</arg>
+		</evt>
+
+		<cmd name="activate" id="2">
+			<comment
+				title="Activate switch"
+				desc="Activate switch"
+				support="0914:1.5.0;0919:1.5.0"
+				result="Switch is on, drone can now use its LEDs. Event [state](#154-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#154-4
+				</immediate>
+			</expectations>
+		</cmd>
+
+		<cmd name="deactivate" id="3">
+			<comment
+				title="Deactivate switch"
+				desc="Deactivate switch"
+				support="0914:1.5.0;0919:1.5.0"
+				result="Switch is off, drone can't use its LED. Event [state](#154-4) is triggered."/>
+			<expectations>
+				<immediate>
+					#154-4
+				</immediate>
+			</expectations>
+		</cmd>
+
+		<evt name="switch_state" id="4">
+			<comment
+				title="Switch state"
+				comment="Informs about switch state changes."
+				support="0914:1.5.0;0919:1.5.0"
+				triggered="At connection; on changes."/>
+			<arg name="switch_state" type="enum:switch_state">
+				Switch state.
+			</arg>
+		</evt>
+	</msgs>
+</feature>

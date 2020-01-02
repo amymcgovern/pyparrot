@@ -1,0 +1,1168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2017 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="144" name="animation">
+	All messages related to the animations
+	<enums>
+		<enum name="type">
+			Animation type.
+			<value name="none">
+				No animation
+			</value>
+			<value name="flip">
+				The drone makes a flip
+			</value>
+			<value name="horizontal_panorama">
+				The drone horizontaly rotates on itself
+			</value>
+			<value name="dronie">
+				The drone flies away on a given distance with a computed angle
+			</value>
+			<value name="horizontal_reveal">
+				The drone starts looking down, then moves forward while slowly looking at the horizon
+			</value>
+			<value name="vertical_reveal">
+				The drone starts looking down, then moves up while slowly looking at the horizon.
+				When it reaches its target altitude, it rotates on itself to do a panorama.
+			</value>
+			<value name="spiral">
+				The drone circles around its target.
+			</value>
+			<value name="parabola">
+				The drone makes a parabola on top of its target and ends on the other side of it.
+			</value>
+			<value name="candle">
+				The drone flies horizontally in direction of the target then flies up.
+			</value>
+			<value name="dolly_slide">
+				The drone slides horizontally.
+			</value>
+			<value name="vertigo">
+				Zoom in on the subject, while the drone moves away from it.
+			</value>
+			<value name="twist_up">
+				The drone moves up while rotating slowly on itself.
+			</value>
+			<value name="position_twist_up">
+				The drone place itself above the target, then moves up while rotating slowly on itself.
+			</value>
+			<value name="horizontal_180_photo_panorama">
+				The drone performs a 180 degrees rotation on the yaw axis while taking photos at various angles.
+				The resulting set of photos can then be retrieved as a single media that may be post-processed to make
+				panoramic images.
+			</value>
+			<value name="vertical_180_photo_panorama">
+				The drone camera performs a 180 degrees rotation on the tilt axis while taking photos at various angles.
+				The resulting set of photos can then be retrieved as a single media that may be post-processed to make
+				panoramic images.
+			</value>
+			<value name="spherical_photo_panorama">
+				The drone performs a 360 degrees rotation on the yaw axis. At various angles, rotation pauses, drone camera
+				performs a 180 degrees rotation on the tilt axis while taking photos at various angles, then drone yaw rotation
+				resumes.
+				The resulting set of photos can then be retrieved as a single media that may be post-processed to make
+				panoramic images.
+			</value>
+		</enum>
+		<enum name="state">
+			Animation state.
+			<value name="idle">
+				The animation is not running.
+			</value>
+			<value name="running">
+				The animation is running.
+			</value>
+			<value name="canceling">
+				The current animation is canceling.
+			</value>
+		</enum>
+		<enum name="play_mode">
+			Animation play mode.
+			<value name="normal">
+				Animation is played once, normally.
+			</value>
+			<value name="once_then_mirrored">
+				Animation is played once and then the animation is played mirrored.
+			</value>
+		</enum>
+		<enum name="flip_type">
+			Animation flip type.
+			<value name="front">
+				The drone makes a front flip
+			</value>
+			<value name="back">
+				The drone makes a back flip
+			</value>
+			<value name="left">
+				The drone makes a left flip (its left side goes up)
+			</value>
+			<value name="right">
+				The drone makes a right flip (its right side goes up)
+			</value>
+		</enum>
+		<enum name="horizontal_panorama_config_param">
+			Horizontal panorama configuration parameter.
+			<value name="rotation_angle">
+				Rotation angle parameter.
+			</value>
+			<value name="rotation_speed">
+				Rotation speed parameter.
+			</value>
+		</enum>
+		<enum name="dronie_config_param">
+			Dronie animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="distance">
+				Distance parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="horizontal_reveal_config_param">
+			Horizontal reveal animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="distance">
+				Distance parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="vertical_reveal_config_param">
+			Vertical reveal animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="vertical_distance">
+				Vertical distance parameter.
+			</value>
+			<value name="rotation_angle">
+				Rotation angle parameter.
+			</value>
+			<value name="rotation_speed">
+				Rotation speed parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="spiral_config_param">
+			Spiral animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="radius_variation">
+				Radius variation parameter.
+			</value>
+			<value name="vertical_distance">
+				Vertical distance parameter.
+			</value>
+			<value name="revolution_nb">
+				Revolution number parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="parabola_config_param">
+			Parabola animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="vertical_distance">
+				Vertical distance parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="candle_config_param">
+			Candle animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="vertical_distance">
+				Vertical distance parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="dolly_slide_config_param">
+			Dolly slide animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="angle">
+				Angle parameter.
+			</value>
+			<value name="horizontal_distance">
+				Horizontal distance parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="vertigo_config_param">
+			Vertigo animation configuration parameter.
+			<value name="duration">
+				Duration parameter.
+			</value>
+			<value name="max_zoom_level">
+				Maximum zoom level parameter.
+			</value>
+			<value name="finish_action">
+				Finish action parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="twist_up_config_param">
+			Twist-up animation configuration parameter.
+			<value name="speed">
+				Speed parameter.
+			</value>
+			<value name="vertical_distance">
+				Vertical distance parameter.
+			</value>
+			<value name="rotation_angle">
+				Rotation angle parameter.
+			</value>
+			<value name="rotation_speed">
+				Rotation speed parameter.
+			</value>
+			<value name="play_mode">
+				Play mode parameter.
+			</value>
+		</enum>
+		<enum name="vertigo_finish_action">
+			Action to execute at the end of a Vertigo.
+			<value name="none">
+				Do nothing special.
+			</value>
+			<value name="unzoom">
+				Move zoom level back to x1.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<evt name="availability" id="1">
+			<comment
+				title="Availability of the animations"
+				comment="Availability of the animations."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="when the list of available animations changes."/>
+			<arg name="values" type="bitfield:u32:type">
+				Bitfield of available animation types
+			</arg>
+		</evt>
+		<evt name="state" id="2">
+			<comment
+				title="State of the animation"
+				comment="State of the animation."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="when the state of the animation changes."/>
+			<arg name="type" type="enum:type">
+				Type of the animation. None if no animation is currently running or canceling.
+			</arg>
+			<arg name="percent" type="u8">
+				Percentage of the animation (only accurate if type is not none) (from 0 to 100).
+			</arg>
+		</evt>
+		<cmd name="cancel" id="3">
+			<comment
+				title="Cancel current animation"
+				desc="Cancel current animation."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="The state of the current animation (for example [FlipState](#144-5)) changes to canceling.
+				Then, as soon as possible, the current animation is stopped
+				and [State](#144-2) is triggered with type equals to none."/>
+			<expectations>
+				<immediate>
+					#144-2
+				</immediate>
+			</expectations>
+		</cmd>
+		<cmd name="start_flip" id="4">
+			<comment
+				title="Start flip animation"
+				desc="Start a flip animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [FlipState](#144-5) is triggered with state equals to running
+				and [State](#144-2) is triggered with type equals to flip."/>
+			<expectations>
+				<immediate>
+					#144-5(type: this.type, state: running)
+					#144-2(type: flip)
+				</immediate>
+			</expectations>
+			<arg name="type" type="enum:flip_type">
+				Type of the flip
+			</arg>
+		</cmd>
+		<evt name="flip_state" id="5">
+			<comment
+				title="Flip state"
+				comment="Flip animation state."
+				support="0901:4.3.0;090c:4.3.0"
+				triggered="by [StartFlip](#144-4) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="type" type="enum:flip_type">
+				Type of the flip (only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_horizontal_panorama" id="6">
+			<comment
+				title="Start horizontal panorama"
+				desc="Start an horizontal panorama animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone horizontaly rotates on itself."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [HorizontalPanoramaState](#144-7) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to HorizontalPanorama."/>
+			<expectations>
+				<immediate>
+					#144-7(state: running)
+					#144-2(type: horizontal_panorama)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:horizontal_panorama_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Desired rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				Not used when rotation angle of provided_params param is 0.
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The desired rotation speed of the anim in rad/s
+				Not used when rotation speed of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="horizontal_panorama_state" id="7">
+			<comment
+				title="Horizontal panorama state"
+				comment="Horizontal panorama animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartHorizontalPanorama](#144-6) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The rotation speed of the anim in rad/s
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_dronie" id="8">
+			<comment
+				title="Start dronie"
+				desc="Start a dronie animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone flies away on a given distance with a computed angle."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [DronieState](#144-9) is triggered with state equals to running
+				and [State](#144-2) is triggered with type equals to Dronie."/>
+			<expectations>
+				<immediate>
+					#144-9(state: running)
+					#144-2(type: dronie)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:dronie_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="distance" type="float">
+				Desired dronie distance in m (length of the hypotenuse).
+				Not used when distance of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="dronie_state" id="9">
+			<comment
+				title="Dronie state"
+				comment="Dronie animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartDronie](#144-8) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="distance" type="float">
+				Dronie distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_horizontal_reveal" id="10">
+			<comment
+				title="Start horizontal reveal"
+				desc="Start an horizontal reveal animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone starts looking down, then moves forward
+				while slowly looking at the horizon."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [HorizontalRevealState](#144-11) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to HorizontalReveal."/>
+			<expectations>
+				<immediate>
+					#144-11(state: running)
+					#144-2(type: horizontal_reveal)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:horizontal_reveal_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="distance" type="float">
+				Desired distance in m.
+				Not used when distance of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="horizontal_reveal_state" id="11">
+			<comment
+				title="Horizontal reveal state"
+				comment="Horizontal reveal animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartHorizontalReveal](#144-10) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="distance" type="float">
+				Distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_vertical_reveal" id="12">
+			<comment
+				title="Start vertical reveal"
+				desc="Start a vertical reveal animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone starts looking down,
+				then moves up while slowly looking at the horizon.
+				When it reaches its target altitude, it rotates on itself to do a panorama."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [VerticalRevealState](#144-13) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to VerticalReveal."/>
+			<expectations>
+				<immediate>
+					#144-13(state: running)
+					#144-2(type: vertical_reveal)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:vertical_reveal_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Desired rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				Not used when rotation angle of provided_params param is 0.
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The desired rotation speed of the anim in rad/s
+				Not used when rotation speed of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="vertical_reveal_state" id="13">
+			<comment
+				title="Vertical reveal state"
+				comment="Vertical reveal animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartVerticalReveal](#144-12) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The rotation speed of the anim in rad/s
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_spiral" id="14">
+			<comment
+				title="Start spiral"
+				desc="Start a spiral animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone circles around its target."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [SpiralState](#144-15) is triggered with state equals to running
+				and [State](#144-2) is triggered with type equals to Spiral."/>
+			<expectations>
+				<immediate>
+					#144-15(state: running)
+					#144-2(type: spiral)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:spiral_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="radius_variation" type="float">
+				Desired relative radius variation.
+				A value of 2 means that the ending radius will be twice as big as the starting radius.
+				A value of -2 means that the ending radius will half of the size of the starting radius.
+				A value of 1 means that the radius will not change during the animation.
+				Not used when radius variation of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				If negative, the spiral will be directed to the ground.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="revolution_nb" type="float">
+				The number of revolution (in turn).
+				Positive value makes a clockwise spiral, negative is anti-clockwise.
+				Example: 1.5 makes an entire turn plus half of a turn
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="spiral_state" id="15">
+			<comment
+				title="Spiral state"
+				comment="Spiral animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartSpiral](#144-14) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="radius_variation" type="float">
+				Relative radius variation in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m. Negative value means the animation is directed toward the ground.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="revolution_nb" type="float">
+				The number of revolution (in turn).
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_parabola" id="16">
+			<comment
+				title="Start parabola"
+				desc="Start a parabola animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone makes a parabola on top of its target and
+				ends on the other side of it."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [ParabolaState](#144-17) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to Parabola."/>
+			<expectations>
+				<immediate>
+					#144-17(state: running)
+					#144-2(type: parabola)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:parabola_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="parabola_state" id="17">
+			<comment
+				title="Parabola state"
+				comment="Parabola animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartParabola](#144-16) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_candle" id="18">
+			<comment
+				title="Start candle"
+				desc="Start a candle animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone flies horizontally
+				in direction of the target then flies up."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [CandleState](#144-19) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to Candle."/>
+			<expectations>
+				<immediate>
+					#144-19(state: running)
+					#144-2(type: candle)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:candle_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="candle_state" id="19">
+			<comment
+				title="Candle state"
+				comment="Candle animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartCandle](#144-18) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_dolly_slide" id="20">
+			<comment
+				title="Start a dolly slide"
+				desc="Start a dolly slide animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone slides horizontally."
+				support="0901:4.3.0;090c:4.3.0;090e:1.6.0;0914:0.8.1"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [DollySlideState](#144-21) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to DollySlide."/>
+			<expectations>
+				<immediate>
+					#144-21(state: running)
+					#144-2(type: dolly_slide)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:dolly_slide_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="angle" type="float">
+				Desired drone-target-destination angle in rad.
+				Not used when angle of provided_params param is 0.
+			</arg>
+			<arg name="horizontal_distance" type="float">
+				Desired horizontal distance in m..
+				Not used when angle of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="dolly_slide_state" id="21">
+			<comment
+				title="Dolly slide state"
+				comment="Dolly slide animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0901:4.3.0;090c:4.3.0;0914:0.8.1"
+				triggered="by [StartDollySlide](#144-20) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="angle" type="float">
+				Drone-target-destination angle in rad.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="horizontal_distance" type="float">
+				Horizontal distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_vertigo" id="22">
+			<comment
+				title="Start a vertigo"
+				desc="Start a vertigo animation.\n
+				Starting this animation when another animation is started (or canceling)
+				will cancel the current one to start this one.\n
+				This animation will make the drone slides horizontally."
+				support="0914:0.9.0"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [vertigo_state](#144-23) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to Vertigo."/>
+			<expectations>
+				<immediate>
+					#144-23(state: running)
+					#144-2(type: vertigo)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:vertigo_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="duration" type="float">
+				Desired duration in seconds.
+				Not used when duration of provided_params param is 0.
+			</arg>
+			<arg name="max_zoom_level" type="float">
+				Desired maximum zoom level.
+				Not used when max_zoom_level of provided_params param is 0.
+			</arg>
+			<arg name="finish_action" type="enum:vertigo_finish_action">
+				Desired action to execute at the end of the animation.
+				Not used when finish_action of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="vertigo_state" id="23">
+			<comment
+				title="Vertigo state"
+				comment="Vertigo animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0914:0.9.0"
+				triggered="by [start_vertigo](#144-22) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation.
+			</arg>
+			<arg name="duration" type="float">
+				Duration in seconds.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="max_zoom_level" type="float">
+				Maximum zoom level.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="finish_action" type="enum:vertigo_finish_action">
+				Action that will be executed at the end of the animation.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_twist_up" id="24">
+			<comment
+				title="Start twist-up"
+				desc="Starts a twist-up animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation will make the drone move up and
+				rotate slowly on itself until the end of the animation, first with the
+				camera looking down and when it reaches its target altitude, slowly
+				looking up to the horizon."
+				support="0914:1.2.0"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [TwistUpState](#144-25) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to TwistUp."/>
+			<expectations>
+				<immediate>
+					#144-25(state: running)
+					#144-2(type: twist_up)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:twist_up_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Desired rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				Not used when rotation angle of provided_params param is 0.
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The desired rotation speed of the anim in rad/s
+				Not used when rotation speed of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="twist_up_state" id="25">
+			<comment
+				title="Twist-up state"
+				comment="Twist-up animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0914:1.2.0"
+				triggered="by [StartTwistUp](#144-24) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The rotation speed of the anim in rad/s
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_position_twist_up" id="26">
+			<comment
+				title="Start a positionned twist-up"
+				desc="Starts a positionned twist-up animation.\n
+				Starting this animation when another animation is started (or canceling),
+				will cancel the current one to start this one.\n
+				This animation needs a target.\n
+				This animation will make the drone move
+				above the target then up and rotate slowly on itself until the end of the
+				animation."
+				support="0914:1.2.0"
+				result="If an animation was running, this animation is canceling, then canceled.
+				Then, this animation is started, [PositionTwistUpState](#144-27) is triggered with state equals
+				to running and [State](#144-2) is triggered with type equals to PositionTwistUp."/>
+			<expectations>
+				<immediate>
+					#144-27(state: running)
+					#144-2(type: position_twist_up)
+				</immediate>
+			</expectations>
+			<arg name="provided_params" type="bitfield:u8:twist_up_config_param">
+				Bitfield of the config parameters on which given values should be used.
+				Setting a bit to 1 means that the corresponding parameter should be used,
+				otherwise default value should be used.
+			</arg>
+			<arg name="speed" type="float">
+				Desired speed in m/s.
+				Not used when speed of provided_params param is 0.
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Desired vertical distance in m.
+				Not used when vertical distance of provided_params param is 0.
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Desired rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				Not used when rotation angle of provided_params param is 0.
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The desired rotation speed of the anim in rad/s
+				Not used when rotation speed of provided_params param is 0.
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Desired play mode.
+				Not used when play mode of provided_params param is 0.
+			</arg>
+		</cmd>
+		<evt name="position_twist_up_state" id="27">
+			<comment
+				title="Positionned Twist-up state"
+				comment="Positionned Twist-up animation state.\n
+				When the animation is started, all piloting commands are ignored."
+				support="0914:1.2.0"
+				triggered="by [StartPositionTwistUp](#144-26) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+			<arg name="speed" type="float">
+				Speed in m/s.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="vertical_distance" type="float">
+				Vertical distance in m.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_angle" type="float">
+				Rotation angle in rad. Positive value makes a clockwise panorama, negative is anti-clockwise.
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="rotation_speed" type="float">
+				The rotation speed of the anim in rad/s
+				(only accurate if state is not idle)
+			</arg>
+			<arg name="play_mode" type="enum:play_mode">
+				Play mode.
+				(only accurate if state is not idle)
+			</arg>
+		</evt>
+		<cmd name="start_horizontal_180_photo_panorama" id="28">
+			<comment
+				title="Start horizontal 180 degrees photo panorama"
+				desc="Starts an horizontal 180 degrees photo panorama animation.\n
+				Starting this animation when another animation is started (or canceling) will cancel the current one to
+				start this one.\n
+				This animation will make the drone perform a 180 degrees rotation on the yaw axis while take photos at various
+				angles"
+				support="0914:1.2.0"
+				result="If an animation was running, this animation is canceling, then canceled. Then, this animation is
+				started, [Horizontal180PhotoPanoramaState](#144-29) is triggered with state `running` and
+				[State](#144-2) is triggered with type equals to `horizontal_180_photo_panorama`."/>
+			<expectations>
+				<immediate>
+					#144-29(state: running)
+					#144-2(type: horizontal_180_photo_panorama)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="horizontal_180_photo_panorama_state" id="29">
+			<comment
+				title="Horizontal 180 degrees photo panorama state"
+				comment="Informs about horizontal 180 degrees photo panorama animation state."
+				support="0914:1.2.0"
+				triggered="by [StartHorizontal180PhotoPanorama](#144-28) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+		</evt>
+		<cmd name="start_vertical_180_photo_panorama" id="30">
+			<comment
+				title="Start vertical 180 degrees photo panorama"
+				desc="Starts a vertical 180 degrees photo panorama animation.\n
+				Starting this animation when another animation is started (or canceling) will cancel the current one to
+				start this one.\n
+				This animation will make the the drone camera perform a 180 degrees rotation on the tilt axis while taking
+				photos at various angles."
+				support="0914:1.2.0"
+				result="If an animation was running, this animation is canceling, then canceled. Then, this animation is
+				started, [Vertical180PhotoPanoramaState](#144-31) is triggered with state `running` and
+				[State](#144-2) is triggered with type equals to `vertical_180_photo_panorama`."/>
+			<expectations>
+				<immediate>
+					#144-31(state: running)
+					#144-2(type: vertical_180_photo_panorama)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="vertical_180_photo_panorama_state" id="31">
+			<comment
+				title="Vertical 180 degrees photo panorama state"
+				comment="Informs about vertical 180 degrees photo panorama animation state."
+				support="0914:1.2.0"
+				triggered="by [StartVertical180PhotoPanorama](#144-30) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+		</evt>
+		<cmd name="start_spherical_photo_panorama" id="32">
+			<comment
+				title="Start spherical photo panorama"
+				desc="Starts a spherical photo panorama animation.\n
+				Starting this animation when another animation is started (or canceling) will cancel the current one to
+				start this one.\n
+				This animation will make the drone perform a 360 degrees rotation on the yaw axis. At various angles, rotation
+				pauses, drone camera performs a 180 degrees rotation on the tilt axis while taking photos at various angles,
+				then drone yaw rotation resumes."
+				support="0914:1.2.0"
+				result="If an animation was running, this animation is canceling, then canceled. Then, this animation is
+				started, [SphericalPhotoPanoramaState](#144-33) is triggered with state `running` and
+				[State](#144-2) is triggered with type equals to `spherical_photo_panorama`."/>
+			<expectations>
+				<immediate>
+					#144-33(state: running)
+					#144-2(type: spherical_photo_panorama)
+				</immediate>
+			</expectations>
+		</cmd>
+		<evt name="spherical_photo_panorama_state" id="33">
+			<comment
+				title="Spherical photo panorama state"
+				comment="Informs about spherical photo panorama animation state."
+				support="0914:1.2.0"
+				triggered="by [StartSphericalPhotoPanorama](#144-32) and when the state changes."/>
+			<arg name="state" type="enum:state">
+				State of the animation
+			</arg>
+		</evt>
+	</msgs>
+</feature>

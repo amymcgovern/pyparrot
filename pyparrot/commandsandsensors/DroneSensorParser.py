@@ -136,8 +136,8 @@ class DroneSensorParser:
             return sensor_list
 
         else:
-            color_print("Could not find sensor in list - ignoring for now.  Packet info below.", "ERROR")
-            print(header_tuple)
+            #color_print("Could not find sensor in list - ignoring for now.  Packet info below.", "ERROR")
+            #print(header_tuple)
             #print(names)
             return None
 

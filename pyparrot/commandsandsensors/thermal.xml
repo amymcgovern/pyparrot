@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2018 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="152" name="thermal">
+	Thermal feature
+	<enums>
+
+		<enum name="mode">
+			Thermal state
+			<value name="disabled">
+				Thermal is disabled
+			</value>
+			<value name="standard">
+				Standard thermal mode
+			</value>
+		</enum>
+
+		<enum name="rendering_mode">
+			Rendering mode
+			<value name="visible">
+				Visible image only
+			</value>
+			<value name="thermal">
+				Thermal image only
+			</value>
+			<value name="blended">
+				Blending between visible and thermal images
+			</value>
+			<value name="monochrome">
+				Visible image in black and white
+			</value>
+		</enum>
+
+		<enum name="palette_mode">
+			Palette mode
+			<value name="absolute">
+				Absolute palette range
+			</value>
+			<value name="relative">
+				Relative palette range
+			</value>
+			<value name="spot">
+				Palette above or under relative threshold
+			</value>
+		</enum>
+
+		<enum name="colorization_mode">
+			Colorization mode
+			<value name="limited">
+				Use black if temperature is outside of palette bounds
+			</value>
+			<value name="extended">
+				Use boundary color if temperature is outside of palette bounds
+			</value>
+		</enum>
+
+		<enum name="relative_range_mode">
+			Relative range mode
+			<value name="locked">
+				Relative range is locked
+			</value>
+			<value name="unlocked">
+				Relative range is unlocked
+			</value>
+		</enum>
+
+		<enum name="spot_type">
+			Spot type
+			<value name="cold">
+				Colorize only if temperature is below threshold
+			</value>
+			<value name="hot">
+				Colorize only if temperature is above threshold
+			</value>
+		</enum>
+
+		<enum name="range">
+			Thermal range
+			<value name="high">
+				High range (from -10 to 400°C)
+			</value>
+			<value name="low">
+				Low range (from -10 to 140°C)
+			</value>
+		</enum>
+		<enum name="shutter_trigger">
+			Thermal shutter trigger mode
+			<value name="auto">
+				Automatic trigger
+			</value>
+			<value name="manual">
+				Manual trigger
+			</value>
+		</enum>
+	</enums>
+
+	<msgs>
+		<cmd name="set_mode" id="1">
+			<comment
+				title="Set thermal mode"
+				desc="Set thermal mode.\n
+				Changing thermal mode may activate or deactivate some cameras on some drones."
+				support="0919"
+				result="Requested thermal mode is set and [mode](#152-2) event is triggered with the
+				new mode."/>
+			<expectations>
+				<delayed>
+					#152-2(mode: this.mode)
+				</delayed>
+			</expectations>
+			<arg name="mode" type="enum:mode">
+				Requested thermal mode.
+			</arg>
+		</cmd>
+
+		<evt name="mode" id="2">
+			<comment
+				title="Thermal mode"
+				desc="Thermal mode."
+				support="0919"
+				triggered="At connection or on changes by [set_mode](#152-1)."/>
+			<arg name="mode" type="enum:mode">
+				Current thermal mode.
+			</arg>
+		</evt>
+
+		<evt name="capabilities" id="3">
+			<comment
+				title="Capabilities"
+				comment="Describes thermal capabilities."
+				support="0919"
+				triggered="At connection only."/>
+			<arg name="modes" type="bitfield:u8:mode">
+				Supported thermal modes.
+			</arg>
+		</evt>
+
+		<cmd name="set_palette_part" id="4">
+			<comment
+				title="Set palette part"
+				desc="Set palette value for a given index."
+				support="0919"
+				result="Requested RGB is set for the given index in the palette and
+				[palette_part](#152-5) event is triggered with the updated values."/>
+			<expectations>
+				<delayed>
+					#152-5(red: this.red, green: this.green, blue: this.blue, index: this.index)
+				</delayed>
+			</expectations>
+			<arg name="red" type="float">
+				Requested red value. Normalized between 0 and 1.
+			</arg>
+			<arg name="green" type="float">
+				Requested green value. Normalized between 0 and 1.
+			</arg>
+			<arg name="blue" type="float">
+				Requested blue value. Normalized between 0 and 1.
+			</arg>
+			<arg name="index" type="float">
+				Index in the palette where given red, green and blue should be applied.
+				Normalized between 0 and 1.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags">
+				List flags.
+			</arg>
+		</cmd>
+
+		<evt name="palette_part" id="5">
+			<comment
+				title="Palette part"
+				desc="Palette part."
+				support="0919"
+				triggered="At connection or on changes by [set_palette_part](#152-4)."/>
+			<arg name="red" type="float">
+				Red value. Normalized between 0 and 1.
+			</arg>
+			<arg name="green" type="float">
+				Green value. Normalized between 0 and 1.
+			</arg>
+			<arg name="blue" type="float">
+				Blue value. Normalized between 0 and 1.
+			</arg>
+			<arg name="index" type="float">
+				Index where red, green and blue have been applied.
+				Normalized between 0 and 1.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags">
+				List flags.
+			</arg>
+		</evt>
+
+		<cmd name="set_palette_settings" id="6">
+			<comment
+				title="Set palette settings"
+				desc="Set palette settings."
+				support="0919"
+				result="Palette settings are set and [palette_settings](#152-7) event is triggered
+				with the new palette settings."/>
+			<expectations>
+				<delayed>
+					#152-7(mode: this.mode, lowest_temp: this.lowest_temp, highest_temp: this.highest_temp, outside_colorization: this.outside_colorization, relative_range: this.relative_range, spot_type: this.spot_type, spot_threshold: this.spot_threshold)
+				</delayed>
+			</expectations>
+			<arg name="mode" type="enum:palette_mode">
+				Requested palette mode.
+			</arg>
+			<arg name="lowest_temp" type="float">
+				Requested lowest temperature in the palette to use in `absolute` mode.
+				This value is also used when the palette is `relative` and the relative_range is set to `locked`.
+				Unit is Kelvin.
+			</arg>
+			<arg name="highest_temp" type="float">
+				Requested highest temperature in the palette to use in `absolute` mode.
+				This value is also used when the palette is `relative` and the relative_range is set to `locked`.
+				Unit is Kelvin.
+			</arg>
+			<arg name="outside_colorization" type="enum:colorization_mode">
+				Requested colorization mode outside of the palette bounds in `absolute` mode.
+			</arg>
+			<arg name="relative_range" type="enum:relative_range_mode">
+				Requested relative range. Valid only in `relative` mode.
+				If set to `locked`, equivalent to `absolute` mode with given lowest_temp, given highest_temp
+				and `extended` outside_colorization.
+			</arg>
+			<arg name="spot_type" type="enum:spot_type">
+				Requested spot type. Valid only in `spot` mode.
+			</arg>
+			<arg name="spot_threshold" type="float">
+				Requested threshold palette index of the spot. Normalized between 0 and 1. Valid only in `spot` mode.
+			</arg>
+		</cmd>
+
+		<evt name="palette_settings" id="7">
+			<comment
+				title="Palette settings"
+				desc="Used palette settings."
+				support="0919"
+				triggered="At connection or on changes by [set_palette_settings](#152-6)."/>
+			<arg name="mode" type="enum:palette_mode">
+				Used palette mode.
+			</arg>
+			<arg name="lowest_temp" type="float">
+				Used lowest temperature in the palette; in Kelvin.
+			</arg>
+			<arg name="highest_temp" type="float">
+				Used highest temperature in the palette; in Kelvin.
+			</arg>
+			<arg name="outside_colorization" type="enum:colorization_mode">
+				Used colorization mode outside of the palette bounds in `absolute` mode.
+			</arg>
+			<arg name="relative_range" type="enum:relative_range_mode">
+				Used relative range. Valid only in `relative` mode.
+				If set to `locked`, equivalent to `absolute` mode with lowest_temp, highest_temp
+				and `extended` outside_colorization.
+			</arg>
+			<arg name="spot_type" type="enum:spot_type">
+				Used spot type. Valid only in `spot` mode.
+			</arg>
+			<arg name="spot_threshold" type="float">
+				Used threshold palette index of the spot. Normalized between 0 and 1. Valid only in `spot` mode.
+			</arg>
+		</evt>
+
+		<cmd name="set_rendering" id="8">
+			<comment
+				title="Set rendering"
+				desc="Set rendering parameters for blending."
+				support="0919"
+				result="Requested rendering parameters are set and [rendering](#152-9) event is triggered
+				with the new rendering parameters."/>
+			<expectations>
+				<delayed>
+					#152-9(mode: this.mode, blending_rate: this.blending_rate)
+				</delayed>
+			</expectations>
+			<arg name="mode" type="enum:rendering_mode">
+				Requested rendering mode.
+			</arg>
+			<arg name="blending_rate" type="float">
+				Requested blending rate, normalized between 0 (visible image and thermal chrominance) and 1 (thermal with edges).
+				Ignored if mode is not `blended`.
+			</arg>
+		</cmd>
+
+		<evt name="rendering" id="9">
+			<comment
+				title="Rendering"
+				desc="Rendering parameters for blending."
+				support="0919"
+				triggered="At connection or on changes by [set_rendering](#152-8)."/>
+			<arg name="mode" type="enum:rendering_mode">
+				Rendering mode.
+			</arg>
+			<arg name="blending_rate" type="float">
+				Blending rate, normalized between 0 (visible image and thermal chrominance) and 1 (thermal with edges).
+				Valid only if mode is `blended`.
+			</arg>
+		</evt>
+
+		<cmd name="set_emissivity" id="10">
+			<comment
+				title="Set emissivity"
+				desc="Set emissivity value."
+				support="0919"
+				result="Requested emissivity is set and [emissivity](#152-11) event is triggered
+				with the new emissivity."/>
+			<expectations>
+				<delayed>
+					#152-11(emissivity: this.emissivity)
+				</delayed>
+			</expectations>
+			<arg name="emissivity" type="float">
+				Requested emissivity. Normalized between 0 and 1.
+			</arg>
+		</cmd>
+
+		<evt name="emissivity" id="11">
+			<comment
+				title="Emissivity"
+				desc="Emissivity value."
+				support="0919"
+				triggered="At connection or on changes by [set_emissivity](#152-10)."/>
+			<arg name="emissivity" type="float">
+				Emissivity. Normalized between 0 and 1.
+			</arg>
+		</evt>
+
+		<cmd name="set_background_temperature" id="12">
+			<comment
+				title="Set background temperature"
+				desc="Set background temperature value."
+				support="0919"
+				result="Requested background temperature is set and [background_temperature](#152-13) event is triggered
+				with the new background temperature."/>
+			<expectations>
+				<delayed>
+					#152-13(background_temperature: this.background_temperature)
+				</delayed>
+			</expectations>
+			<arg name="background_temperature" type="float">
+				Requested background temperature in Kelvin.
+			</arg>
+		</cmd>
+
+		<evt name="background_temperature" id="13">
+			<comment
+				title="background temperature"
+				desc="background temperature value."
+				support="0919"
+				triggered="At connection or on changes by [set_background_temperature](#152-12)."/>
+			<arg name="background_temperature" type="float">
+				background temperature in Kelvin.
+			</arg>
+		</evt>
+
+		<cmd name="set_sensitivity" id="14">
+			<comment
+				title="Set the thermal cam sensitivity"
+				desc="Set the thermal camera sensitivity range."
+				support="0919"
+				result="Sensitivity range of the camera is changed, and event [sensitivity](#152-15) is
+				sent accordingly."/>
+			<expectations>
+				<delayed>
+					#152-15(current_range: this.range)
+				</delayed>
+			</expectations>
+			<arg name="range" type="enum:range">
+				Desired range of the thermal sensor
+			</arg>
+		</cmd>
+
+		<evt name="sensitivity" id="15">
+			<comment
+				title="Thermal cam sensitivity"
+				desc="Thermal cam sensitivity range."
+				support="0919"
+				triggered="At connection or on changes by [set_sensitivity](#152-14)"/>
+			<arg name="current_range" type="enum:range">
+				Current range of the thermal sensor
+			</arg>
+		</evt>
+
+		<cmd name="set_shutter_mode" id="16">
+			<comment
+				title="Set the thermal cam shutter mode"
+				desc="Set the thermal camera shutter mode."
+				support="0919"
+				result="shutter mode of the camera is changed, and event [shutter_mode](#152-17) is
+				sent accordingly."/>
+			<expectations>
+				<delayed>
+					#152-17(current_trigger: this.trigger)
+				</delayed>
+			</expectations>
+			<arg name="trigger" type="enum:shutter_trigger">
+				Desired shutter trigger mode of the thermal sensor
+			</arg>
+		</cmd>
+
+		<evt name="shutter_mode" id="17">
+			<comment
+				title="Thermal cam shutter trigger mode"
+				desc="Thermal cam shutter trigger mode."
+				support="0919"
+				triggered="At connection or on changes by [set_shutter_mode](#152-16)"/>
+			<arg name="current_trigger" type="enum:shutter_trigger">
+				Current shutter trigger mode of the thermal sensor
+			</arg>
+		</evt>
+
+		<cmd name="trigg_shutter" id="18">
+			<comment
+				title="Trigg the thermal cam shutter"
+				desc="Trigg the thermal cam shutter."
+				support="0919"
+				result="Thermal camera triggs its shutter to perform a Flat Field Calibration."/>
+		</cmd>
+	</msgs>
+</feature>

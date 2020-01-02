@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<project name="powerup" id="8">
+	All commands specific to the Power Up.
+	<class name="Piloting" id="0">
+		All commands related to piloting the PowerUp
+		<cmd name="PCMD" id="0" buffer="NON_ACK">
+			Ask the Power Up speed and turn ratio.
+			<arg name="flag" type="u8">
+				Boolean for "touch screen".
+			</arg>
+			<arg name="throttle" type="u8">
+				Throttle value [0:100].
+			</arg>
+			<arg name="roll" type="i8">
+				Yaw-roll value. [-100:100]
+			</arg>
+		</cmd>
+		<cmd name="UserTakeOff" id="1">
+			Set drone in user take off state
+			<arg name="state" type="u8">
+				State of user take off mode
+				- 1 to enter in user take off.
+				- 0 to exit from user take off.
+			</arg>
+		</cmd>
+		<cmd name="MotorMode" id="2">
+			Motor mode
+			<arg name="mode" type="enum">
+				<enum name="normal">
+					The motors will only start on user action after being in state user take off
+				</enum>
+				<enum name="forced">
+					Motors will use the current pcmd values without considering the flying state
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="PilotingState" id="1">
+		Piloting state from Power Up.
+		<cmd name="AlertStateChanged" id="0">
+			JS alert state changed
+			<arg name="state" type="enum">
+				JS alert state
+				<enum name="none">
+					No alert
+				</enum>
+				<enum name="critical_battery">
+					Critical battery alert
+				</enum>
+				<enum name="low_battery">
+					Low battery alert
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="FlyingStateChanged" id="1">
+			Drone flying state changed
+			<arg name="state" type="enum">
+				Drone flying state
+				<enum name="landed">
+					Landed state
+				</enum>
+				<enum name="takingoff">
+					Taking off state
+				</enum>
+				<enum name="flying">
+					Flying state
+				</enum>
+				<enum name="recovery">
+					Recovery state
+				</enum>
+				<enum name="emergency">
+					Emergency state
+				</enum>
+				<enum name="usertakeoff">
+					User take off state. Waiting for user action to take off.
+				</enum>
+				<enum name="init">
+					Initializing state (user should let the drone steady for a while)
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="MotorModeChanged" id="2">
+			Motor mode changed
+			<arg name="mode" type="enum">
+				<enum name="normal">
+					The motors will only start on user action after being in state user take off
+				</enum>
+				<enum name="forced">
+					Motors will use the current pcmd values without considering the flying state
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AttitudeChanged" id="3">
+			Drone attitude changed
+			<arg name="roll" type="float">
+				roll value (in radian) (relative to horizontal)
+			</arg>
+			<arg name="pitch" type="float">
+				Pitch value (in radian) (relative to horizontal)
+			</arg>
+			<arg name="yaw" type="float">
+				Yaw value (in radian) (relative to North)
+			</arg>
+		</cmd>
+		<cmd name="AltitudeChanged" id="4">
+			Drone altitude changed
+			<arg name="altitude" type="float">
+				Altitude in meters relative to take off altitude
+			</arg>
+		</cmd>
+	</class>
+	<class name="PilotingSettings" id="2">
+		Piloting settings
+		<cmd name="set" id="0">
+			Set the given setting
+			<arg name="setting" type="enum">
+				Variety of setting that can be customized
+				<enum name="MAX_ROLL">
+					Max roll value. In degree.
+				</enum>
+				<enum name="ROLL_KP">
+					How fast the plane reaches the desired roll angle. No unit.
+				</enum>
+				<enum name="ROLL_RATE_KP">
+					How fast the plane reaches the desired roll rate. No unit.
+				</enum>
+				<enum name="MAX_PITCH">
+					Max pitch value. In degree.
+				</enum>
+				<enum name="MIN_PITCH">
+					Min pitch value. In degree.
+				</enum>
+				<enum name="PITCH_KP">
+					How fast the plane reaches the desired pitch angle. No unit.
+				</enum>
+				<enum name="PITCH_RATE_KP">
+					How fast the plane reaches the desired pitch rate. No unit.
+				</enum>
+				<enum name="YAW_KP">
+					How fast the plane reaches the desired yaw angle. No unit.
+				</enum>
+				<enum name="YAW_RATE_KP">
+					How fast the plane reaches the desired yaw rate. No unit.
+				</enum>
+				<enum name="ROLL_TO_THROTTLE_RATE">
+					Portion of thrust that is added to motors according to the roll/yaw
+					command to compensate a dive during turn. No unit.
+				</enum>
+				<enum name="ANGLE_OF_ATTACK">
+					Angle of attack of a plane needed horizontal flight.
+				</enum>
+				<enum name="ALT_HOLD">
+					Altitude hold during autopilot. 0 for false, other value for true.
+				</enum>
+				<enum name="ALT_HOLD_THROTTLE">
+					Altitude hold throttle. Expressed in percentage divided by 100 (from 0 to 1).
+				</enum>
+				<enum name="DR_RSSI_EDGE">
+					Rssi value that indicates that the airplane is close to the pilot.
+				</enum>
+				<enum name="RECOVERY_DURATION_LIMIT">
+					Limit time for return home duration. In seconds.
+				</enum>
+				<enum name="WIND_SPEED">
+					Wind speed in m/s. Should be sent before flight.
+				</enum>
+				<enum name="PLANE_SPEED">
+					Target plane speed in m/s. Should be sent before flight.
+				</enum>
+			</arg>
+			<arg name="value" type="float">
+				value of the given setting
+			</arg>
+		</cmd>
+	</class>
+	<class name="PilotingSettingsState" id="3">
+		Piloting settings
+		<cmd name="settingChanged" id="0" type="MAP_ITEM">
+			Fired when a setting has changed
+			<arg name="setting" type="enum">
+				Variety of setting that can be customized
+				<enum name="MAX_ROLL">
+					Max roll value. In degree.
+				</enum>
+				<enum name="ROLL_KP">
+					How fast the plane reaches the desired roll angle. No unit.
+				</enum>
+				<enum name="ROLL_RATE_KP">
+					How fast the plane reaches the desired roll rate. No unit.
+				</enum>
+				<enum name="MAX_PITCH">
+					Max pitch value. In degree.
+				</enum>
+				<enum name="MIN_PITCH">
+					Min pitch value. In degree.
+				</enum>
+				<enum name="PITCH_KP">
+					How fast the plane reaches the desired pitch angle. No unit.
+				</enum>
+				<enum name="PITCH_RATE_KP">
+					How fast the plane reaches the desired pitch rate. No unit.
+				</enum>
+				<enum name="YAW_KP">
+					How fast the plane reaches the desired yaw angle. No unit.
+				</enum>
+				<enum name="YAW_RATE_KP">
+					How fast the plane reaches the desired yaw rate. No unit.
+				</enum>
+				<enum name="ROLL_TO_THROTTLE_RATE">
+					Portion of thrust that is added to motors according to the roll/yaw
+					command to compensate a dive during turn. No unit.
+				</enum>
+				<enum name="ANGLE_OF_ATTACK">
+					Angle of attack of a plane needed horizontal flight.
+				</enum>
+				<enum name="ALT_HOLD">
+					Altitude hold during autopilot. 0 for false, other value for true.
+				</enum>
+				<enum name="ALT_HOLD_THROTTLE">
+					Altitude hold throttle. Expressed in percentage divided by 100 (from 0 to 1).
+				</enum>
+				<enum name="DR_RSSI_EDGE">
+					Rssi value that indicates that the airplane is close to the pilot.
+				</enum>
+				<enum name="RECOVERY_DURATION_LIMIT">
+					Limit time for return home duration. In seconds.
+				</enum>
+				<enum name="WIND_SPEED">
+					Wind speed in m/s.
+				</enum>
+				<enum name="PLANE_SPEED">
+					Target plane speed in m/s.
+				</enum>
+			</arg>
+			<arg name="current" type="float">
+				Current value of the given setting
+			</arg>
+			<arg name="min" type="float">
+				Minimal value of the given setting
+			</arg>
+			<arg name="max" type="float">
+				Max value of the given setting
+			</arg>
+			<arg name="list_flags" type="u8">
+				List entry attribute Bitfield.
+				0x01: First: indicate it's the first element of the list.
+				0x02: Last: indicate it's the last element of the list.
+				0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+				0x08: Remove: This value should be removed from the existing list.
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecord" id="4">
+		Media recording management
+		<cmd name="PictureV2" id="0">
+			Take picture
+		</cmd>
+		<cmd name="VideoV2" id="1">
+			Video record
+			<arg name="record" type="enum">
+				Command to record video
+				<enum name="stop">
+					Stop the video recording
+				</enum>
+				<enum name="start">
+					Start the video recording
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecordState" id="5">
+		State of media recording
+		<cmd name="PictureStateChangedV2" id="0">
+			State of device picture recording changed
+			<arg name="state" type="enum">
+				State of device picture recording
+				<enum name="ready">
+					The picture recording is ready
+				</enum>
+				<enum name="busy">
+					The picture recording is busy
+				</enum>
+				<enum name="notAvailable">
+					The picture recording is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+				<enum name="camera_ko">
+					Picture camera is out of order
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional picture
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoStateChangedV2" id="1">
+			State of device video recording changed
+			<arg name="state" type="enum">
+				State of device video recording
+				<enum name="stopped">
+					Video is stopped
+				</enum>
+				<enum name="started">
+					Video is started
+				</enum>
+				<enum name="notAvailable">
+					The video recording is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+				<enum name="camera_ko">
+					Video camera is out of order
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional video
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecordEvent" id="6">
+		Events of media recording
+		<cmd name="PictureEventChanged" id="0" content="NOTIFICATION">
+			Event of picture recording
+			<arg name="event" type="enum">
+				Last event of picture recording
+				<enum name="taken">
+					Picture taken and saved
+				</enum>
+				<enum name="failed">
+					Picture failed
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the event
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error ; only when state is failed
+				</enum>
+				<enum name="busy">
+					Picture recording is busy ; only when state is failed
+				</enum>
+				<enum name="notAvailable">
+					Picture recording not available ; only when state is failed
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; only when state is failed
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to record.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoEventChanged" id="1" content="NOTIFICATION">
+			Event of video recording
+			<arg name="event" type="enum">
+				Event of video recording
+				<enum name="start">
+					Video start
+				</enum>
+				<enum name="stop">
+					Video stop and saved
+				</enum>
+				<enum name="failed">
+					Video failed
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the event
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error ; only when state is failed
+				</enum>
+				<enum name="busy">
+					Video recording is busy ; only when state is failed
+				</enum>
+				<enum name="notAvailable">
+					Video recording not available ; only when state is failed
+				</enum>
+				<enum name="memoryFull">
+					Memory full
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to record.
+				</enum>
+				<enum name="autoStopped">
+					Video was auto stopped
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="NetworkSettings" id="7">
+		Network settings commands
+		<cmd name="WifiSelection" id="0">
+			Auto-select channel of choosen band
+			<arg name="type" type="enum">
+				The type of wifi selection (auto, manual)
+				<enum name="auto">
+					Auto selection
+				</enum>
+				<enum name="manual">
+					Manual selection
+				</enum>
+			</arg>
+			<arg name="band" type="enum">
+				The allowed band(s) : 2.4 Ghz, 5 Ghz, or all
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The channel (not used in auto mode)
+			</arg>
+		</cmd>
+	</class>
+	<class name="NetworkSettingsState" id="8">
+		Network settings state from product
+		<cmd name="WifiSelectionChanged" id="0">
+			Wifi selection from product
+			<arg name="type" type="enum">
+				The type of wifi selection settings
+				<enum name="auto_all">
+					Auto selection
+				</enum>
+				<enum name="auto_2_4ghz">
+					Auto selection 2.4ghz
+				</enum>
+				<enum name="auto_5ghz">
+					Auto selection 5 ghz
+				</enum>
+				<enum name="manual">
+					Manual selection
+				</enum>
+			</arg>
+			<arg name="band" type="enum">
+				The actual wifi band state
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The channel (depends of the band)
+			</arg>
+		</cmd>
+	</class>
+	<class name="Network" id="9">
+		Network related commands
+		<cmd name="WifiScan" id="0">
+			Launches wifi network scan
+			<arg name="band" type="enum">
+				The band(s) : 2.4 Ghz, 5 Ghz, or both
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="WifiAuthChannel" id="1">
+			Controller inquire the list of authorized wifi channels.
+		</cmd>
+	</class>
+	<class name="NetworkState" id="10">
+		Network state from Product
+		<cmd name="WifiScanListChanged" id="0" type="MAP_ITEM">
+			One scanning result found
+			<arg name="ssid" type="string">
+				SSID of the AP
+			</arg>
+			<arg name="rssi" type="i16">
+				RSSI of the AP in dbm (negative value)
+			</arg>
+			<arg name="band" type="enum">
+				The band : 2.4 GHz or 5 GHz
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				Channel of the AP
+			</arg>
+		</cmd>
+		<cmd name="AllWifiScanChanged" id="1">
+			State sent when all scanning result sent
+		</cmd>
+		<cmd name="WifiAuthChannelListChanged" id="2" type="LIST_ITEM">
+			Notify of an Authorized Channel.
+			<arg name="band" type="enum">
+				The band of this channel : 2.4 GHz or 5 GHz
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The authorized channel.
+			</arg>
+			<arg name="in_or_out" type="u8">
+				Bit 0 is 1 if channel is authorized outside (0 otherwise) ; Bit 1 is 1 if channel is authorized inside (0 otherwise)
+			</arg>
+		</cmd>
+		<cmd name="AllWifiAuthChannelChanged" id="3">
+			Notify the end of the list of Authorized wifi Channel.
+		</cmd>
+		<cmd name="LinkQualityChanged" id="4">
+			Notification sent by the firmware to give an indication of the WiFi link quality.
+			<arg name="quality" type="u8">
+				The WiFi link quality in range 0-6, the higher the value, the higher the link quality.
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaStreaming" id="11">
+		Control media streaming behavior.
+		<cmd name="VideoEnable" id="0">
+			Enable/disable video streaming.
+			<arg name="enable" type="u8">
+				1 to enable, 0 to disable.
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaStreamingState" id="12">
+		Media streaming status.
+		<cmd name="VideoEnableChanged" id="0">
+			Return video streaming status.
+			<arg name="enabled" type="enum">
+				Current video streaming status.
+				<enum name="enabled">
+					Video streaming is enabled.
+				</enum>
+				<enum name="disabled">
+					Video streaming is disabled.
+				</enum>
+				<enum name="error">
+					Video streaming failed to start.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="VideoSettings" id="13">
+		Video settings.
+		<cmd name="Autorecord" id="0">
+			Set video automatic recording state.
+			<arg name="enable" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+		<cmd name="VideoMode" id="1">
+			Set video mode
+			<arg name="mode" type="enum">
+				Video mode
+				<enum name="quality">
+					Maximize video quality (VGA 30fps).
+				</enum>
+				<enum name="performance">
+					Maximize video performance (QVGA 24fps).
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="VideoSettingsState" id="14">
+		Video settings state.
+		<cmd name="AutorecordChanged" id="0">
+			Get video automatic recording status.
+			<arg name="enabled" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+		<cmd name="VideoModeChanged" id="1">
+			Video mode
+			<arg name="mode" type="enum">
+				Video mode
+				<enum name="quality">
+					Maximize video quality (VGA 30fps).
+				</enum>
+				<enum name="performance">
+					Maximize video performance (QVGA 24fps).
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="Sounds" id="15">
+		Sounds related commands.
+		<cmd name="buzz" id="0">
+			Enable/disable the buzzer sound
+			<arg name="enable" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+	</class>
+	<class name="SoundsState" id="16">
+		Sound related events.
+		<cmd name="buzzChanged" id="0">
+			State of the buzzer
+			<arg name="enabled" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+	</class>
+</project>

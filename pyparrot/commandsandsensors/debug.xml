@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="139" name="debug">
+	All commands/events related to the Wifi
+	<enums>
+		<enum name="setting_type">
+			Setting type.
+			<value name="BOOL">
+				Boolean Setting. (ex: 0, 1)
+			</value>
+			<value name="DECIMAL">
+				Decimal Setting. (ex: -3.5, 0, 2, 3.6, 6.5)
+			</value>
+			<value name="TEXT">
+				Single line text Setting.
+			</value>
+		</enum>
+		<enum name="setting_mode">
+			Setting mode.
+			<value name="READ_ONLY">
+				Controller can only read setting.
+			</value>
+			<value name="READ_WRITE">
+				Controller can read and write setting.
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="get_all_settings" id="0">
+			Cmd sent by controller to get all settings info (generate "settings_info" events).
+		</cmd>
+		<cmd name="set_setting" id="1">
+			Change setting value.
+			Cmd sent by controller to change a writable setting.
+			<arg name="id" type="u16">
+				Setting Id.
+			</arg>
+			<arg name="value" type="string">
+				New setting value (string encoded).
+			</arg>
+		</cmd>
+		<evt name="settings_info" type="LIST_ITEM" id="2">
+				Sent by the drone as answer to get_settings_info
+				Describe a debug setting and give the current value.
+			<arg name="list_flags" type="bitfield:u8:list_flags">
+					List entry attribute Bitfield.
+					0x01: First: indicate it's the first element of the list.
+					0x02: Last: indicate it's the last element of the list.
+					0x04: Empty: indicate the list is empty (implies First/Last). All other arguments should be ignored.
+			</arg>
+			<arg name="id" type="u16">
+				Setting Id.
+			</arg>
+			<arg name="label" type="string">
+				Setting displayed label (single line).
+			</arg>
+			<arg name="type" type="enum:setting_type">
+				Setting type.
+			</arg>
+			<arg name="mode" type="enum:setting_mode">
+				Setting mode.
+			</arg>
+			<arg name="range_min" type="string">
+				Setting range minimal value for decimal type.
+			</arg>
+			<arg name="range_max" type="string">
+				Setting range max value for decimal type.
+			</arg>
+			<arg name="range_step" type="string">
+				Setting step value for decimal type
+			</arg>
+			<arg name="value" type="string">
+				Current Setting value (string encoded).
+			</arg>
+		</evt>
+		<evt name="settings_list" id="3">
+			Setting value changed.
+			Cmd sent by drone when setting changed occurred.
+			<arg name="id" type="u16">
+				Setting Id.
+			</arg>
+			<arg name="value" type="string">
+				New setting value (string encoded).
+			</arg>
+		</evt>
+	</msgs>
+</feature>

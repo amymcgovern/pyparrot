@@ -1,5 +1,5 @@
 """
-Holds all the data and commands needed to fly a Bebop drone.
+Holds all the data and commands needed to fly a Bebop or Anafi drone.
 
 Author: Amy McGovern, dramymcgovern@gmail.com
 """
@@ -39,13 +39,13 @@ class WifiConnection:
 
     def __init__(self, drone, drone_type="Bebop2", ip_address=None):
         """
-        Can be a connection to a Bebop, Bebop2 or a Mambo right now
+        Can be a connection to a Anafi, Bebop, Bebop2 or a Mambo right now
 
         :param type: type of drone to connect to
         """
         self.is_connected = False
-        if (drone_type not in ("Bebop", "Bebop2", "Mambo", "Disco")):
-            color_print("Error: only type Bebop Disco and Mambo are currently supported", "ERROR")
+        if (drone_type not in ("Anafi", "Bebop", "Bebop2", "Mambo", "Disco")):
+            color_print("Error: only type Anafi Bebop Disco and Mambo are currently supported", "ERROR")
             return
 
         self.drone = drone
@@ -59,6 +59,10 @@ class WifiConnection:
         if (drone_type is "Bebop"):
             self.mdns_address = "_arsdk-0901._udp.local."
             #Bebop video streaming
+            self.stream_port = 55004
+            self.stream_control_port = 55005
+        elif (drone_type is "Anafi"):
+            self.mdns_address = "_arsdk-0914._udp.local."
             self.stream_port = 55004
             self.stream_control_port = 55005
         elif (drone_type is "Bebop2"):
@@ -319,7 +323,7 @@ class WifiConnection:
 
 
         # send the handshake information
-        if(self.drone_type in ("Bebop", "Bebop2", "Disco")):
+        if(self.drone_type in ("Anafi", "Bebop", "Bebop2", "Disco")):
             # For Bebop add video stream ports to the json request
             json_string = json.dumps({"d2c_port":self.udp_receive_port,
                                       "controller_type":"computer",
@@ -347,7 +351,11 @@ class WifiConnection:
         while (not finished and num_try < num_retries):
             data = tcp_sock.recv(4096).decode('utf-8')
             if (len(data) > 0):
-                my_data = data[0:-1]
+                if (self.drone_type == "Anafi"):
+                  my_data = data #data[0:-1]
+                else:
+                  my_data = data[0:-1]
+                print("mydata", my_data)
                 self.udp_data = json.loads(str(my_data))
 
                 # if the drone refuses the connection, return false

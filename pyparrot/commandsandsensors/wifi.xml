@@ -97,6 +97,11 @@
 				desc="Launches wifi network scan for a given band to get a list of all wifi networks found by the drone."
 				support="0901;0902;0905;0906;090c"
 				result="Event [WifiScanListChanged](#135-2) is triggered with all networks found."/>
+			<expectations>
+				<delayed>
+					#135-2
+				</delayed>
+			</expectations>
 			<arg name="band" type="bitfield:u8:band"/>
 		</cmd>
 		<evt name="scanned_item" id="2" type="MAP_ITEM:ssid">
@@ -133,6 +138,11 @@
 				desc="Get all available Wifi channels.\nThe list of available Wifi channels is related to the country of the drone. You can get this country with the event [WifiCountryChanged](#wifi-CountryChanged)."
 				support="0901;0902;0905;0906;090c"
 				result="Event [AvailableChannelListChanged](#135-4) is triggered with all authorized channels."/>
+			<expectations>
+				<delayed>
+					#135-4
+				</delayed>
+			</expectations>
 		</cmd>
 		<evt name="authorized_channel" id="4" type="LIST_ITEM">
 			<comment
@@ -163,6 +173,11 @@
 				desc="Select channel of choosen band to put the drone's access point on this channel."
 				support="0901;0902;0905;0906;090c"
 				result="The wifi channel changes according to given parameters. Watch out, a disconnection might appear.\nThen, event [WifiSelectionChanged](#135-6) is triggered."/>
+			<expectations>
+				<delayed>
+					#135-6(type: this.type)
+				</delayed>
+			</expectations>
 			<arg name="type" type="enum:selection_type"/>
 			<arg name="band" type="enum:band" desc="Used only when type is manual"/>
 			<arg name="channel" type="u8">
@@ -187,6 +202,11 @@
 				desc="Set the wifi security.\nThe security is changed on the next boot."
 				support="0901;0902;0905;0906;090c:3.1.0"
 				result="The wifi security is set.\nThen, event [WifiSecurityChanged](#135-8) is triggered."/>
+			<expectations>
+				<delayed>
+					#135-8(type: this.type)
+				</delayed>
+			</expectations>
 			<arg name="type" type="enum:security_type"/>
 			<arg name="key" type="string">
 				The key to secure the network. Not used if type is open
@@ -198,10 +218,11 @@
 				title="Wifi security changed"
 				support="0901;0902;0905;0906;090c:3.1.0"
 				triggered="Triggered by [SetWifiSecurity](#135-7)."/>
+			<arg name="type" type="enum:security_type"/>
 			<arg name="key" type="string">
 				The key to secure the network. Not used if type is open
 			</arg>
-			<arg name="key_type" type="enum:security_type"/>
+			<arg name="key_type" type="enum:security_key_type"/>
 		</evt>
 		<cmd name="set_country" id="9">
 			<comment
@@ -209,6 +230,11 @@
 				desc="Set the wifi country."
 				support="0901;0902;0905;0906;090c"
 				result="The country of the product is changed.\nThen, it will trigger [CountryChanged](#135-10)."/>
+			<expectations>
+				<delayed>
+					#135-10(selection_mode: this.selection_mode)
+				</delayed>
+			</expectations>
 			<arg name="selection_mode" type="enum:country_selection"/>
 			<arg name="code" type="string">
 				Country code with ISO 3166 format. Not used if automatic is 1.
@@ -231,6 +257,11 @@
 				desc="Set indoor or outdoor wifi settings."
 				support="0901;0902;0905;0906;090c"
 				result="The product change its indoor/outdoor wifi settings.\nThen, it will trigger [OutdoorChanged](#135-12).\nAccording to the country (defined by [SetAutoCountry](#wifi-AutoCountry) or [SetCountry](#wifi-Country)) laws the drone might change its wifi band and channel. So a disconnection might appear."/>
+			<expectations>
+				<delayed>
+					#135-12(environment: this.environment)
+				</delayed>
+			</expectations>
 			<arg name="environment" type="enum:environment"/>
 		</cmd>
 		<evt name="environment_changed" id="12">
@@ -261,6 +292,16 @@
 				triggered="when the supported countries list changed."/>
 			<arg name="countries" type="string">
 				List of country code in ISO 3166 format separated by ";"
+			</arg>
+		</evt>
+		<evt name="supported_security_types" id="15">
+			<comment
+				title="Supported security types"
+				desc="List of security types supported by the drone."
+				support="none"
+				triggered="during connection and when the supported security types changes."/>
+			<arg name="types" type="bitfield:u8:security_type">
+				Bitfield of supported security types.
 			</arg>
 		</evt>
 	</msgs>

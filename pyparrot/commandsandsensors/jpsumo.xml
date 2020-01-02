@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<project name="jpsumo" id="3">
+	All commands specific to the Jumping Sumo.
+	<class name="Piloting" id="0">
+		All commands related to piloting the JumpingSumo
+		<cmd name="PCMD" id="0" buffer="NON_ACK">
+			Ask the JS speed and turn ratio.
+			<arg name="flag" type="u8">
+				Boolean for "touch screen".
+			</arg>
+			<arg name="speed" type="i8">
+				Speed value [-100:100].
+			</arg>
+			<arg name="turn" type="i8">
+				Turn value. [-100:100]
+			</arg>
+		</cmd>
+		<cmd name="Posture" id="1">
+			Request a posture
+			<arg name="type" type="enum">
+				Type of Posture
+				<enum name="standing">
+					Standing type
+				</enum>
+				<enum name="jumper">
+					Jumper type
+				</enum>
+				<enum name="kicker">
+					Kicker type
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="addCapOffset" id="2">
+			Add the specified offset to the current cap.
+			<arg name="offset" type="float">
+				Offset value in radians.
+			</arg>
+		</cmd>
+	</class>
+	<class name="PilotingState" id="1">
+		Animations state from JS.
+		<cmd name="PostureChanged" id="0">
+			State of posture changed.
+			<arg name="state" type="enum">
+				State of posture
+				<enum name="standing">
+					Standing state
+				</enum>
+				<enum name="jumper">
+					Jumper state
+				</enum>
+				<enum name="kicker">
+					Kicker state
+				</enum>
+				<enum name="stuck">
+					Stuck state
+				</enum>
+				<enum name="unknown">
+					Unknown state
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="AlertStateChanged" id="1">
+			JS alert state changed
+			<arg name="state" type="enum">
+				JS alert state
+				<enum name="none">
+					No alert
+				</enum>
+				<enum name="critical_battery">
+					Critical battery alert
+				</enum>
+				<enum name="low_battery">
+					Low battery alert
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="SpeedChanged" id="2">
+			Notification sent when JS speed changes.
+			<arg name="speed" type="i8">
+				Speed command applied to motors in range [-100;100].
+			</arg>
+			<arg name="realSpeed" type="i16">
+				Actual real-world speed in cm/s. Value -32768 returned if not available.
+			</arg>
+		</cmd>
+	</class>
+	<class name="Animations" id="2">
+		Animation commands
+		<cmd name="JumpStop" id="0" buffer="HIGH_PRIO" timeout="RETRY">
+			Stop jump, emergency jump stop, stop jump motor and stay there.
+		</cmd>
+		<cmd name="JumpCancel" id="1">
+			Cancel jump and come back to previous state (if possible).
+		</cmd>
+		<cmd name="JumpLoad" id="2">
+			Request jump loading
+		</cmd>
+		<cmd name="Jump" id="3">
+			Request a jump
+			<arg name="type" type="enum">
+				Type of jump
+				<enum name="long">
+					Long jump.
+				</enum>
+				<enum name="high">
+					High jump
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="SimpleAnimation" id="4">
+			Play a parameterless animation.
+			<arg name="id" type="enum">
+				Animation ID.
+				<enum name="stop">
+					Stop ongoing animation.
+				</enum>
+				<enum name="spin">
+					Start a spin animation.
+				</enum>
+				<enum name="tap">
+					Start a tap animation.
+				</enum>
+				<enum name="slowshake">
+					Start a slow shake animation.
+				</enum>
+				<enum name="metronome">
+					Start a Metronome animation.
+				</enum>
+				<enum name="ondulation">
+					Start a standing dance animation.
+				</enum>
+				<enum name="spinjump">
+					Start a spin jump animation.
+				</enum>
+				<enum name="spintoposture">
+					Start a spin that end in standing posture, or in jumper if it was standing animation.
+				</enum>
+				<enum name="spiral">
+					Start a spiral animation.
+				</enum>
+				<enum name="slalom">
+					Start a slalom animation.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="AnimationsState" id="3">
+		Animations state from JS.
+		<cmd name="JumpLoadChanged" id="0">
+			State of jump load changed
+			<arg name="state" type="enum">
+				State of jump load
+				<enum name="unknown">
+					Unknown state (obsolete).
+				</enum>
+				<enum name="unloaded">
+					Unloaded state.
+				</enum>
+				<enum name="loaded">
+					Loaded state.
+				</enum>
+				<enum name="busy">
+					Unknown state (obsolete).
+				</enum>
+				<enum name="low_battery_unloaded">
+					Unloaded state and low battery.
+				</enum>
+				<enum name="low_battery_loaded">
+					Loaded state and low battery.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="JumpTypeChanged" id="1">
+			State of jump type changed.
+			<arg name="state" type="enum">
+				State of jump type.
+				<enum name="none">
+					None.
+				</enum>
+				<enum name="long">
+					Long jump type.
+				</enum>
+				<enum name="high">
+					High jump type.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="JumpMotorProblemChanged" id="2">
+			State about the jump motor problem
+			<arg name="error" type="enum">
+				Enum describing the problem of the motor
+				<enum name="none">
+					None.
+				</enum>
+				<enum name="blocked">
+					Motor blocked
+				</enum>
+				<enum name="over_heated">
+					Motor over heated
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="SettingsState" id="5">
+		Settings state from product
+		<cmd name="ProductGPSVersionChanged" id="0">
+			@deprecated
+			Product GPS versions
+			<arg name="software" type="string">
+				Product GPS software version
+			</arg>
+			<arg name="hardware" type="string">
+				Product GPS hardware version
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecord" id="6">
+		Media recording management
+		<cmd name="Picture" id="0">
+			@deprecated
+			Take picture
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id to take picture
+			</arg>
+		</cmd>
+		<cmd name="Video" id="1">
+			@deprecated
+			Video record
+			<arg name="record" type="enum">
+				Command to record video
+				<enum name="stop">
+					Stop the video recording
+				</enum>
+				<enum name="start">
+					Start the video recording
+				</enum>
+			</arg>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id to record
+			</arg>
+		</cmd>
+		<cmd name="PictureV2" id="2">
+			Take picture
+		</cmd>
+		<cmd name="VideoV2" id="3">
+			Video record
+			<arg name="record" type="enum">
+				Command to record video
+				<enum name="stop">
+					Stop the video recording
+				</enum>
+				<enum name="start">
+					Start the video recording
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecordState" id="7">
+		State of media recording
+		<cmd name="PictureStateChanged" id="0">
+			@deprecated
+			State of picture recording
+			<arg name="state" type="u8">
+				1 if picture has been taken, 0 otherwise
+			</arg>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id where the picture was recorded
+			</arg>
+		</cmd>
+		<cmd name="VideoStateChanged" id="1">
+			@deprecated
+			State of video recording
+			<arg name="state" type="enum">
+				State of video
+				<enum name="stopped">
+					Video was stopped
+				</enum>
+				<enum name="started">
+					Video was started
+				</enum>
+				<enum name="failed">
+					Video was failed
+				</enum>
+			</arg>
+			<arg name="mass_storage_id" type="u8">
+				Mass storage id where the video was recorded
+			</arg>
+		</cmd>
+		<cmd name="PictureStateChangedV2" id="2">
+			State of device picture recording changed
+			<arg name="state" type="enum">
+				State of device picture recording
+				<enum name="ready">
+					The picture recording is ready
+				</enum>
+				<enum name="busy">
+					The picture recording is busy
+				</enum>
+				<enum name="notAvailable">
+					The picture recording is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+				<enum name="camera_ko">
+					Picture camera is out of order
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional picture
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoStateChangedV2" id="3">
+			State of device video recording changed
+			<arg name="state" type="enum">
+				State of device video recording
+				<enum name="stopped">
+					Video is stopped
+				</enum>
+				<enum name="started">
+					Video is started
+				</enum>
+				<enum name="notAvailable">
+					The video recording is not available
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the state
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error
+				</enum>
+				<enum name="camera_ko">
+					Video camera is out of order
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; cannot save one additional video
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to start/keep recording.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaRecordEvent" id="20">
+		Events of media recording
+		<cmd name="PictureEventChanged" id="0" content="NOTIFICATION">
+			Event of picture recording
+			<arg name="event" type="enum">
+				Last event of picture recording
+				<enum name="taken">
+					Picture taken and saved
+				</enum>
+				<enum name="failed">
+					Picture failed
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the event
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error ; only when state is failed
+				</enum>
+				<enum name="busy">
+					Picture recording is busy ; only when state is failed
+				</enum>
+				<enum name="notAvailable">
+					Picture recording not available ; only when state is failed
+				</enum>
+				<enum name="memoryFull">
+					Memory full ; only when state is failed
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to record.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="VideoEventChanged" id="1" content="NOTIFICATION">
+			Event of video recording
+			<arg name="event" type="enum">
+				Event of video recording
+				<enum name="start">
+					Video start
+				</enum>
+				<enum name="stop">
+					Video stop and saved
+				</enum>
+				<enum name="failed">
+					Video failed
+				</enum>
+			</arg>
+			<arg name="error" type="enum">
+				Error to explain the event
+				<enum name="ok">
+					No Error
+				</enum>
+				<enum name="unknown">
+					Unknown generic error ; only when state is failed
+				</enum>
+				<enum name="busy">
+					Video recording is busy ; only when state is failed
+				</enum>
+				<enum name="notAvailable">
+					Video recording not available ; only when state is failed
+				</enum>
+				<enum name="memoryFull">
+					Memory full
+				</enum>
+				<enum name="lowBattery">
+					Battery is too low to record.
+				</enum>
+				<enum name="autoStopped">
+					Video was auto stopped
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="NetworkSettings" id="8">
+		Network settings commands
+		<cmd name="WifiSelection" id="0">
+			Auto-select channel of choosen band
+			<arg name="type" type="enum">
+				The type of wifi selection (auto, manual)
+				<enum name="auto">
+					Auto selection
+				</enum>
+				<enum name="manual">
+					Manual selection
+				</enum>
+			</arg>
+			<arg name="band" type="enum">
+				The allowed band(s) : 2.4 Ghz, 5 Ghz, or all
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The channel (not used in auto mode)
+			</arg>
+		</cmd>
+	</class>
+	<class name="NetworkSettingsState" id="9">
+		Network settings state from product
+		<cmd name="WifiSelectionChanged" id="0">
+			Wifi selection from product
+			<arg name="type" type="enum">
+				The type of wifi selection settings
+				<enum name="auto_all">
+					Auto selection
+				</enum>
+				<enum name="auto_2_4ghz">
+					Auto selection 2.4ghz
+				</enum>
+				<enum name="auto_5ghz">
+					Auto selection 5 ghz
+				</enum>
+				<enum name="manual">
+					Manual selection
+				</enum>
+			</arg>
+			<arg name="band" type="enum">
+				The actual wifi band state
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The channel (depends of the band)
+			</arg>
+		</cmd>
+	</class>
+	<class name="Network" id="10">
+		Network related commands
+		<cmd name="WifiScan" id="0">
+			Launches wifi network scan
+			<arg name="band" type="enum">
+				The band(s) : 2.4 Ghz, 5 Ghz, or both
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+				<enum name="all">
+					Both 2.4 and 5 GHz bands
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="WifiAuthChannel" id="1">
+			Controller inquire the list of authorized wifi channels.
+		</cmd>
+	</class>
+	<class name="NetworkState" id="11">
+		Network state from Product
+		<cmd name="WifiScanListChanged" id="0" type="MAP_ITEM">
+			One scanning result found
+			<arg name="ssid" type="string">
+				SSID of the AP
+			</arg>
+			<arg name="rssi" type="i16">
+				RSSI of the AP in dbm (negative value)
+			</arg>
+			<arg name="band" type="enum">
+				The band : 2.4 GHz or 5 GHz
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				Channel of the AP
+			</arg>
+		</cmd>
+		<cmd name="AllWifiScanChanged" id="1">
+			State sent when all scanning result sent
+		</cmd>
+		<cmd name="WifiAuthChannelListChanged" id="2" type="LIST_ITEM">
+			Notify of an Authorized Channel.
+			<arg name="band" type="enum">
+				The band of this channel : 2.4 GHz or 5 GHz
+				<enum name="2_4ghz">
+					2.4 GHz band
+				</enum>
+				<enum name="5ghz">
+					5 GHz band
+				</enum>
+			</arg>
+			<arg name="channel" type="u8">
+				The authorized channel.
+			</arg>
+			<arg name="in_or_out" type="u8">
+				Bit 0 is 1 if channel is authorized outside (0 otherwise) ; Bit 1 is 1 if channel is authorized inside (0 otherwise)
+			</arg>
+		</cmd>
+		<cmd name="AllWifiAuthChannelChanged" id="3">
+			Notify the end of the list of Authorized wifi Channel.
+		</cmd>
+		<cmd name="LinkQualityChanged" id="4">
+			Notification sent by the firmware to give an indication of the WiFi link quality.
+			<arg name="quality" type="u8">
+				The WiFi link quality in range 0-6, the higher the value, the higher the link quality.
+			</arg>
+		</cmd>
+	</class>
+	<class name="AudioSettings" id="12">
+		Audio settings.
+		<cmd name="MasterVolume" id="0">
+			Master volume control.
+			<arg name="volume" type="u8">
+				Master audio volume [0:100].
+			</arg>
+		</cmd>
+		<cmd name="Theme" id="1">
+			Audio Theme.
+			<arg name="theme" type="enum">
+				The audio theme to set.
+				<enum name="default">
+					Default audio theme (depends on the product color)
+				</enum>
+				<enum name="robot">
+					Robot audio theme.
+				</enum>
+				<enum name="insect">
+					Insect audio theme.
+				</enum>
+				<enum name="monster">
+					Monster audio theme.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="AudioSettingsState" id="13">
+		Audio settings state.
+		<cmd name="MasterVolumeChanged" id="0">
+			Master volume control.
+			<arg name="volume" type="u8">
+				Master audio volume [0:100].
+			</arg>
+		</cmd>
+		<cmd name="ThemeChanged" id="1">
+			Command to notify controller of new Audio Theme.
+			<arg name="theme" type="enum">
+				The audio theme to set.
+				<enum name="default">
+					Default audio theme (depends on the product color)
+				</enum>
+				<enum name="robot">
+					Robot audio theme.
+				</enum>
+				<enum name="insect">
+					Insect audio theme.
+				</enum>
+				<enum name="monster">
+					Monster audio theme.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="RoadPlan" id="14">
+		RoadPlan commands.
+		<cmd name="AllScriptsMetadata" id="0">
+			Command to ask device all metadata scripts.
+		</cmd>
+		<cmd name="ScriptUploaded" id="1">
+			Notify device that a new file has been uploaded.
+			<arg name="uuid" type="string">
+				UUID of uploaded file.
+			</arg>
+			<arg name="md5Hash" type="string">
+				MD5 hash code computed over file.
+			</arg>
+		</cmd>
+		<cmd name="ScriptDelete" id="2">
+			Ask the device to delete a script.
+			<arg name="uuid" type="string">
+				UUID of the file to delete.
+			</arg>
+		</cmd>
+		<cmd name="PlayScript" id="3">
+			Ask the device to play a script.
+			<arg name="uuid" type="string">
+				UUID of the file to play.
+			</arg>
+		</cmd>
+	</class>
+	<class name="RoadPlanState" id="15">
+		RoadPlan command responses.
+		<cmd name="ScriptMetadataListChanged" id="0" type="MAP_ITEM">
+			Update the controller with metadata.
+			<arg name="uuid" type="string">
+				Script uuid for which metadata changed.
+			</arg>
+			<arg name="version" type="u8">
+				Version number for this script.
+			</arg>
+			<arg name="product" type="string">
+				Product targeted by script.
+			</arg>
+			<arg name="name" type="string">
+				Display name of the script.
+			</arg>
+			<arg name="lastModified" type="u64">
+				Timestamp relative to the UNIX epoch of the last time the file was modified.
+			</arg>
+		</cmd>
+		<cmd name="AllScriptsMetadataChanged" id="1">
+			Notify controller that all script metadatas are updated.
+		</cmd>
+		<cmd name="ScriptUploadChanged" id="2">
+			Device response to ScriptUploaded command.
+			<arg name="resultCode" type="enum">
+				Error code.
+				<enum name="error_ok">
+					The script was parsed successfully.
+				</enum>
+				<enum name="error_file_corrupted">
+					The MD5 hash codes are different or file is unreadable.
+				</enum>
+				<enum name="error_invalid_format">
+					The parser is not well formed or can not be parsed.
+				</enum>
+				<enum name="error_file_too_large">
+					The file is larger than maximum allowed size.
+				</enum>
+				<enum name="error_unsupported">
+					Script version is not supported by device.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="ScriptDeleteChanged" id="3">
+			Device response to ScriptDelete command.
+			<arg name="resultCode" type="enum">
+				Error code.
+				<enum name="error_ok">
+					The script was deleted successfully.
+				</enum>
+				<enum name="error_no_such_script">
+					No script with this uuid exists.
+				</enum>
+				<enum name="error_internal_failure">
+					An internal error occured while attempting to delete the script.
+				</enum>
+			</arg>
+		</cmd>
+		<cmd name="PlayScriptChanged" id="4">
+			Device response to PlayScript command.
+			<arg name="resultCode" type="enum">
+				Error code.
+				<enum name="script_started">
+					The script started playing successfully.
+				</enum>
+				<enum name="script_finished">
+					The script finished successfully.
+				</enum>
+				<enum name="script_no_such_script">
+					No script with this uuid exists.
+				</enum>
+				<enum name="script_error">
+					An error occured while playing the script.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="SpeedSettings" id="16">
+		Speed Settings commands
+		<cmd name="Outdoor" id="0">
+			@deprecated
+			Outdoor property
+			<arg name="outdoor" type="u8">
+				1 if outdoor, 0 if indoor
+			</arg>
+		</cmd>
+	</class>
+	<class name="SpeedSettingsState" id="17">
+		Speed Settings state from product
+		<cmd name="OutdoorChanged" id="0">
+			@deprecated
+			Outdoor property sent by product
+			<arg name="outdoor" type="u8">
+				1 if outdoor, 0 if indoor
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaStreaming" id="18">
+		Control media streaming behavior.
+		<cmd name="VideoEnable" id="0">
+			Enable/disable video streaming.
+			<arg name="enable" type="u8">
+				1 to enable, 0 to disable.
+			</arg>
+		</cmd>
+	</class>
+	<class name="MediaStreamingState" id="19">
+		Media streaming status.
+		<cmd name="VideoEnableChanged" id="0">
+			Return video streaming status.
+			<arg name="enabled" type="enum">
+				Current video streaming status.
+				<enum name="enabled">
+					Video streaming is enabled.
+				</enum>
+				<enum name="disabled">
+					Video streaming is disabled.
+				</enum>
+				<enum name="error">
+					Video streaming failed to start.
+				</enum>
+			</arg>
+		</cmd>
+	</class>
+	<class name="VideoSettings" id="21">
+		Video settings.
+		<cmd name="Autorecord" id="0">
+			Set video automatic recording state.
+			<arg name="enabled" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+	</class>
+	<class name="VideoSettingsState" id="22">
+		Video settings state.
+		<cmd name="AutorecordChanged" id="0">
+			Get video automatic recording status.
+			<arg name="enabled" type="u8">
+				0: Disabled 1: Enabled.
+			</arg>
+		</cmd>
+	</class>
+</project>

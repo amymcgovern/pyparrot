@@ -1,0 +1,2073 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2017 Parrot Drones SAS
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the
+     distribution.
+   * Neither the name of the Parrot Company nor the names
+     of its contributors may be used to endorse or promote products
+     derived from this software without specific prior written
+     permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+   PARROT COMPANY BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+   OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+   AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+   SUCH DAMAGE.
+-->
+
+<feature id="143" name="camera">
+	Messages related to the camera.
+
+	<enums>
+
+		<enum name="model">
+			Camera model.
+			<value name="main">
+				Main camera, for photo and/or video.
+			</value>
+			<value name="thermal">
+				Thermal camera, for photo and/or video.
+			</value>
+		</enum>
+
+		<enum name="supported">
+			Indicate if a feature is supported by the drone.
+			<value name="not_supported">
+				Not Supported.
+			</value>
+			<value name="supported">
+				Supported.
+			</value>
+		</enum>
+
+		<enum name="availability">
+			Indicate if a feature is available in current mode/configuration.
+			<value name="not_available">
+				Not Available.
+			</value>
+			<value name="available">
+				Available.
+			</value>
+		</enum>
+
+		<enum name="state">
+			Feature current state.
+			<value name="inactive">
+				Feature is not currently active.
+			</value>
+			<value name="active">
+				Feature is currently active.
+			</value>
+		</enum>
+
+		<enum name="exposure_mode">
+			Exposure mode.
+			<value name="automatic">
+				Automatic shutter speed and iso, balanced.
+			</value>
+			<value name="automatic_prefer_iso_sensitivity">
+				Automatic shutter speed and iso, prefer increasing iso sensitivity over using low shutter speed.
+				This mode provides better results when the drone is moving dynamically.
+			</value>
+			<value name="automatic_prefer_shutter_speed">
+				Automatic shutter speed and iso, prefer reducing shutter speed over using high iso sensitivity.
+				This mode provides better results when the drone is moving slowly.
+			</value>
+			<value name="manual_iso_sensitivity">
+				Manual iso sensitivity, automatic shutter speed.
+			</value>
+			<value name="manual_shutter_speed">
+				Manual shutter speed, automatic iso.
+			</value>
+			<value name="manual">
+				Manual iso sensitivity and shutter speed.
+			</value>
+		</enum>
+
+		<enum name="shutter_speed">
+			The shutter speed in seconds.
+			<value name="shutter_1_over_10000">
+				1/10000 sec.
+			</value>
+			<value name="shutter_1_over_8000">
+				1/8000 sec.
+			</value>
+			<value name="shutter_1_over_6400">
+				1/6400 sec.
+			</value>
+			<value name="shutter_1_over_5000">
+				1/5000 sec.
+			</value>
+			<value name="shutter_1_over_4000">
+				1/4000 sec.
+			</value>
+			<value name="shutter_1_over_3200">
+				1/3200 sec.
+			</value>
+			<value name="shutter_1_over_2500">
+				1/2500 sec.
+			</value>
+			<value name="shutter_1_over_2000">
+				1/2000 sec.
+			</value>
+			<value name="shutter_1_over_1600">
+				1/1600 sec.
+			</value>
+			<value name="shutter_1_over_1250">
+				1/1250 sec.
+			</value>
+			<value name="shutter_1_over_1000">
+				1/1000 sec.
+			</value>
+			<value name="shutter_1_over_800">
+				1/800 sec.
+			</value>
+			<value name="shutter_1_over_640">
+				1/640 sec.
+			</value>
+			<value name="shutter_1_over_500">
+				1/500 sec.
+			</value>
+			<value name="shutter_1_over_400">
+				1/400 sec.
+			</value>
+			<value name="shutter_1_over_320">
+				1/320 sec.
+			</value>
+			<value name="shutter_1_over_240">
+				1/240 sec.
+			</value>
+			<value name="shutter_1_over_200">
+				1/200 sec.
+			</value>
+			<value name="shutter_1_over_160">
+				1/160 sec.
+			</value>
+			<value name="shutter_1_over_120">
+				1/120 sec.
+			</value>
+			<value name="shutter_1_over_100">
+				1/100 sec.
+			</value>
+			<value name="shutter_1_over_80">
+				1/80 sec.
+			</value>
+			<value name="shutter_1_over_60">
+				1/60 sec.
+			</value>
+			<value name="shutter_1_over_50">
+				1/50 sec.
+			</value>
+			<value name="shutter_1_over_40">
+				1/40 sec.
+			</value>
+			<value name="shutter_1_over_30">
+				1/30 sec.
+			</value>
+			<value name="shutter_1_over_25">
+				1/25 sec.
+			</value>
+			<value name="shutter_1_over_15">
+				1/15 sec.
+			</value>
+			<value name="shutter_1_over_10">
+				1/10 sec.
+			</value>
+			<value name="shutter_1_over_8">
+				1/8 sec.
+			</value>
+			<value name="shutter_1_over_6">
+				1/6 sec.
+			</value>
+			<value name="shutter_1_over_4">
+				1/4 sec.
+			</value>
+			<value name="shutter_1_over_3">
+				1/3 sec.
+			</value>
+			<value name="shutter_1_over_2">
+				1/2 sec.
+			</value>
+			<value name="shutter_1_over_1_5">
+				1/1.5 sec.
+			</value>
+			<value name="shutter_1">
+				1 sec.
+			</value>
+		</enum>
+
+		<enum name="iso_sensitivity">
+			ISO Sensitivity levels.
+			<value name="iso_50">
+				ISO 50.
+			</value>
+			<value name="iso_64">
+				ISO 64.
+			</value>
+			<value name="iso_80">
+				ISO 80.
+			</value>
+			<value name="iso_100">
+				ISO 100.
+			</value>
+			<value name="iso_125">
+				ISO 125.
+			</value>
+			<value name="iso_160">
+				ISO 160.
+			</value>
+			<value name="iso_200">
+				ISO 200.
+			</value>
+			<value name="iso_250">
+				ISO 250.
+			</value>
+			<value name="iso_320">
+				ISO 320.
+			</value>
+			<value name="iso_400">
+				ISO 400.
+			</value>
+			<value name="iso_500">
+				ISO 500.
+			</value>
+			<value name="iso_640">
+				ISO 640.
+			</value>
+			<value name="iso_800">
+				ISO 800.
+			</value>
+			<value name="iso_1200">
+				ISO 1200.
+			</value>
+			<value name="iso_1600">
+				ISO 1600.
+			</value>
+			<value name="iso_2500">
+				ISO 2500.
+			</value>
+			<value name="iso_3200">
+				ISO 3200.
+			</value>
+		</enum>
+
+		<enum name="ev_compensation">
+			Exposure compensation.
+			<value name="ev_minus_3_00">
+				-3.00 EV.
+			</value>
+			<value name="ev_minus_2_67">
+				-2.67 EV.
+			</value>
+			<value name="ev_minus_2_33">
+				-2.33 EV.
+			</value>
+			<value name="ev_minus_2_00">
+				-2.00 EV.
+			</value>
+			<value name="ev_minus_1_67">
+				-1.67 EV.
+			</value>
+			<value name="ev_minus_1_33">
+				-1.33 EV.
+			</value>
+			<value name="ev_minus_1_00">
+				-1.00 EV.
+			</value>
+			<value name="ev_minus_0_67">
+				-0.67 EV.
+			</value>
+			<value name="ev_minus_0_33">
+				-0.33 EV.
+			</value>
+			<value name="ev_0_00">
+				0.00 EV.
+			</value>
+			<value name="ev_0_33">
+				0.33 EV.
+			</value>
+			<value name="ev_0_67">
+				0.67 EV.
+			</value>
+			<value name="ev_1_00">
+				1.00 EV.
+			</value>
+			<value name="ev_1_33">
+				1.33 EV.
+			</value>
+			<value name="ev_1_67">
+				1.67 EV.
+			</value>
+			<value name="ev_2_00">
+				2.00 EV.
+			</value>
+			<value name="ev_2_33">
+				2.33 EV.
+			</value>
+			<value name="ev_2_67">
+				2.67 EV.
+			</value>
+			<value name="ev_3_00">
+				3.00 EV.
+			</value>
+		</enum>
+
+		<enum name="white_balance_mode">
+			The white balance mode.
+			<value name="automatic">
+				Automatic Estimation of White Balance scales.
+			</value>
+			<value name="candle">
+				Candle preset.
+			</value>
+			<value name="sunset">
+				Sunset preset.
+			</value>
+			<value name="incandescent">
+				Incandescent light preset.
+			</value>
+			<value name="warm_white_fluorescent">
+				Warm white fluorescent light preset.
+			</value>
+			<value name="halogen">
+				Halogen light preset.
+			</value>
+			<value name="fluorescent">
+				Fluorescent light preset.
+			</value>
+			<value name="cool_white_fluorescent">
+				Cool white fluorescent light preset.
+			</value>
+			<value name="flash">
+				Flash light preset.
+			</value>
+			<value name="daylight">
+				Daylight preset.
+			</value>
+			<value name="sunny">
+				Sunny preset.
+			</value>
+			<value name="cloudy">
+				Cloudy preset.
+			</value>
+			<value name="snow">
+				Snow preset.
+			</value>
+			<value name="hazy">
+				Hazy preset.
+			</value>
+			<value name="shaded">
+				Shaded preset.
+			</value>
+			<value name="green_foliage">
+				Green foliage preset.
+			</value>
+			<value name="blue_sky">
+				Blue sky preset.
+			</value>
+			<value name="custom">
+				Custom white balance value.
+			</value>
+		</enum>
+
+		<enum name="white_balance_temperature">
+			The white balance temperature.
+			<value name="t_1500">
+				1500 K.
+			</value>
+			<value name="t_1750">
+				1750 K.
+			</value>
+			<value name="t_2000">
+				2000 K.
+			</value>
+			<value name="t_2250">
+				2250 K.
+			</value>
+			<value name="t_2500">
+				2500 K.
+			</value>
+			<value name="t_2750">
+				2750 K.
+			</value>
+			<value name="t_3000">
+				3000 K.
+			</value>
+			<value name="t_3250">
+				3250 K.
+			</value>
+			<value name="t_3500">
+				3500 K.
+			</value>
+			<value name="t_3750">
+				3750 K.
+			</value>
+			<value name="t_4000">
+				4000 K.
+			</value>
+			<value name="t_4250">
+				4250 K.
+			</value>
+			<value name="t_4500">
+				4500 K.
+			</value>
+			<value name="t_4750">
+				4750 K.
+			</value>
+			<value name="t_5000">
+				5000 K.
+			</value>
+			<value name="t_5250">
+				5250 K.
+			</value>
+			<value name="t_5500">
+				5500 K.
+			</value>
+			<value name="t_5750">
+				5750 K.
+			</value>
+			<value name="t_6000">
+				6000 K.
+			</value>
+			<value name="t_6250">
+				6250 K.
+			</value>
+			<value name="t_6500">
+				6500 K.
+			</value>
+			<value name="t_6750">
+				6750 K.
+			</value>
+			<value name="t_7000">
+				7000 K.
+			</value>
+			<value name="t_7250">
+				7250 K.
+			</value>
+			<value name="t_7500">
+				7500 K.
+			</value>
+			<value name="t_7750">
+				7750 K.
+			</value>
+			<value name="t_8000">
+				8000 K.
+			</value>
+			<value name="t_8250">
+				8250 K.
+			</value>
+			<value name="t_8500">
+				8500 K.
+			</value>
+			<value name="t_8750">
+				8750 K.
+			</value>
+			<value name="t_9000">
+				9000 K.
+			</value>
+			<value name="t_9250">
+				9250 K.
+			</value>
+			<value name="t_9500">
+				9500 K.
+			</value>
+			<value name="t_9750">
+				9750 K.
+			</value>
+			<value name="t_10000">
+				10000 K.
+			</value>
+			<value name="t_10250">
+				10250 K.
+			</value>
+			<value name="t_10500">
+				10500 K.
+			</value>
+			<value name="t_10750">
+				10750 K.
+			</value>
+			<value name="t_11000">
+				11000 K.
+			</value>
+			<value name="t_11250">
+				11250 K.
+			</value>
+			<value name="t_11500">
+				11500 K.
+			</value>
+			<value name="t_11750">
+				11750 K.
+			</value>
+			<value name="t_12000">
+				12000 K.
+			</value>
+			<value name="t_12250">
+				12250 K.
+			</value>
+			<value name="t_12500">
+				12500 K.
+			</value>
+			<value name="t_12750">
+				12750 K.
+			</value>
+			<value name="t_13000">
+				13000 K.
+			</value>
+			<value name="t_13250">
+				13250 K.
+			</value>
+			<value name="t_13500">
+				13500 K.
+			</value>
+			<value name="t_13750">
+				13750 K.
+			</value>
+			<value name="t_14000">
+				14000 K.
+			</value>
+			<value name="t_14250">
+				14250 K.
+			</value>
+			<value name="t_14500">
+				14500 K.
+			</value>
+			<value name="t_14750">
+				14750 K.
+			</value>
+			<value name="t_15000">
+				15000 K.
+			</value>
+		</enum>
+
+		<enum name="style">
+			Images style.
+			<value name="standard">
+				Natural look style.
+			</value>
+			<value name="plog">
+				Parrot Log, produce flat and desaturated images, best for post-processing.
+			</value>
+			<value name="intense">
+				Intense style: bright colors, warm shade, high contrast.
+			</value>
+			<value name="pastel">
+				Pastel style: soft colors, cold shade, low contrast.
+			</value>
+		</enum>
+
+		<enum name="camera_mode">
+			Camera mode.
+			<value name="recording">
+				Camera is in recording mode.
+			</value>
+			<value name="photo">
+				Camera is in photo mode.
+			</value>
+		</enum>
+
+		<enum name="recording_mode">
+			<value name="standard">
+				Standard mode.
+			</value>
+			<value name="hyperlapse">
+				Create an accelerated video by dropping some frame at a user specified rate define by
+				`hyperlapse_value`.
+			</value>
+			<value name="slow_motion">
+				Record x2 or x4 slowed-down videos.
+			</value>
+			<value name="high_framerate">
+				Record high-framerate videos (playback speed is x1).
+			</value>
+		</enum>
+
+		<enum name="photo_mode">
+			<value name="single">
+				Single shot mode.
+			</value>
+			<value name="bracketing">
+				Bracketing mode. Takes a burst of 3 or 5 frames with a different exposure.
+			</value>
+			<value name="burst">
+				Burst mode. Takes burst of frames.
+			</value>
+			<value name="time_lapse">
+				Time-lapse mode. Takes frames at a regular time interval.
+			</value>
+			<value name="gps_lapse">
+				GPS-lapse mode. Takse frames at a regular GPS position interval.
+			</value>
+		</enum>
+
+		<enum name="resolution">
+			Video resolution.
+			<value name="res_dci_4k">
+				4096x2160 pixels (4k cinema).
+			</value>
+			<value name="res_uhd_4k">
+				3840x2160 pixels (UHD).
+			</value>
+			<value name="res_2_7k">
+				2704x1524 pixels.
+			</value>
+			<value name="res_1080p">
+				1920x1080 pixels (Full HD).
+			</value>
+			<value name="res_720p">
+				1280x720 pixels (HD).
+			</value>
+			<value name="res_480p">
+				856x480 pixels.
+			</value>
+			<value name="res_1080p_sd">
+				1440x1080 pixels (SD).
+			</value>
+			<value name="res_720p_sd">
+				960x720 pixels (SD).
+			</value>
+		</enum>
+
+		<enum name="framerate">
+			Video recording frame rate
+			<value name="fps_24">
+				23.97 fps.
+			</value>
+			<value name="fps_25">
+				25 fps.
+			</value>
+			<value name="fps_30">
+				29.97 fps.
+			</value>
+			<value name="fps_48">
+				47.952 fps.
+			</value>
+			<value name="fps_50">
+				50 fps.
+			</value>
+			<value name="fps_60">
+				59.94 fps.
+			</value>
+			<value name="fps_96">
+				95.88 fps.
+			</value>
+			<value name="fps_100">
+				100 fps.
+			</value>
+			<value name="fps_120">
+				119.88 fps.
+			</value>
+			<value name="fps_9">
+				For thermal only, capture triggered by thermal sensor.
+			</value>
+		</enum>
+
+		<enum name="photo_format">
+			The photo format.
+			<value name="full_frame">
+				Sensor full resolution, not dewarped.
+			</value>
+			<value name="rectilinear">
+				Rectilinear projection, dewarped.
+			</value>
+		</enum>
+
+		<enum name="photo_file_format">
+			The photo format.
+			<value name="jpeg">
+				photo recorded in JPEG format.
+			</value>
+			<value name="dng">
+				photo recorded in DNG format.
+			</value>
+			<value name="dng_jpeg">
+				photo recorded in both DNG and JPEG format.
+			</value>
+		</enum>
+
+		<enum name="antiflicker_mode">
+			Anti-flicker mode.
+			<value name="off">
+				Anti-flicker off.
+			</value>
+			<value name="auto">
+				Auto detect.
+			</value>
+			<value name="mode_50hz">
+				force the exposure time to be an integer multiple of 10ms.
+			</value>
+			<value name="mode_60hz">
+				force the exposure time to be an integer multiple of 8.33ms.
+			</value>
+		</enum>
+
+		<enum name="hyperlapse_value">
+			Values for hyperlapse mode.
+			<value name="ratio_15">
+				Record 1 of 15 frames.
+			</value>
+			<value name="ratio_30">
+				Record 1 of 30 frames.
+			</value>
+			<value name="ratio_60">
+				Record 1 of 60 frames.
+			</value>
+			<value name="ratio_120">
+				Record 1 of 120 frames.
+			</value>
+			<value name="ratio_240">
+				Record 1 of 240 frames.
+			</value>
+		</enum>
+
+
+		<enum name="burst_value">
+			Values for burst photo mode.
+			<value name="burst_14_over_4s">
+				Record 14 picture over 4 second.
+			</value>
+			<value name="burst_14_over_2s">
+				Record 14 picture over 2 second.
+			</value>
+			<value name="burst_14_over_1s">
+				Record 14 picture over 1 second.
+			</value>
+			<value name="burst_10_over_4s">
+				Record 10 picture over 4 second.
+			</value>
+			<value name="burst_10_over_2s">
+				Record 10 picture over 2 second.
+			</value>
+			<value name="burst_10_over_1s">
+				Record 10 picture over 1 second.
+			</value>
+			<value name="burst_4_over_4s">
+				Record 4 picture over 4 second.
+			</value>
+			<value name="burst_4_over_2s">
+				Record 4 picture over 2 second.
+			</value>
+			<value name="burst_4_over_1s">
+				Record 4 picture over 1 second.
+			</value>
+		</enum>
+
+		<enum name="bracketing_preset">
+			Bracketing mode preset.
+			<value name="preset_1ev">
+				3 frames, with EV compensation of [-1 EV, 0 EV, +1 EV].
+			</value>
+			<value name="preset_2ev">
+				3 frames, with EV compensation of [-2 EV, 0 EV, +2 EV].
+			</value>
+			<value name="preset_3ev">
+				3 frames, with EV compensation of [-3 EV, 0 EV, +3 EV].
+			</value>
+			<value name="preset_1ev_2ev">
+				5 frames, with EV compensation of [-2 EV, -1 EV, 0 EV, +1 EV, +2 EV].
+			</value>
+			<value name="preset_1ev_3ev">
+				5 frames, with EV compensation of [-3 EV, -1 EV, 0 EV, +1 EV, +3 EV].
+			</value>
+			<value name="preset_2ev_3ev">
+				5 frames, with EV compensation of [-3 EV, -2 EV, 0 EV, +2 EV, +3 EV].
+			</value>
+			<value name="preset_1ev_2ev_3ev">
+				7 frames, with EV compensation of [-3 EV, -2 EV, -1 EV, 0 EV, +1 EV, +2 EV, +3 EV].
+			</value>
+		</enum>
+
+		<enum name="streaming_mode">
+			Video stream mode.
+			<value name="low_latency">
+				Minimize latency with average reliability (best for piloting).
+			</value>
+			<value name="high_reliability">
+				Maximize the reliability with an average latency (best when streaming quality is important but not
+				the latency).
+			</value>
+			<value name="high_reliability_low_framerate">
+				Maximize the reliability using a framerate decimation with an average latency (best when streaming
+				quality is important but not the latency).
+			</value>
+		</enum>
+
+		<enum name="photo_result">
+			Result for command `take_photo`.
+			<value name="taking_photo">
+				Taking a new photo.
+			</value>
+			<value name="photo_taken">
+				A photo has been taken.
+			</value>
+			<value name="photo_saved">
+				A photo has been saved to the file system.
+			</value>
+			<value name="error_no_storage_space">
+				Error taking photo: not enough space in storage.
+			</value>
+			<value name="error_bad_state">
+				Error taking photo: wrong state.
+			</value>
+			<value name="error">
+				Error taking photo: generic error.
+			</value>
+		</enum>
+
+		<enum name="recording_result">
+			Start/Stop recording result.
+			<value name="started">
+				Recording started.
+			</value>
+			<value name="stopped">
+				Recording stopped.
+			</value>
+			<value name="stopped_no_storage_space">
+				Recording stopped because storage is full.
+			</value>
+			<value name="stopped_storage_too_slow">
+				Recording stopped because storage write speed is too slow.
+			</value>
+			<value name="error_bad_state">
+				Error starting recording: wrong state.
+			</value>
+			<value name="error">
+				Error starting or during recording.
+			</value>
+			<value name="stopped_reconfigured">
+				Recording stopped because of internal reconfiguration.
+			</value>
+		</enum>
+
+		<enum name="zoom_control_mode">
+			Zoom control mode.
+			<value name="level">
+				Zoom is set by giving a level.
+			</value>
+			<value name="velocity">
+				Zoom is set by giving a velocity.
+			</value>
+		</enum>
+	</enums>
+
+	<msgs>
+		<evt name="camera_capabilities" id="1">
+			<comment
+				title="Camera Capabilities"
+				desc="Describes camera supported capabilities."
+				support="0914;0919"
+				triggered="only during the connection"/>
+			<arg name="cam_id" type="u8">
+				id of the camera.
+				Camera id is unique and persistent: the same camera model on a same drone model always has the same id.
+				Main/Built-in camera has id zero.
+			</arg>
+			<arg name="model" type="enum:model">
+				Camera model.
+			</arg>
+			<arg name="exposure_modes" type="bitfield:u8:exposure_mode">
+				Supported exposure modes.
+			</arg>
+			<arg name="exposure_lock_supported" type="enum:supported">
+				Exposure lock support.
+			</arg>
+			<arg name="exposure_roi_lock_supported" type="enum:supported">
+				Exposure lock on ROI support.
+			</arg>
+			<arg name="ev_compensations" type="bitfield:u64:ev_compensation">
+				Supported ev compensation values. Empty if ev_compensation is not supported.
+			</arg>
+			<arg name="white_balance_modes" type="bitfield:u32:white_balance_mode">
+				Supported white balances modes.
+			</arg>
+			<arg name="custom_white_balance_temperatures" type="bitfield:u64:white_balance_temperature">
+				Supported white balance temperature for "custom" white balance mode. Empty if "custom"
+				mode is not supported.
+			</arg>
+			<arg name="white_balance_lock_supported" type="enum:supported">
+				White balance lock support.
+			</arg>
+			<arg name="styles" type="bitfield:u16:style">
+				Supported image styles.
+			</arg>
+			<arg name="camera_modes" type="bitfield:u8:camera_mode">
+				Supported camera modes.
+			</arg>
+			<arg name="hyperlapse_values" type="bitfield:u16:hyperlapse_value">
+				Supported values for hyperlapse recording mode. Empty of hyperlapse recording mode is not supported.
+			</arg>
+			<arg name="bracketing_presets" type="bitfield:u16:bracketing_preset">
+				Supported values for bracketing photo mode. Empty of bracketing photo mode is not supported.
+			</arg>
+			<arg name="burst_values" type="bitfield:u16:burst_value">
+				Supported values for burst photo mode. Empty of burst photo mode is not supported.
+			</arg>
+			<arg name="streaming_modes" type="bitfield:u8:streaming_mode">
+				Supported streaming modes, Empty if streaming is not supported.
+			</arg>
+			<arg name="timelapse_interval_min" type="float">
+				Minimal time-lapse capture interval, in seconds.
+			</arg>
+			<arg name="gpslapse_interval_min" type="float">
+				Minimal GPS-lapse capture interval, in meters.
+			</arg>
+		</evt>
+
+		<evt name="recording_capabilities" id="2" type="MAP_ITEM:id">
+			<comment
+				title="recording capabilities"
+				desc="Describe recording capabilities. Each entry of this list gives valid resolutions/framerates
+				pair for the listed modes and if HDR is supported in this configuration.
+				The same mode can be in multiple entries."
+				support="0914;0919"
+				triggered="only during the connection"/>
+			<arg name="id" type="u16">
+				Setting id. U8 msb is cam_id of the related camera.
+			</arg>
+			<arg name="recording_modes" type="bitfield:u16:recording_mode">
+				Recording modes this capability applies to.
+			</arg>
+			<arg name="resolutions" type="bitfield:u16:resolution">
+				Supported resolutions in specified modes and framerates.
+			</arg>
+			<arg name="framerates" type="bitfield:u16:framerate">
+				Supported framerates in specified modes and resolutions.
+			</arg>
+			<arg name="hdr" type="enum:supported">
+				Indicate if hdr is supported in this configuration.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags">
+				List flags.
+			</arg>
+		</evt>
+
+		<evt name="photo_capabilities" id="3" type="MAP_ITEM:id">
+			<comment
+				title="photo capabilities"
+				desc="Describe photo capabilities. Each entry of this list gives a valid format/fileformat
+				pair for the listed modes and if HDR is supported in this configuration.
+				The same mode can be in multiple entries."
+				support="0914;0919"
+				triggered="only during the connection"/>
+			<arg name="id" type="u16">
+				Setting id. U8 msb is cam_id of the related camera.
+			</arg>
+			<arg name="photo_modes" type="bitfield:u16:photo_mode">
+				Photo modes this capability applies to.
+			</arg>
+			<arg name="photo_formats" type="bitfield:u16:photo_format">
+				Supported photo formats in specified modes and file formats (DNG file
+				will always be full-frame, regardless of this setting).
+			</arg>
+			<arg name="photo_file_formats" type="bitfield:u16:photo_file_format">
+				Supported photo file formats in specified modes and formats.
+			</arg>
+			<arg name="hdr" type="enum:supported">
+				Indicate if hdr is supported in this configuration.
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags">
+				List flags.
+			</arg>
+		</evt>
+
+		<evt name="antiflicker_capabilities" id="4">
+			<comment
+				title="Anti-flickering capabilities."
+				desc="Describe anti-flickering. Antiflickering is global for all cameras"
+				support="0914;0919"
+				triggered="only during the connection if antiflickering is supported."/>
+			<arg name="supported_modes" type="bitfield:u8:antiflicker_mode">
+				Supported anti-flicker mode.
+			</arg>
+		</evt>
+
+		<cmd name="set_exposure_settings" id="5">
+			<comment
+				title="Sets the exposure mode and parameters"
+				desc="Sets exposure mode, shutter speed, iso sensitivity and maximum iso sensitivity."
+				support="0914;0919"
+				result="Send [exposure_settings](#143-9) event with the new exposure mode. If the requested settings
+				are not supported, the [exposure_settings](#143-9) event is send with the actual exposure
+				settings unchanged."/>
+			<expectations>
+				<immediate>
+					#143-9(mode: this.mode)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:exposure_mode">
+				Requested exposure mode: Auto, Manual Shutter Speed, Manual ISO or Manual.
+			</arg>
+			<arg name="shutter_speed" type="enum:shutter_speed">
+				Requested shutter speed, ignored if mode is not Manual Shutter Speed or Manual.
+			</arg>
+			<arg name="iso_sensitivity" type="enum:iso_sensitivity">
+				Requested ISO sensitivity level, ignored if mode is not Manual ISO or Manual.
+			</arg>
+			<arg name="max_iso_sensitivity" type="enum:iso_sensitivity">
+				Requested maximum ISO sensitivity level, ignored is not Auto. This value define the maximum iso
+				sensitivity the autoexposure engine can use to adjust exposure.
+			</arg>
+		</cmd>
+
+		<cmd name="lock_exposure" id="6">
+			<comment
+				title="Lock auto exposure."
+				desc="Lock shutter speed and iso sensitivity to current values. Valid for all exposure modes exepted
+				`manual`. Auto exposure lock is automatically removed when the exposure mode is changed."
+				support="0914;0919"
+				result="Send [exposure](#143-10) event with the new Lock state and locked shutter speed and
+				iso sentivity values. If auto exposure lock is not supported the [exposure](#143-10) event
+				is sent with `lock` state `inactive`."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+
+		<cmd name="lock_exposure_on_roi" id="7">
+			<comment
+				title="Lock auto exposure, optimised for a specific region."
+				desc="Lock shutter speed and iso sensitivity optimized on a specific region. Valid for all exposure
+				modes exepted `manual` Auto exposure lock is automatically removed when the exposure mode is changed."
+				support="0914;0919"
+				result="Send [exposure](#143-10) event with the new Lock state and locked shutter speed and
+				iso sentivity values. If auto exposure lock is not supported the [exposure](#143-10) event
+				is sent with `lock` state `inactive`."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="roi_center_x" type="float">
+				ROI center on x axis. between 0 and 1, relative to streaming image width.
+			</arg>
+			<arg name="roi_center_y" type="float">
+				ROI center on y axis. between 0 and 1, relative to streaming image height.
+			</arg>
+		</cmd>
+
+		<cmd name="unlock_exposure" id="8">
+			<comment
+				title="Unlock auto exposure."
+				desc="Valid when exposure is locked."
+				support="0914;0919"
+				result="Send [exposure](#143-10) event with the new Lock state. If auto exposure is not locked
+				the [exposure](#143-10) event is sent with current lock state."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+
+		<evt name="exposure_settings" id="9">
+			<comment
+				title="User set exposure mode and values."
+				desc="Notify current exposure settings. This can be different from the actually used exposure values
+				notified by event [exposure](#143-10) if the mode is not `manual`."
+				support="0914;0919"
+				triggered="during the connection, when [camera_states] (#143-49) occured, by [set_exposure_settings](#143-5) or when shutter speeds or
+				iso sensitivities capabilities changes, for example when the recording mode changes"/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:exposure_mode">
+				Exposure mode as set by command "set_exposure_mode".
+			</arg>
+			<arg name="manual_shutter_speed" type="enum:shutter_speed">
+				Shutter speed as set by command "set_manual_shutter_speed".
+			</arg>
+			<arg name="manual_shutter_speed_capabilities" type="bitfield:u64:shutter_speed">
+				Supported shutter speeds for current photo or recording configuration.
+				Empty if "manual" or "manual_shutter_speed" exposure modes are not supported.
+			</arg>
+			<arg name="manual_iso_sensitivity" type="enum:iso_sensitivity">
+				ISO sensitivity level as set by command "set_manual_iso_sensitivity".
+			</arg>
+			<arg name="manual_iso_sensitivity_capabilities" type="bitfield:u64:iso_sensitivity">
+				Supported manual iso sensitivity for current photo or recording configuration.
+				Empty if "manual" or "manual_iso_sensitivity" exposure modes are not supported.
+			</arg>
+			<arg name="max_iso_sensitivity" type="enum:iso_sensitivity">
+				Maximum ISO sensitivity level as set by command "set_max_iso_sensitivity".
+			</arg>
+			<arg name="max_iso_sensitivities_capabilities" type="bitfield:u64:iso_sensitivity">
+				Supported max iso sensitivity for current photo or recording configuration.
+				Empty if setting max iso sensitivity is not supported.
+			</arg>
+		</evt>
+
+		<evt name="exposure" id="10" buffer="NON_ACK">
+			<comment
+				title="Effective exposure values."
+				desc="Notify of actual exposure values (different from [exposure_settings](#143-9) values when one of
+				the setting is in automatic mode)."
+				support="0914;0919"
+				triggered="while camera is active (recording or photo): at connnection and periodically, if value changes"/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="shutter_speed" type="enum:shutter_speed">
+				Effective shutter speed.
+			</arg>
+			<arg name="iso_sensitivity" type="enum:iso_sensitivity">
+				Effective ISO sensitivity level.
+			</arg>
+			<arg name="lock" type="enum:state">
+				Auto exposure lock state.
+			</arg>
+			<arg name="lock_roi_x" type="float">
+				Auto exposure lock ROI center on x axis, between 0 and 1, relative to streaming image width, less than
+				0 if exposure is not locked with on a ROI.
+			</arg>
+			<arg name="lock_roi_y" type="float">
+				Auto exposure lock ROI center on y axis, between 0 and 1, relative to streaming image height, less than
+				if exposure is not locked with on a ROI.
+			</arg>
+			<arg name="lock_roi_width" type="float">
+				Auto exposure lock ROI width, between 0 and 1, relative to streaming image width, less than if exposure
+				is not locked with on a ROI.
+			</arg>
+			<arg name="lock_roi_height" type="float">
+				Auto exposure lock ROI height, between 0 and 1, relative to streaming image height less than if exposure
+				is not locked with on a ROI.
+			</arg>
+		</evt>
+
+		<cmd name="set_white_balance" id="11">
+			<comment
+				title="Sets the white balance."
+				desc="Change the white balance mode and custom temperature."
+				support="0914;0919"
+				result="[white_balance](#143-13) event with the new white balance mode and custom temperature. If the
+				requested white balance mode mode is not supported, the [white_balance](#143-13) event is send with
+				the actual white balance mode unchanged."/>
+			<expectations>
+				<immediate>
+					#143-13(cam_id: this.cam_id, mode: this.mode)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:white_balance_mode">
+				Requested white balance mode.
+			</arg>
+			<arg name="temperature" type="enum:white_balance_temperature">
+				Requested white balance temperature when mode is `custom`. Ignored else.
+			</arg>
+		</cmd>
+
+		<cmd name="set_white_balance_lock" id="12">
+			<comment
+				title="Lock white balance"
+				desc="Lock/unlock white balance to current value. Valid when white balance mode not `custom`. White
+				balance lock is automatically removed when the white balance  mode is changed."
+				support="0914;0919"
+				result="Send [white_balance](#143-13) event with the new Lock state. If  white balance lock is not
+				supported the [white_balance](#143-13) event is sent when the locked to zero."/>
+			<expectations>
+				<immediate>
+					#143-13(cam_id: this.cam_id, lock: this.state)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="state" type="enum:state">
+				Requested lock state.
+			</arg>
+		</cmd>
+
+		<evt name="white_balance" id="13">
+			<comment
+				title="Actual white balance mode."
+				desc="Notify of actual white balance mode"
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured and by [set_white_balance](#135-11) or
+				[set_white_balance_lock](#135-12)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:white_balance_mode">
+				Actual white balance mode.
+			</arg>
+			<arg name="temperature" type="enum:white_balance_temperature">
+				Actual white balance temperature if the mode `custom`, invalid else.
+			</arg>
+			<arg name="lock" type="enum:state">
+				White balance lock state.
+			</arg>
+		</evt>
+
+		<cmd name="set_ev_compensation" id="14">
+			<comment
+				title="Sets the EV compensation value."
+				desc="Change the EV compensation value."
+				support="0914;0919"
+				result="[ev_compensation](#143-15) event with the new ev compensation value. If the requested ev
+				compensation value is not supported, the [ev_compensation](#143-15) event is send with the actual ev
+				compensation unchanged."/>
+			<expectations>
+				<immediate>
+					#143-15(cam_id: this.cam_id, value: this.value)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:ev_compensation">
+				Requested EV compensation value.
+			</arg>
+		</cmd>
+
+		<evt name="ev_compensation" id="15">
+			<comment
+				title="Actual EV compensation value."
+				desc="Notify of actual EV compensation"
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured and by [set_ev_compensation](#135-14)"/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:ev_compensation">
+				Actual EV compensation value.
+			</arg>
+		</evt>
+
+		<cmd name="set_antiflicker_mode" id="16">
+			<comment
+				title="Sets anti-flicker mode."
+				desc="Change the anti-flicker mode."
+				support="0914;0919"
+				result="[antiflicker_mode](#143-17) event with the new anti-flicker mode. If the requested anti-flicker
+				mode is not supported, the [antiflicker_mode](#143-17) event is send with the actual anti-flicker mode
+				unchanged."/>
+			<expectations>
+				<immediate>
+					#143-17(mode: this.mode)
+				</immediate>
+			</expectations>
+			<arg name="mode" type="enum:antiflicker_mode">
+				Requested anti-flicker mode.
+			</arg>
+		</cmd>
+
+		<evt name="antiflicker_mode" id="17">
+			<comment
+				title="Actual anti-flicker mode."
+				desc="Notify of actual anti-flicker mode"
+				support="0914;0919"
+				triggered="during the connection and by [set_antiflicker_mode](#143-16)"/>
+			<arg name="mode" type="enum:antiflicker_mode">
+				Anti-flicker mode as set by [set_antiflicker_mode](#143-16).
+			</arg>
+			<arg name="value" type="enum:antiflicker_mode">
+				Actual anti-flicker value selected by the drone.
+				When `mode` is `auto`, indicate the actual anti-flicker value selected by the drone. (50hz or 60hz)
+				In all other modes, this is the same that `mode`
+			</arg>
+		</evt>
+
+		<cmd name="set_style" id="18">
+			<comment
+				title="Set active style."
+				desc="Change the active style."
+				support="0914;0919"
+				result="[style](#143-20) event with the new active style. If the requested style is not supported,
+				the [style](#143-20) event us send with the actual style unchanged."/>
+			<expectations>
+				<immediate>
+					#143-20(cam_id: this.cam_id, style: this.style)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="style" type="enum:style">
+				Style to activate.
+			</arg>
+		</cmd>
+
+		<cmd name="set_style_params" id="19">
+			<comment
+				title="Change style parameters."
+				desc="Change style saturation, contrast and sharpness of the current active style."
+				support="0914;0919"
+				result="[style](#143-20) event with the new style parameters."/>
+			<expectations>
+				<immediate>
+					#143-20(cam_id: this.cam_id, saturation: this.saturation, contrast: this.contrast, sharpness: this.sharpness)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="saturation" type="i8">
+				Requested saturation value for this style.
+			</arg>
+			<arg name="contrast" type="i8">
+				Requested contrast value for this style.
+			</arg>
+			<arg name="sharpness" type="i8">
+				Requested sharpness value for this style.
+			</arg>
+		</cmd>
+
+		<evt name="style" id="20">
+			<comment
+				title="Tells current style and its parameters"
+				desc="Notify current style and its saturation, contrast and sharpness values."
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured, when the style is changed by [set_style](#143-18) and when
+				current style parameters are changed by [set_style_params](#143-19)"/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="style" type="enum:style">
+				Active style.
+			</arg>
+			<arg name="saturation" type="i8">
+				Actual saturation value for this style.
+			</arg>
+			<arg name="saturation_min" type="i8">
+				Minimum supported value for style saturation.
+			</arg>
+			<arg name="saturation_max" type="i8">
+				Maximum supported value for style saturation.
+			</arg>
+			<arg name="contrast" type="i8">
+				Actual contrast value for this style.
+			</arg>
+			<arg name="contrast_min" type="i8">
+				Minimum supported value for style contrast.
+			</arg>
+			<arg name="contrast_max" type="i8">
+				Maximum supported value for style contrast.
+			</arg>
+			<arg name="sharpness" type="i8">
+				Actual sharpness value for this style.
+			</arg>
+			<arg name="sharpness_min" type="i8">
+				Minimum supported value for style sharpness.
+			</arg>
+			<arg name="sharpness_max" type="i8">
+				Maximum supported value for style sharpness.
+			</arg>
+		</evt>
+
+		<cmd name="set_zoom_target" id="21" buffer="NON_ACK">
+			<comment
+				title="Set the zoom target"
+				comment="Set position or speed target of the zoom."
+				support="0914;0919"
+				result="set the target."/>
+			<arg name="cam_id" type="u8">
+				id of the camera.
+			</arg>
+			<arg name="control_mode" type="enum:zoom_control_mode">
+				Mode of changing the zoom.
+				This parameter will characterize following parameters units.
+			</arg>
+			<arg name="target" type="float">
+				Zoom target.
+				Units depend on the `control_mode` value:
+				- `level`: value is in zoom level
+				- `velocity`, value is in signed ratio (from -1 to 1) of the [MaxZoomSpeed](#143-24) `current` parameter.
+							Negative values will produce a zoom out, positive values produce a zoom in.
+			</arg>
+		</cmd>
+
+		<cmd name="reset_zoom" id="48">
+			<comment
+				title="Reset the zoom level"
+				comment="Reset the zoom to its default level."
+				support="0914;0919"
+				result="Zoom level is reset."/>
+			<arg name="cam_id" type="u8">
+				id of the camera.
+			</arg>
+		</cmd>
+
+		<evt name="zoom_level" id="22" buffer="NON_ACK">
+			<comment
+				title="Zoom level"
+				desc="Current camera zoom level."
+				support="0914;0919"
+				triggered="regularly."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="level" type="float">
+				Actual zoom level. Ignored if `available` is `not_available`.
+			</arg>
+		</evt>
+
+		<evt name="zoom_info" id="23">
+			<comment
+				title="Zoom information"
+				desc="Zoom information.
+				This event is never sent if the device doesn't have a zoom."
+				support="0914;0919"
+				triggered="during the connection and when zoom availability or bounds change."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="available" type="enum:availability">
+				Tells if zoom is available in the current configuration.
+			</arg>
+			<arg name="high_quality_maximum_level" type="float">
+				Maximum zoom level without degrading image quality. Ignored if `available` is `not_available`.
+			</arg>
+			<arg name="maximum_level" type="float">
+				Maximum zoom level with image quality degradation. Ignored if `available` is `not_available`.
+				Same value than `high_quality_maximum_level` if there is no digital zoom with quality degradation.
+			</arg>
+		</evt>
+
+		<evt name="max_zoom_speed" id="24">
+			<comment
+				title="Max zoom speed."
+				desc="Max zoom speed setting. This setting contains the range and the current value.
+				All values are expressed as the tangent of the angle in degrees per seconds."
+				support="0914;0919"
+				triggered="during connection, when range changes and when the current value is set by
+				[SetMaxZoomSpeed](#143-24)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="min" type="float">
+				Minimal bound of the max zoom speed range.
+				Expressed as a tan(deg) / sec.
+			</arg>
+			<arg name="max" type="float">
+				Maximal bound of the max zoom speed range
+				Expressed as a tan(deg) / sec.
+			</arg>
+			<arg name="current" type="float">
+				Current max zoom speed.
+				Expressed as a tan(deg) / sec.
+			</arg>
+		</evt>
+
+		<cmd name="set_max_zoom_speed" id="25">
+			<comment
+				title="Set the max zoom speed"
+				desc="Set the max zoom speed setting.\n
+				You can get bounds using [MaxZoomSpeed](#143-25)."
+				support="0914;0919"
+				result="The max zoom speed is set.\n
+				Then, event [MaxZoomSpeed](#143-24) is triggered with the current max value."/>
+			<expectations>
+				<immediate>
+					#143-24(cam_id: this.cam_id, current: this.max)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="max" type="float">
+				Desired current max zoom speed. Should lay between the bounds given by [MaxZoomSpeed](#143-25).
+				Expressed as a tan(deg) / sec.
+			</arg>
+		</cmd>
+
+		<evt name="zoom_velocity_quality_degradation" id="26">
+			<comment
+				title="Whether zoom velocity can degrade image quality."
+				desc="Whether zoom change by indicating a velocity is allowed to
+				go on a zoom level that degrades video quality.
+				If not allowed, zoom level will stop at the level given by the
+				`high_quality_maximum_level` of the [Zoom](143-20) event."
+				support="0914;0919"
+				triggered="during connection, and by [SetZoomVelocityQualityDegradation](#143-27)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="allowed" type="u8">
+				1 if quality degradation is allowed, 0 otherwise.
+			</arg>
+		</evt>
+
+		<cmd name="set_zoom_velocity_quality_degradation" id="27">
+			<comment
+				title="Set whether zoom velocity can degrade image quality."
+				desc="Set the max zoom velocity."
+				support="0914;0919"
+				result="Value is set.\n
+				Then, event [ZoomVelocityQualityDegradation](#143-26) is triggered."/>
+			<expectations>
+				<immediate>
+					#143-26(cam_id: this.cam_id, allowed: this.allow)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="allow" type="u8">
+				1 to allow quality degradation, 0 otherwise.
+			</arg>
+		</cmd>
+
+		<cmd name="set_hdr_setting" id="28">
+			<comment
+				title="Set HDR setting."
+				desc="Change HDR setting. if HDR setting is `active`, HDR will be used when supported in active
+				configuration."
+				support="0914;0919"
+				result="[hdr_setting](#143-29) event is sent back with the new HDR setting."/>
+			<expectations>
+				<immediate>
+					#143-29(cam_id: this.cam_id, value: this.value)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:state">
+				Requested HDR setting value.
+			</arg>
+		</cmd>
+
+		<evt name="hdr_setting" id="29">
+			<comment
+				title="HDR setting."
+				desc="Notify of camera HDR setting."
+				support="0914;0919"
+				triggered="during the connection and when [camera_states](#143-49) occured, if the camera supports HDR, and by [set_hdr_state](#143-28)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:state">
+				Actual HDR setting value.
+			</arg>
+		</evt>
+
+		<evt name="hdr" id="30">
+			<comment
+				title="HDR state."
+				desc="Tells if HDR is available and if it's currently active."
+				support="0914;0919"
+				triggered="during the connection and when [camera_states](#143-49) occured, if the camera supports HDR, and when it changes."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="available" type="enum:availability">
+			 	Tells if HDR is available in current configuration.
+			</arg>
+			<arg name="state" type="enum:state">
+				Actual HDR state.
+			</arg>
+		</evt>
+
+		<cmd name="set_camera_mode" id="31">
+			<comment
+				title="Set the camera mode (Recording or Photo)."
+				desc="Change camera mode."
+				support="0914;0919"
+				result="[camera_mode](#143-32) event with the new camera mode. If the requested camera mode is not
+				supported, the [camera_mode](#143-32) event is sent when the camera mode unchanged."/>
+			<expectations>
+				<immediate>
+					#143-32(cam_id: this.cam_id, mode: this.value)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:camera_mode">
+				Requested camera mode.
+			</arg>
+		</cmd>
+
+		<evt name="camera_mode" id="32">
+			<comment
+				title="Actual camera mode."
+				desc="Notify of camera mode"
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured and by [set_camera_mode](#143-31)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:camera_mode">
+				Camera mode.
+			</arg>
+		</evt>
+
+		<cmd name="set_recording_mode" id="33">
+			<comment
+				title="Set the camera to recording mode and parameters."
+				desc="Change recording mode and parameters to be used when the camera is in mode recording. Note that
+				if the camera is in photo modes, actual camera mode is not changed, new recording mode and
+				parameters are saved and are apply when the camera mode is changed to `recording`."
+				support="0914;0919"
+				result="[recording_mode](#143-34) event with the new camera recording mode. If the requested camera
+				recording mode is not supported, the [recording_mode](#143-34) event is sent when the camera recording
+				mode unchanged."/>
+			<expectations>
+				<immediate>
+					#143-34(cam_id: this.cam_id, mode: this.mode, resolution: this.resolution, framerate: this.framerate)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:recording_mode">
+				Requested camera recording mode.
+			</arg>
+			<arg name="resolution" type="enum:resolution">
+				Requested recording resolution.
+			</arg>
+			<arg name="framerate" type="enum:framerate">
+				Requested recording framerate.
+			</arg>
+			<arg name="hyperlapse" type="enum:hyperlapse_value">
+				Requested hyperlapse value when the recording mode is hyperlapse. Ignored in other modes
+			</arg>
+		</cmd>
+
+		<evt name="recording_mode" id="34">
+			<comment
+				title="Actual camera recording mode."
+				desc="Notify of camera recording mode"
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured and by [set_recording_mode](#143-33)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:recording_mode">
+				Camera camera recording mode.
+			</arg>
+			<arg name="resolution" type="enum:resolution">
+				Recording resolution.
+			</arg>
+			<arg name="framerate" type="enum:framerate">
+				Recording framerate.
+			</arg>
+			<arg name="hyperlapse" type="enum:hyperlapse_value">
+				Hyperlapse value when the recording mode is hyperlapse. Invalid in other modes.
+			</arg>
+			<arg name="bitrate" type="u32">
+				Recording bitrate for current configuration (bits/s). Zero if unavailable.
+			</arg>
+		</evt>
+
+		<cmd name="set_photo_mode" id="35">
+			<comment
+				title="Set the camera to photo mode and parameters."
+				desc="Change photo mode and parameters to be used when the camera is in mode photo. Note that
+				if the camera is in recording modes, actual camera mode is not changed, new photo mode and
+				parameters are saved and are apply when the camera mode is changed to `photo`."
+				support="0914;0919"
+				result="[photo_mode](#143-36) event with the new camera photo mode. If the requested camera
+				photo mode is not supported, the [photo_mode](#143-36) event is sent when the camera photo
+				mode unchanged."/>
+			<expectations>
+				<immediate>
+					#143-36(cam_id: this.cam_id, mode: this.mode, format: this.format, file_format: this.file_format)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:photo_mode">
+				Requested camera photo mode.
+			</arg>
+			<arg name="format" type="enum:photo_format">
+				Requested photo format.
+			</arg>
+			<arg name="file_format" type="enum:photo_file_format">
+				Requested photo file format.
+			</arg>
+			<arg name="burst" type="enum:burst_value">
+				Requested burst value when the photo mode is burst. Ignored in other modes.
+			</arg>
+			<arg name="bracketing" type="enum:bracketing_preset">
+				Requested bracketing value when the photo mode is bracketing. Ignored in other modes.
+			</arg>
+			<arg name="capture_interval" type="float">
+				Requested time-lapse interval value (in seconds) when the photo mode is time_lapse.
+				Requested GPS-lapse interval value (in meters) when the photo mode is gps_lapse.
+				Ignored in other modes.
+			</arg>
+		</cmd>
+
+		<evt name="photo_mode" id="36">
+			<comment
+				title="Actual camera photo mode."
+				desc="Notify of camera photo mode"
+				support="0914;0919"
+				triggered="during the connection, when [camera_states](#143-49) occured and by [set_photo_mode](#143-35)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="mode" type="enum:photo_mode">
+				Camera photo mode.
+			</arg>
+			<arg name="format" type="enum:photo_format">
+				 Actual format.
+			</arg>
+			<arg name="file_format" type="enum:photo_file_format">
+				Actual photo file format.
+			</arg>
+			<arg name="burst" type="enum:burst_value">
+				Actual burst value when the photo mode is burst. Invalid in other modes.
+			</arg>
+			<arg name="bracketing" type="enum:bracketing_preset">
+				Actual bracketing value when the photo mode is bracketing. Invalid in other modes.
+			</arg>
+			<arg name="capture_interval" type="float">
+				Actual time-lapse interval value (in seconds) when the photo mode is time_lapse.
+				Actual GPS-lapse interval value (in meters) when the photo mode is gps_lapse.
+				Ignored in other modes.
+			</arg>
+		</evt>
+
+		<cmd name="set_streaming_mode" id="37">
+			<comment
+				title="Set the streaming mode."
+				desc="Change streaming mode setting."
+				support="0914;0919"
+				result="Send [streaming_mode](#143-38) event with the new streaming mode. If the requested mode is
+				not supported, the [streaming_mode](#143-38) event is sent when the streaming mode unchanged."/>
+			<expectations>
+				<immediate>
+					#143-38(cam_id: this.cam_id, value:this.value)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:streaming_mode">
+				New streaming mode.
+			</arg>
+		</cmd>
+
+		<evt name="streaming_mode" id="38">
+			<comment
+				title="Streaming mode."
+				desc="Notify of actual streaming mode setting."
+				support="0914;0919"
+				triggered="during the connection and by [set_streaming_mode](#143-37)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="value" type="enum:streaming_mode">
+				Actual streaming mode setting.
+			</arg>
+		</evt>
+
+		<cmd name="take_photo" id="39">
+			<comment
+				title="Take a photo."
+				desc="Take a photo. Can be sent when `photo_state` is `available`."
+				support="0914;0919"
+				result="[photo_state](#143-41) will change to `active`.
+				In case of an error, it will change to `inactive`.
+				When the drone has finished taking photos, it will change back to `inactive`.
+				If `photo_mode` is `time_lapse or `gps_lapse`, it will stay at `active` as long as
+				no error occurs and [stop_photo](#143-50) is not sent.
+				While `photo_state` is `active`, multiple [photo_progress](#143-40) will be received
+				to notify an error or a progress."/>
+			<expectations>
+				<immediate>
+					#143-41(cam_id: this.cam_id, state: active)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+
+		<cmd name="stop_photo" id="50">
+			<comment
+				title="Stop taking photos."
+				desc="Stops an ongoing photos capture.
+				Only for `time_lapse` and `gps_lapse` `photo_mode`.
+				Only  when `photo_state` is `available` and `active`."
+				support="0914"
+				result="[photo_progress](#143-40) with progress of the last photo, then [photo_state](#143-41) will change
+				to `inactive`."/>
+			<expectations>
+				<immediate>
+					#143-40(cam_id: this.cam_id)
+					#143-41(cam_id: this.cam_id, state: inactive)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+		<evt name="photo_progress" id="40" content="NOTIFICATION">
+			<comment
+				title="Take photo progress callback."
+				desc="Sent as progress and result of [take_photo](#143-39) command. This event is not sent during the
+				connection."
+				support="0914;0919"
+				triggered="while taking a picture."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="result" type="enum:photo_result">
+				Progress or result value:
+				- `taking_photo` indicate that the camera starts taking photo (or multiple photos when mode is `burst`
+					or `bracketing`).
+				- `photo_taken` indicate that one photo has been taken and is about be saved to disk. In `bracketing`
+				mode, this event is
+					sent when the last photo of the bracketing sequence has been taken. In `burst` mode this event is
+					sent after each photo but maximum every 100ms.
+				- `photo_saved` indicate the media containing the photo has been saved to disk. In `burst` or
+					`bracketing` mode, indicate that all photos of the burst or bracketing sequence have been saved
+					to disk.
+				Other results are errors.
+			</arg>
+			<arg name="photo_count" type="u8">
+				Only valid when result is `photo_taken`, indicate the number of photo taken in the sequence.
+			</arg>
+			<arg name="media_id" type="string">
+				Only valid when result is `photo_saved`, indicate the media id containing taken photo(s).
+			</arg>
+		</evt>
+
+		<evt name="photo_state" id="41">
+			<comment
+				title="State of photo camera."
+				desc="Current photo camera state. Indicates if the camera is ready to take a photo."
+				support="0914;0919"
+				triggered="during connection, when [camera_states](#143-49) occured and when state changes."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="available" type="enum:availability">
+				Tell if photo feature is available in current mode.
+			</arg>
+			<arg name="state" type="enum:state">
+				Tell if photo feature is currently active.
+			</arg>
+		</evt>
+
+		<cmd name="start_recording" id="42">
+			<comment
+				title="Start video recording."
+				support="0914;0919"
+				result="[recording_progress](#143-44) with the progress of the recording.
+					[recording_state](#143-45) will change to `active` while the camera is recording"/>
+			<expectations>
+				<immediate>
+					#143-44(cam_id: this.cam_id)
+					#143-45(cam_id: this.cam_id, state: active)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+
+		<cmd name="stop_recording" id="43">
+			<comment
+				title="Stop video recording."
+				support="0914;0919"
+				result="[recording_progress](#143-44) with the progress of the recording."/>
+			<expectations>
+				<immediate>
+					#143-44(cam_id: this.cam_id, result: stopped)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+
+		<evt name="recording_progress" id="44" content="NOTIFICATION">
+			<comment
+				title="Recording progress callback."
+				desc="Sent when recording state change. This event is not sent during the connection."
+				support="0914;0919"
+				triggered="during connection and while recording."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="result" type="enum:recording_result">
+				Current recording result. Indicate if recording has started/stopped.
+			</arg>
+			<arg name="media_id" type="string">
+				Recorded media_id. Only valid when result is `stopped` or `stopped_no_storage_space`.
+			</arg>
+		</evt>
+
+		<evt name="recording_state" id="45">
+			<comment
+				title="State of recording."
+				desc="Current recording state. Indicates if the camera is currently recording."
+				support="0914;0919"
+				triggered="during connection, when [camera_states](#143-49) occured and when state changes."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="available" type="enum:availability">
+				Tell if recording feature is available in current mode.
+			</arg>
+			<arg name="state" type="enum:state">
+				Current recording state.
+			</arg>
+			<arg name="start_timestamp" type="u64">
+				If state is `active`, the timestamp if the start of the recording, in milliseconds since
+				00:00:00 UTC on 1 January 1970.
+			</arg>
+		</evt>
+
+		<cmd name="set_autorecord" id="46">
+			<comment
+				title="Enable or disable auto-record."
+				desc="When auto-record is enabled, if the drone is in recording mode, recording starts when taking-off
+				and stops after landing."
+				support="0914;0919"
+				result="Value is set then [autorecord](#143-47) is triggered with the new auto-record state."/>
+			<expectations>
+				<immediate>
+					#143-47(cam_id: this.cam_id, state: this.state)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="state" type="enum:state">
+				Requested auto-record state.
+			</arg>
+		</cmd>
+
+		<evt name="autorecord" id="47">
+			<comment
+				title="State of autorecord."
+				support="0914;0919"
+				triggered="during connection and by [set_autorecord](#143-46)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="state" type="enum:state">
+				Auto-record state.
+			</arg>
+		</evt>
+
+		<evt name="camera_states" id="49">
+			<comment
+				title="State of cameras."
+				desc="Current camera state. Indicates which cameras are currently active."
+				support="0914;0919"
+				triggered="during connection and when state changes."/>
+			<arg name="active_cameras" type="u32">
+				Bitfield showing which cameras are active.
+				A camera is active   when the bit corresponding to its cam_id is 1.
+				A camera is inactive when the bit corresponding to its cam_id is 0.
+			</arg>
+		</evt>
+		<evt name="next_photo_delay" id="51" buffer="NON_ACK">
+			<comment
+				title="Photo lapse update event."
+				desc="Remaining time or distance before next photo."
+				support="0914:1.5.0;0919:1.5.0"
+				triggered="each 500ms, when [take_photo](#143-39) is triggered and photo_mode is time_lapse or gps_lapse"/>
+			<arg name="mode" type="enum:photo_mode">
+				Selected mode: only `time_lapse` and `gps_lapse` are supported
+			</arg>
+			<arg name="remaining" type="float">
+				In time_lapse photo_mode: remaining time in seconds before next photo
+				In gps_lapse photo_mode: remaining distance in meters before next photo
+			</arg>
+		</evt>
+
+		<evt name="alignment_offsets" id="52">
+			<comment
+				title="Alignment Offsets"
+				comment="Camera alignment offsets."
+				support="0919:1.6.0"
+				triggered="at connection and by [set_alignment_offsets](#143-53)
+				or by [reset_alignment_offsets](#143-54)."/>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="min_bound_yaw" type="float">
+				Lower bound of the alignment offset that can be set on the yaw axis, in degrees
+			</arg>
+			<arg name="max_bound_yaw" type="float">
+				Upper bound of the alignment offset that can be set on the yaw axis, in degrees
+			</arg>
+			<arg name="current_yaw" type="float">
+				Current alignment offset applied to the yaw axis, in degrees
+			</arg>
+			<arg name="min_bound_pitch" type="float">
+				Lower bound of the alignment offset that can be set on the pitch axis, in degrees
+			</arg>
+			<arg name="max_bound_pitch" type="float">
+				Upper bound of the alignment offset that can be set on the pitch axis, in degrees
+			</arg>
+			<arg name="current_pitch" type="float">
+				Current alignment offset applied to the pitch axis, in degrees
+			</arg>
+			<arg name="min_bound_roll" type="float">
+				Lower bound of the alignment offset that can be set on the roll axis, in degrees
+			</arg>
+			<arg name="max_bound_roll" type="float">
+				Upper bound of the alignment offset that can be set on the roll axis, in degrees
+			</arg>
+			<arg name="current_roll" type="float">
+				Current alignment offset applied to the roll axis, in degrees
+			</arg>
+		</evt>
+		<cmd name="set_alignment_offsets" id="53">
+			<comment
+				title="Set alignment offsets."
+				comment="Set camera alignment offsets that should be applied to each axis."
+				support="0919:1.6.0"
+				result="Camera alignment is changed, and event [alignment_offsets](#143-52) is sent accordingly."/>
+			<expectations>
+				<immediate>
+					#143-52(cam_id: this.cam_id)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+			<arg name="yaw" type="float">
+				Alignment offset, in degrees, that should be applied to the yaw axis.
+				This value will be clamped between [alignment_offsets](#143-52) min_bound_yaw and max_bound_yaw
+			</arg>
+			<arg name="pitch" type="float">
+				Alignment offset, in degrees, that should be applied to the pitch axis.
+				This value will be clamped between [alignment_offsets](#143-52) min_bound_pitch and max_bound_pitch
+			</arg>
+			<arg name="roll" type="float">
+				Alignment offset, in degrees, that should be applied to the roll axis.
+				This value will be clamped between [alignment_offsets](#143-52) min_bound_roll and max_bound_roll
+			</arg>
+		</cmd>
+		<cmd name="reset_alignment_offsets" id="54">
+			<comment
+				title="Alignment reset factory."
+				comment="Reset factory of camera alignment."
+				support="0919:1.6.0"
+				result="Camera alignment is reset, and event [alignment_offsets](#143-52) is sent accordingly."/>
+			<expectations>
+				<immediate>
+					#143-52(cam_id: this.cam_id)
+				</immediate>
+			</expectations>
+			<arg name="cam_id" type="u8">
+				Id of the camera.
+			</arg>
+		</cmd>
+	</msgs>
+</feature>
+

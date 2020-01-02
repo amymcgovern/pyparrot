@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2014 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature id="141" name="mapper_mini">
+	Key mapper for minidrones
+	<enums>
+		<enum name="button_action">
+			The action (mapped on a button)
+			<value name="takeoff_land">
+				Take off or land
+			</value>
+			<value name="take_picture">
+				Take a picture
+			</value>
+			<value name="flip_left">
+				Flip left
+			</value>
+			<value name="flip_right">
+				Flip right
+			</value>
+			<value name="flip_front">
+				Flip front
+			</value>
+			<value name="flip_back">
+				Flip back
+			</value>
+			<value name="emergency">
+				Emergency motors shutdown
+			</value>
+			<value name="accessory_gun">
+				Launch USB accessory gun action (shoot)
+			</value>
+			<value name="thrown_takeoff">
+				Thrown take off
+			</value>
+			<value name="cw_90_swipe">
+				90 deg clockwise swipe
+			</value>
+			<value name="ccw_90_swipe">
+				90 deg counter clockwise swipe
+			</value>
+			<value name="cw_180_swipe">
+				180 deg clockwise swipe
+			</value>
+			<value name="ccw_180_swipe">
+				180 deg counter clockwise swipe
+			</value>
+			<value name="gear_up">
+				increase gear
+			</value>
+			<value name="gear_down">
+				decrease gear
+			</value>
+			<value name="plane_mode_half_barel_roll_right">
+				in plane mode make a 180 deg anticlockwise swipe on roll axis
+			</value>
+			<value name="plane_mode_half_barel_roll_left">
+				in plane mode make a 180 deg clockwise swipe on roll axis
+			</value>
+			<value name="plane_mode_backswap">
+				in plane mode make a 180 deg clockwise swipe on pitch axis
+			</value>
+			<value name="plane_mode_looping">
+				vertical circular loop in plane mode
+			</value>
+			<value name="plane_mode_toggle">
+				switch between plane mode and quad mode
+			</value>
+			<value name="accessory_claw">
+				Launch USB accessory claw action (open/close)
+			</value>
+			<value name="light_continuous">
+				switch continuous light (ON/OFF)
+			</value>
+			<value name="light_blink">
+				switch blink light (ON/OFF)
+			</value>
+			<value name="light_sinus">
+				switch sinus light (ON/OFF)
+			</value>
+			<value name="light_toggle">
+				toggle between light animations (OFF-continuous-blink-sinus-OFF)
+			</value>
+			<value name="piloting_mode_toggle">
+				toggle between easy and preferred piloting mode
+			</value>
+			<value name="video_record_toggle">
+				start or stop video
+			</value>
+			<!-- Todo : add more actions -->
+		</enum>
+		<enum name="axis_action">
+			The action (mapped on an axis)
+			<value name="roll">
+				roll
+			</value>
+			<value name="pitch">
+				pitch
+			</value>
+			<value name="yaw">
+				yaw
+			</value>
+			<value name="gaz">
+				gaz
+			</value>
+		</enum>
+		<enum name="mode">
+			The piloting mode of the product
+			<value name="quad">
+				Quadricopter mode
+			</value>
+			<value name="plane">
+				Plane mode
+			</value>
+		</enum>
+	</enums>
+	<msgs>
+		<cmd name="map_button_action" id="1">
+			<comment
+				title="Map a button action on one or more buttons"
+				desc="An action can only be mapped to one button set.\n
+				Each action can be mapped to different buttons for
+				different modes."
+				support="090b;0910"
+				result="The drone will send [button_mapping_item](#141-3) and
+				[axis_mapping_item](#141-4) according to the request."/>
+			<arg name="modes" type="bitfield:u8:mode">
+				The modes on which the mapping will be set
+			</arg>
+			<arg name="action" type="enum:button_action"/>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+				Set 0 (no button) to unmap an action
+			</arg>
+		</cmd>
+		<cmd name="map_axis_action" id="2">
+			<comment
+				title="Map an axis action to one axis and zero or more buttons"
+				desc="An action can only be mapped to one axis/button set.\n
+				Each action can be mapped to different axes/buttons for
+				different modes."
+				support="090b;0910"
+				result="The drone will send [button_mapping_item](#141-3) and
+				[axis_mapping_item](#141-4) according to the request."/>
+			<arg name="modes" type="bitfield:u8:mode">
+				The modes on which the mapping will be set
+			</arg>
+			<arg name="action" type="enum:axis_action"/>
+			<arg name="axis" type="i8">
+				The axis number on which the action will be mapped.
+				Set a negative value to unmap the action.
+			</arg>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+				Can be zero if no buttons are required.
+			</arg>
+		</cmd>
+		<evt name="button_mapping_item" id="3" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the button_actions mapping list"
+				desc="The resulting map describes all active button mappings of the
+				product.\n A mapping can affect one or mode modes, but each
+				action can only be mapped once per mode."
+				support="090b;0910"
+				triggered="by a [map_button_action](#141-1) or a
+				[map_axis_action](#141-2) command"/>
+			<arg name="uid" type="u16">
+				Unique ID of the mapping.
+			</arg>
+			<arg name="modes" type="bitfield:u8:mode">
+				The modes on which the mapping is set
+			</arg>
+			<arg name="action" type="enum:button_action"/>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<evt name="axis_mapping_item" id="4" type="MAP_ITEM:uid">
+			<comment
+				title="Item of the axis_actions mapping list"
+				desc="The resulting map describes all active axis mappings of the
+				product.\n A mapping can affect one or mode modes, but each
+				action can only be mapped once per mode."
+				support="090b;0910"
+				triggered="by a [map_button_action](#141-1) or a
+				[map_axis_action](#141-2) command"/>
+			<arg name="uid" type="u16">
+				Unique ID of the mapping.
+			</arg>
+			<arg name="modes" type="bitfield:u8:mode">
+				The modes on which the mapping is set
+			</arg>
+			<arg name="action" type="enum:axis_action"/>
+			<arg name="axis" type="i8">
+				The axis number on which the action is mapped.
+			</arg>
+			<arg name="buttons" type="u32">
+				Buttons combination mapped to the action (bitfield).
+			</arg>
+			<arg name="list_flags" type="bitfield:u8:list_flags"/>
+		</evt>
+		<cmd name="reset_mapping" id="5">
+			<comment
+				title="Reset mapping to default values"
+				desc="Resets the mappings for the given mode(s) to their default
+				value."
+				support="090b;0910"
+				result="The drone will send [button_mapping_item](#141-3) and
+				[axis_mapping_item](#141-4) according to the request."/>
+			<arg name="modes" type="bitfield:u8:mode">
+				The mode(s) to reset.
+			</arg>
+		</cmd>
+	</msgs>
+</feature>

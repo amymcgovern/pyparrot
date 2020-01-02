@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (C) 2018 Parrot SA
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+	* Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright
+	notice, this list of conditions and the following disclaimer in
+	the documentation and/or other materials provided with the
+	distribution.
+	* Neither the name of Parrot nor the names
+	of its contributors may be used to endorse or promote products
+	derived from this software without specific prior written
+	permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+	OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+	SUCH DAMAGE.
+-->
+<feature name="precise_home" id="151">
+	Precise home.
+
+	<enums>
+		<enum name="mode">
+			Precise home mode.
+
+			<value name="disabled">
+				Precise home is disabled.
+			</value>
+			<value name="standard">
+				Precise home is enabled, in standard mode.
+			</value>
+		</enum>
+
+		<enum name="state">
+			Precise home feature state.
+
+			<value name="unavailable">
+				It is currently impossible to activate precise home if the drone lands.
+			</value>
+			<value name="available">
+				Precise home will be activated if the drone lands.
+			</value>
+			<value name="active">
+				Precise home is currently active (drone is landing).
+			</value>
+		</enum>
+	</enums>
+
+	<msgs>
+		<evt name="capabilities" id="1">
+			<comment
+				title="Capabilities"
+				comment="Describles precise home capabilities."
+				support="0914:1.2.0"
+				triggered="At connection only."/>
+			<arg name="modes" type="bitfield:u8:mode">
+				Supported precise home modes.
+			</arg>
+		</evt>
+
+		<evt name="mode" id="2">
+			<comment
+				title="Current precise home mode"
+				comment="Notifies about precise home mode changes."
+				support="0914:1.2.0"
+				triggered="At connection; on changes by [set_mode](#151-3)."/>
+			<arg name="mode" type="enum:mode">
+				Current precise home mode
+			</arg>
+		</evt>
+
+		<cmd name="set_mode" id="3">
+			<comment
+				title="Sets precise home mode"
+				desc="Configures precise home mode."
+				support="0914:1.2.0"
+				result="[mode](#151-2) event with the new mode."/>
+			<expectations>
+				<immediate>
+					#151-2(mode: this.mode)
+				</immediate>
+			</expectations>
+			<arg name="mode" type="enum:mode">
+				Requested precise home mode.
+			</arg>
+		</cmd>
+
+		<evt name="state" id="4">
+			<comment
+				title="Current precise home state"
+				comment="Informs about precise home state changes."
+				support="0914:1.2.0"
+				triggered="At connection; on changes."/>
+			<arg name="state" type="enum:state">
+				Current precise home state.
+			</arg>
+		</evt>
+	</msgs>
+</feature>
