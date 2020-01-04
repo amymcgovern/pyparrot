@@ -1,28 +1,16 @@
-"""
-Print messages in color
-"""
+"""Print messages in color"""
+
 
 def color_print(print_str, type="NONE"):
-    # handle null cases
-    if (print_str is None):
+    # Null cases
+    if not print_str:
         print_str = ""
 
-    if (type is "ERROR"):
-        # red
-        print('\033[38;5;196m %s \033[0m' % print_str)
-
-    elif (type is "WARN"):
-        # orange
-        print('\033[38;5;202m %s \033[0m' % print_str)
-
-    elif (type is "SUCCESS"):
-        # green
-        print('\033[38;5;22m %s \033[0m' % print_str)
-
-    elif (type is "INFO"):
-        # blue
-        print('\033[38;5;33m %s \033[0m' % print_str)
-
-    elif (type is "NONE" or type is "DEFAULT"):
-        # black
-        print('\033[0m %s \033[0m' % print_str)
+    colours = {
+        "ERROR": "38;5;196m",
+        "WARN": "38;5;202m",
+        "SUCCESS": "38;5;22m",
+        "INFO": "38;5;33m",
+    }
+    colour = colours.get(type, "0m")
+    print(f"\033[{colour} {print_str} \033[0m")

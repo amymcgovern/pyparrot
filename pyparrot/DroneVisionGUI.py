@@ -14,18 +14,21 @@ Author: Amy McGovern, dramymcgovern@gmail.com
 Some of the LIBVLC code comes from
 Author: Valentin Benke, valentin.benke@aon.at
 """
-import cv2
+import inspect
+import sys
+import tempfile
 import time
 from functools import partial
 from os.path import join
-import inspect
-import tempfile
-import sys
+
+import cv2
 import pyparrot.utils.vlc as vlc
-from PyQt5.QtCore import Qt, QTimer, QThread
-from PyQt5.QtGui import QPalette, QColor, QPixmap
-from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
-    QVBoxLayout, QAction, QFileDialog, QApplication, QLabel
+from pyparrot.Model import Model
+from PyQt5.QtCore import Qt, QThread, QTimer
+from PyQt5.QtGui import QColor, QPalette, QPixmap
+from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QFrame,
+                             QHBoxLayout, QLabel, QMainWindow, QPushButton,
+                             QSlider, QVBoxLayout, QWidget)
 
 
 class Player(QMainWindow):
@@ -216,7 +219,7 @@ class UserCodeToRun(QThread):
 
 
 class DroneVisionGUI:
-    def __init__(self, drone_object, is_bebop, user_code_to_run, user_args, buffer_size=200, network_caching=200, fps=20, user_draw_window_fn=None):
+    def __init__(self, drone_object, model, user_code_to_run, user_args, buffer_size=200, network_caching=200, fps=20, user_draw_window_fn=None):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -235,7 +238,7 @@ class DroneVisionGUI:
         self.vision_interval = int(1000 * 1.0 / self.fps)
         self.buffer_size = buffer_size
         self.drone_object = drone_object
-        self.is_bebop = is_bebop
+        self.model = model
 
         # initialize a buffer (will contain the last buffer_size vision objects)
         self.buffer = [None] * buffer_size
@@ -304,7 +307,7 @@ class DroneVisionGUI:
         """
 
         # start the stream on the bebop
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             self.drone_object.start_video_stream()
 
         # we have bypassed the old opencv VideoCapture method because it was unreliable for rtsp
@@ -322,16 +325,18 @@ class DroneVisionGUI:
         print(self.imagePath)
         print(self.utilPath)
 
-        if self.is_bebop:
+        if self.model is Model.BEBOP:
             # generate the streaming-address for the Bebop
             self.utilPath = join(shortPath, "utils")
-            self.stream_adress = "%s/bebop.sdp" % self.utilPath
-        else:
+            self.stream_addr = "%s/bebop.sdp" % self.utilPath
+        elif self.model is Model.MAMBO:
             # generate the streaming-address for the Mambo
-            self.stream_adress = "rtsp://192.168.99.1/media/stream2"
+            self.stream_addr = "rtsp://192.168.99.1/media/stream2"
+        elif self.model is Model.ANAFI:
+            self.stream_addr = "rtsp://192.168.42.1/live"
 
         # initialise the vlc-player with the network-caching
-        self.player = vlc.MediaPlayer(self.stream_adress, ":network-caching=" + str(self.network_caching))
+        self.player = vlc.MediaPlayer(self.stream_addr, ":network-caching=" + str(self.network_caching))
 
         # start the buffering
         success = self._start_video_buffering()
@@ -449,7 +454,7 @@ class DroneVisionGUI:
         self.land_button_clicked = True
 
         # land the drone
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             if (not self.drone_object.is_landed()):
                 self.drone_object.emergency_land()
         else:
@@ -468,6 +473,5 @@ class DroneVisionGUI:
         self.player.stop()
 
         # send the command to kill the vision stream (bebop only)
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             self.drone_object.stop_video_stream()
-
