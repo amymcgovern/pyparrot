@@ -21,11 +21,12 @@ import os
 from os.path import join
 import inspect
 from pyparrot.utils.NonBlockingStreamReader import NonBlockingStreamReader
+from pyparrot.Model import Model
 import shutil
 import signal
 
 class DroneVision:
-    def __init__(self, drone_object, is_bebop, buffer_size=200, cleanup_old_images=True):
+    def __init__(self, drone_object, model, buffer_size=200, cleanup_old_images=True):
         """
         Setup your vision object and initialize your buffers.  You won't start seeing pictures
         until you call open_video.
@@ -38,7 +39,7 @@ class DroneVision:
         self.fps = 30
         self.buffer_size = buffer_size
         self.drone_object = drone_object
-        self.is_bebop = is_bebop
+        self.model = model
         self.cleanup_old_images = cleanup_old_images
 
         # initialize a buffer (will contain the last buffer_size vision objects)
@@ -86,7 +87,7 @@ class DroneVision:
         """
 
         # start the stream on the bebop
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             self.drone_object.start_video_stream()
 
         # we have bypassed the old opencv VideoCapture method because it was unreliable for rtsp
@@ -111,14 +112,18 @@ class DroneVision:
         # the first step is to open the rtsp stream through ffmpeg first
         # this step creates a directory full of images, one per frame
         print("Opening ffmpeg")
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             cmdStr = "ffmpeg -protocol_whitelist \"file,rtp,udp\" -i %s/bebop.sdp -r 30 image_" % self.utilPath + "%03d.png"
             print(cmdStr)
             self.ffmpeg_process = \
                 subprocess.Popen(cmdStr, shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        else:
+        elif self.model is Model.MAMBO:
             self.ffmpeg_process = \
                 subprocess.Popen("ffmpeg -i rtsp://192.168.99.1/media/stream2 -r 30 image_%03d.png",
+                               shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        elif self.model is Model.ANAFI:
+            self.ffmpeg_process = \
+                subprocess.Popen("ffmpeg -i rtsp://192.168.42.1/live -r 30 image_%03d.png",
                                shell=True, cwd=self.imagePath, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
         # immediately start the vision buffering (before we even know if it succeeded since waiting puts us behind)
@@ -290,6 +295,6 @@ class DroneVision:
 
 
         # send the command to kill the vision stream (bebop only)
-        if (self.is_bebop):
+        if self.model is Model.BEBOP:
             self.drone_object.stop_video_stream()
 
