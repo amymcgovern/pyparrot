@@ -5,6 +5,7 @@ Author: Amy McGovern
 """
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVision import DroneVision
+from pyparrot.Model import Model
 import threading
 import cv2
 import time
@@ -34,7 +35,7 @@ success = bebop.connect(5)
 
 if (success):
     # start up the video
-    bebopVision = DroneVision(bebop, is_bebop=True)
+    bebopVision = DroneVision(bebop, Model.BEBOP)
 
     userVision = UserVision(bebopVision)
     bebopVision.set_user_callback_function(userVision.save_pictures, user_callback_args=None)
