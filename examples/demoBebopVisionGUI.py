@@ -6,6 +6,7 @@ Author: Amy McGovern
 """
 from pyparrot.Bebop import Bebop
 from pyparrot.DroneVisionGUI import DroneVisionGUI
+from pyparrot.Model import Model
 import threading
 import cv2
 import time
@@ -89,7 +90,7 @@ if __name__ == "__main__":
 
     if (success):
         # start up the video
-        bebopVision = DroneVisionGUI(bebop, is_bebop=True, user_code_to_run=demo_user_code_after_vision_opened,
+        bebopVision = DroneVisionGUI(bebop, Model.BEBOP, user_code_to_run=demo_user_code_after_vision_opened,
                                      user_args=(bebop, ), user_draw_window_fn=draw_current_photo)
 
         userVision = UserVision(bebopVision)

@@ -7,6 +7,7 @@ Author: Amy McGovern
 """
 from pyparrot.Minidrone import Mambo
 from pyparrot.DroneVisionGUI import DroneVisionGUI
+from pyparrot.Model import Model
 import cv2
 import time
 
@@ -100,7 +101,7 @@ if __name__ == "__main__":
         cv2.namedWindow("ExampleWindow")
 
         print("Preparing to open vision")
-        mamboVision = DroneVisionGUI(mambo, is_bebop=False, buffer_size=200,
+        mamboVision = DroneVisionGUI(mambo, Model.MAMBO, buffer_size=200,
                                      user_code_to_run=demo_mambo_user_vision_function, user_args=(mambo, ))
 
         mamboVision.set_user_callback_function(draw_second_pictures, user_callback_args=(mamboVision, ))
