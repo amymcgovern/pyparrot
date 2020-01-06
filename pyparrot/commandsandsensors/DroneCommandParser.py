@@ -1,25 +1,26 @@
-import untangle
 import os
+import xml.etree.ElementTree as et
 from os.path import join
+from typing import Tuple
+
 
 class DroneCommandParser:
     def __init__(self):
-        # store the commandsandsensors as they are called so you don't have to parse each time
-        self.command_tuple_cache = dict()
-
         # parse the command files from XML (so we don't have to store ids and can use names
         # for readability and portability!)
+        self.xmls = {}
 
-        # grab module path per http://www.karoltomala.com/blog/?p=622
-        path = os.path.abspath(__file__)
-        dir_path = os.path.dirname(path)
+    def _load_xml(self, project: str) -> et.ElementTree:
+        if project not in self.xmls:
+            # grab module path per http://www.karoltomala.com/blog/?p=622
+            path = os.path.abspath(__file__)
+            dir_path = os.path.dirname(path)
+            self.xmls[project] = et.parse(join(dir_path, f"{project}.xml"))
+        return self.xmls[project]
 
-        self.common_commands = untangle.parse(join(dir_path, 'common.xml'))
-        self.minidrone_commands = untangle.parse(join(dir_path, 'minidrone.xml'))
-        self.ardrone3_commands = untangle.parse(join(dir_path, 'ardrone3.xml'))
-
-
-    def get_command_tuple(self, project, myclass, cmd):
+    def get_command_tuple(
+        self, project: str, myclass: str, cmd: str
+    ) -> Tuple[int, int, int]:
         """
         Parses the command XML for the specified class name and command name
 
@@ -27,39 +28,17 @@ class DroneCommandParser:
         :param cmd: command to execute (from XML file)
         :return:
         """
-        # only search if it isn't already in the cache
-        if (myclass, cmd) in self.command_tuple_cache:
-            return self.command_tuple_cache[(myclass, cmd)]
 
         # pick the right command file to draw from
-        if (project == "ardrone3"):
-            my_file = self.ardrone3_commands
-        elif (project == "minidrone"):
-            my_file = self.minidrone_commands
-        else:
-            my_file = self.common_commands
+        xml = self._load_xml(project)
+        project_id = xml.getroot().get("id")
+        class_id = xml.find(f"myclass[@name='{myclass}']").get("id")
+        cmd_id = xml.find(f"myclass[@name='{myclass}']/cmd[@name='{cmd}']").get("id")
+        return (int(project_id), int(class_id), int(cmd_id))
 
-        # run the search first in minidrone xml and then hit common if that failed
-        project_id = int(my_file.project['id'])
-
-        for child in my_file.project.myclass:
-            if child['name'] == myclass:
-                class_id = int(child['id'])
-                #print child['name']
-
-                for subchild in child.cmd:
-                    #print subchild
-                    if subchild['name'] == cmd:
-                        #print subchild['name']
-                        cmd_id = int(subchild['id'])
-
-                        # cache the result
-                        self.command_tuple_cache[(myclass, cmd)] = (project_id, class_id, cmd_id)
-                        return (project_id, class_id, cmd_id)
-
-
-
-    def get_command_tuple_with_enum(self, project, myclass, cmd, enum_name):
+    def get_command_tuple_with_enum(
+        self, project: str, myclass: str, cmd: str, enum_name: str
+    ) -> Tuple[Tuple[int, int, int], int]:
         """
         Parses the command XML for the specified class name and command name and checks for enum_name
 
@@ -67,43 +46,14 @@ class DroneCommandParser:
         :param cmd: command to execute (from XML file)
         :return:
         """
-        # only search if it isn't already in the cache
-        if (myclass, cmd, enum_name) in self.command_tuple_cache:
-            #print("using the cache")
-            #print(self.command_tuple_cache[(myclass, cmd, enum_name)])
-            return self.command_tuple_cache[(myclass, cmd, enum_name)]
 
         # pick the right command file to draw from
-        if (project == "ardrone3"):
-            my_file = self.ardrone3_commands
-        elif (project == "minidrone"):
-            my_file = self.minidrone_commands
-        else:
-            my_file = self.common_commands
-
-        # run the search first in minidrone xml and then hit common if that failed
-        project_id = int(my_file.project['id'])
-
-        for child in my_file.project.myclass:
-            if child['name'] == myclass:
-                class_id = int(child['id'])
-                #print child['name']
-
-                for subchild in child.cmd:
-                    #print subchild
-                    if subchild['name'] == cmd:
-                        #print subchild['name']
-                        cmd_id = int(subchild['id'])
-
-                        for arg_child in subchild.arg:
-                            if arg_child['type'] == "enum":
-                                for e_idx, echild in enumerate(arg_child.enum):
-                                    if echild['name'] == enum_name:
-                                        enum_id = e_idx
-
-                                        # cache the result
-                                        self.command_tuple_cache[(myclass, cmd, enum_name)] = ((project_id, class_id, cmd_id), enum_id)
-
-                                        #print  ((project_id, class_id, cmd_id), enum_id)
-                                        return ((project_id, class_id, cmd_id), enum_id)
-
+        xml = self._load_xml(project)
+        (project_id, class_id, cmd_id) = self.get_command_tuple(project, myclass, cmd)
+        arg_enum_node = xml.find(
+            f"myclass[@name='{myclass}']/cmd[@name='{cmd}']/arg[@type='enum']"
+        )
+        enum_id = list(arg_enum_node).index(
+            arg_enum_node.find(f"enum[@name='{enum_name}']")
+        )
+        return ((project_id, class_id, cmd_id), enum_id)
