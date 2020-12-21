@@ -181,7 +181,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'find_mambo=pyparrot.scripts.findMambo:main',
+            'find_minidrone=pyparrot.scripts.findMinidrone:main',
         ],
     },
 

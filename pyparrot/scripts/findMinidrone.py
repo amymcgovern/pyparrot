@@ -1,7 +1,7 @@
 """
-Find the BLE address for a mambo.  To run this,
+Find the BLE address for a drone (Mambo or Swing).  To run this,
 
-sudo python findMambo.py
+sudo python findMinidrone.py
 
 Note that the sudo is necessary for BLE permissions on linux.  It is only needed on
 this program and nothing else.

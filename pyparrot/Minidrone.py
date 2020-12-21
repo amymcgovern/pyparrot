@@ -309,7 +309,7 @@ class MamboGroundcam:
 class Minidrone:
     def __init__(self, address="", use_wifi=False):
         """
-        If you need BLE: Initialize with its BLE address - if you don't know the address, call findMambo
+        If you need BLE: Initialize with its BLE address - if you don't know the address, call findMinidrone
         and that will discover it for you.
         You can also connect to the wifi on the FPV camera.  Do not use this if the camera is not connected.  Also,
         ensure you have connected your machine to the wifi on the camera before attempting this or it will not work.

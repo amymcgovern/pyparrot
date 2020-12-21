@@ -32,7 +32,7 @@ To run this, from the bin directory for your python installation, type:
 
 This will identify all BLE devices within hearing of the Pi.  The Minidrone's specific address will be printed at the end.
 Save the address and use it in your connection code (discussed below).  If findMinidrone does not
-report "FOUND A MAMBO!" or "FOUND A SWING!", then be sure your minidrone is turned on when you run the findMambo code and that your Pi
+report "FOUND A MAMBO!" or "FOUND A SWING!", then be sure your minidrone is turned on when you run the findMinidrone code and that your Pi
 (or other linux box) has its BLE interface turned on.
 
 The output should look something like this.  I removed my own BLE addresses from my network for security but I am
@@ -40,7 +40,7 @@ showing the address of the mambo that I use for all the demo scripts.
 
 .. code-block:: console
 
-    ~/miniconda3/bin $ sudo ./find_mambo
+    ~/miniconda3/bin $ sudo ./find_minidrone
     Discovered device <address removed>
     Discovered device <address removed>
     Discovered device <address removed>
