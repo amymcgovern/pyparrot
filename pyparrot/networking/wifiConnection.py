@@ -315,7 +315,7 @@ class WifiConnection:
             tcp_sock.connect(("192.168.99.3", 44444))
         else:
             if (self.ip_address is None):
-                self.drone_ip = ipaddress.IPv4Address(self.connection_info.address).exploded
+                self.drone_ip = ipaddress.IPv4Address(self.connection_info.addresses[0]).exploded
                 tcp_sock.connect((self.drone_ip, self.connection_info.port))
             else:
                 self.drone_ip = ipaddress.IPv4Address(self.ip_address).exploded
